@@ -1,0 +1,172 @@
+/* -*-c++-*- $Id: IO_SoundState.cpp,v 1.1 2005/05/27 10:37:48 vr-anders Exp $ */
+/**
+ * OsgAL - OpenSceneGraph Audio Library
+ * Copyright (C) 2004 VRlab, Umeå University
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+ */
+
+#include <osgAL/SoundState>
+#include <osgAL/SoundManager>
+
+#include <osgDB/Registry>
+#include <osgDB/Input>
+#include <osgDB/Output>
+#include <osgDB/FileUtils>
+
+using namespace osgAL;
+using namespace osg;
+using namespace osgDB;
+
+// forward declare functions to use later.
+bool SoundState_readLocalData(Object& obj, Input& fr);
+bool SoundState_writeLocalData(const Object& obj, Output& fw);
+
+// register the read and write functions with the osgDB::Registry.
+RegisterDotOsgWrapperProxy SoundStateProxy
+(
+ new osgAL::SoundState,
+ "osgAL::SoundState",
+ "Object osgAL::SoundState",
+ &SoundState_readLocalData,
+ &SoundState_writeLocalData
+ );
+
+bool SoundState_readLocalData(osg::Object &obj, osgDB::Input &fr)
+{
+
+	SoundState &ss = static_cast<SoundState&>(obj);
+
+	if (fr.matchSequence("name %s")) {
+		if(fr[1].getStr() == NULL)
+			std::cerr << "osgAL::SoundState_readLocalData: WARNING!!! A SoundState needs a non-empty name! " << std::endl;
+		else
+			ss.setName(std::string(fr[1].getStr()));
+		fr += 2;
+	} else if (fr.matchSequence("fileName %s")) {
+		osg::ref_ptr<openalpp::Sample> s = SoundManager::instance()->getSample(fr[1].getStr());
+		if(s.valid()) {
+			ss.allocateSource();
+			ss.setSample(s.get());
+		}
+		fr += 2;
+	} else if (fr[0].matchWord("playing")) {
+		if (fr[1].matchWord("TRUE"))
+			ss.setPlay(true);
+		else if (fr[1].matchWord("FALSE"))
+			ss.setPlay(false);
+		fr += 2;
+	} else if (fr.matchSequence("gain %f")) {
+		float f;
+		fr[1].getFloat(f);
+		ss.setGain(f);
+		fr += 2;
+	} else if (fr[0].matchWord("looping")) {
+		if (fr[1].matchWord("TRUE"))
+			ss.setLooping(true);
+		else if (fr[1].matchWord("FALSE"))
+			ss.setLooping(false);
+		fr += 2;
+	} else if (fr[0].matchWord("ambient")) {
+		if (fr[1].matchWord("TRUE"))
+			ss.setAmbient(true);
+		else if (fr[1].matchWord("FALSE"))
+			ss.setAmbient(false);
+		fr += 2;
+	} else if (fr[0].matchWord("relative")) {
+		if (fr[1].matchWord("TRUE"))
+			ss.setRelative(true);
+		else if (fr[1].matchWord("FALSE"))
+			ss.setRelative(false);
+		fr += 2;
+	} else if (fr.matchSequence("referenceDistance %f")) {
+		float f;
+		fr[1].getFloat(f);
+		ss.setReferenceDistance(f);
+		fr += 2;
+	} else if (fr.matchSequence("maxDistance %f")) {
+		float f;
+		fr[1].getFloat(f);
+		ss.setMaxDistance(f);
+		fr += 2;
+	} else if (fr.matchSequence("rolloffFactor %f")) {
+		float f;
+		fr[1].getFloat(f);
+		ss.setRolloffFactor(f);
+		fr += 2;
+	} else if (fr.matchSequence("pitch %f")) {
+		float f;
+		fr[1].getFloat(f);
+		ss.setPitch(f);
+		fr += 2;
+	} else  if (fr.matchSequence("occludeDampingFactor %f")) {
+		float f;
+		fr[1].getFloat(f);
+		ss.setOccludeDampingFactor(f);
+		fr += 2;
+	} else  if (fr.matchSequence("soundCone %f %f %f")) {
+		float f1, f2, f3;
+		fr[1].getFloat(f1); fr[2].getFloat(f2); fr[3].getFloat(f3);
+		ss.setSoundCone(f1, f2, f3);
+		fr += 2;
+	} else 
+		return false;
+	
+	if(ss.hasSource())
+		ss.apply();
+
+	return true;
+}
+
+bool SoundState_writeLocalData(const Object& obj, Output& fw)
+{
+	const SoundState &ss = static_cast<const SoundState&>(obj);
+
+	fw.indent() << "name \"" << ss.getName() << "\"" << std::endl;
+
+	// At the moment, there is support only for sources from openAL++ of "sample" kind.
+	if (ss.getSample() != NULL)
+		fw.indent() << "fileName \"" << ss.getSample()->getFileName() << "\"" << std::endl;
+	
+	fw.indent() << "playing ";
+	if (ss.isPlaying()) fw << "TRUE"<< std::endl;
+	else fw << "FALSE"<< std::endl;
+	
+	fw.indent() << "gain " << ss.getGain() << std::endl;
+	fw.indent() << "looping ";
+	if (ss.getLooping()) fw << "TRUE"<< std::endl;
+	else fw << "FALSE"<< std::endl;
+	fw.indent() << "ambient ";
+	if (ss.getAmbient()) fw << "TRUE"<< std::endl;
+	else fw << "FALSE"<< std::endl;
+	fw.indent() << "relative ";
+	if (ss.getRelative()) fw << "TRUE"<< std::endl;
+	else fw << "FALSE"<< std::endl;	
+	fw.indent() << "referenceDistance " << ss.getReferenceDistance() << std::endl;
+	fw.indent() << "maxDistance " << ss.getMaxDistance() << std::endl;
+	fw.indent() << "rolloffFactor " << ss.getRolloffFactor() << std::endl;
+	fw.indent() << "pitch " << ss.getPitch() << std::endl;
+	fw.indent() << "occludeDampingFactor " << ss.getOccludeDampingFactor() << std::endl;
+	fw.indent() << "occludeScale " << ss.getOccludeScale() << std::endl;
+
+	// If outer and inner angle are 360º, it is a omnidirectional source, so
+	// nothing about directional is written
+	if (ss.getInnerAngle()<360 && ss.getOuterAngle()<360) {
+		fw.indent() << "soundCone " << ss.getInnerAngle() << 
+		" " << ss.getOuterAngle() << " " << ss.getOuterGain() << std::endl;
+	}
+
+	return true;
+}
