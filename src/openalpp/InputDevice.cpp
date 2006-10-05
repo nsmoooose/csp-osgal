@@ -19,55 +19,48 @@
 */
 
 #include "openalpp/Deviceupdater"
-#include "openalpp/Inputdevice"
+#include "openalpp/Capture"
 #include "openalpp/Sample"
 
-#ifdef ALPP_USE_PORTAUDIO
 
 #include <portaudio.h>
 
-namespace openalpp {
+using namespace openalpp;
 
-// Static
-int InputDevice::nobjects_=0;
+void Capture::init() {
 
-void InputDevice::Init() {
-  if(!nobjects_) {
-    PaError err=Pa_Initialize();
-    if(err!=paNoError)
-      throw InitError("Error initializing input device");
-  }
-  nobjects_++;
+  updater_=new DeviceUpdater(-1,sampleRate_,bufferSize_,sampleFormat_,getAlBuffer(),buffer2_->getAlBuffer());
 }
 
-InputDevice::InputDevice() {
-  Init();
-  updater_=new DeviceUpdater(-1,22050,10000,Mono16,buffername_,buffer2_->GetName());
+Capture::Capture() : bufferSize_(10000), sampleRate_(22050), sampleFormat_(Mono16)
+{
+  init();
 }
 
-InputDevice::InputDevice(int device,unsigned int samplerate,unsigned int buffersize,
-			 SampleFormat format) {
-  Init();
+Capture::Capture(int device,unsigned int samplerate,unsigned int buffersize,
+                         SampleFormat format) : bufferSize_(buffersize), sampleRate_(samplerate),
+                         sampleFormat_(format)
+{
+  init();
 
-  updater_=new DeviceUpdater(device,samplerate,buffersize*SampleFormat(format),format,buffername_,buffer2_->GetName());
+//  updater_=new DeviceUpdater(device,samplerate,buffersize*SampleFormat(format),format,buffername_,buffer2_->GetName());
 }
 
-InputDevice::InputDevice(const InputDevice &input)
+Capture::Capture(const Capture &input)
   : Stream((const Stream &)input) {
 }
 
-InputDevice &InputDevice::operator=(const InputDevice &input) {
+Capture &Capture::operator=(const Capture &input) {
   if(this!=&input) {
     Stream::operator=((const Stream &)input);
   }
   return *this;
 }
 
-InputDevice::~InputDevice() {
-  nobjects_--;
-  if(!nobjects_)
-    Pa_Terminate();
+Capture::~Capture() {
+  if (updater_.valid())
+    updater_->stop();
+
+  updater_=0L;
 }
 
-}
-#endif

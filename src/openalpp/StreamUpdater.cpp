@@ -34,13 +34,20 @@
 #define DEBUG_NEW new
 #endif
 
-
+#define ALCHECKERROR() \
+  { \
+  ALenum e; \
+if ((e=alGetError()) != AL_NO_ERROR){ \
+  const char *msg = alutGetErrorString(e); \
+  std::cerr << "Error: " << e << " ALUT: " << msg << std::endl; \
+} \
+  }
 
 using namespace openalpp;
 
 StreamUpdater::StreamUpdater(ALuint buffer1,ALuint buffer2,
                              ALenum format,unsigned int frequency) 
-                             : format_(format), frequency_(frequency), stoprunning_(false) 
+                             : format_(format), frequency_(frequency), stoprunning_(false), sleepTime_(10)
 {
     buffers_[0]=buffer1;
     buffers_[1]=buffer2;
@@ -48,7 +55,7 @@ StreamUpdater::StreamUpdater(ALuint buffer1,ALuint buffer2,
 
 StreamUpdater::~StreamUpdater() {
     runmutex_.lock();
-    stoprunning_=true;
+    stop();
     runmutex_.unlock();
 
     /* remove all sources, there may be a better way
@@ -131,7 +138,7 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
     ** Do not add duplicates */
     while (newsources_.size() || !sources_.size()) 
     {
-        if (newsources_.size()) 
+      if (newsources_.size()) 
         {
             while(newsources_.size())
             {
@@ -154,7 +161,7 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
         else 
         {
             LEAVE_CRITICAL;
-            usleep(50*1000);
+            OpenThreads::Thread::microSleep(50*1000);
             ENTER_CRITICAL;
         }
     }
@@ -163,6 +170,7 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
     processed = 0;
     while (!processed) 
     {
+
         state=AL_PLAYING;
         for(unsigned int i=0;i<sources_.size();i++) 
         {
@@ -206,6 +214,7 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
                 }
             }
         }
+        ALCHECKERROR();
 
         // start up two new buffers
         if (state == AL_INITIAL)
@@ -221,14 +230,15 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
                 if(nqueued)
                     alSourceUnqueueBuffers(sources_[i],nqueued,dump);
             }
-            std::cerr << "Buffer0: " << buffers_[0] << std::endl;
-            alBufferData(buffers_[0],format_,buffer,length/2,frequency_);
+            unsigned int l = length*0.5;
+            alBufferData(buffers_[0],format_,buffer,l,frequency_);
             alBufferData(buffers_[1],format_,
-                (char *)buffer+length/2,length/2,frequency_);
+                (char *)buffer+l,l,frequency_);
             for(unsigned int i=0;i<sources_.size();i++) 
             {
                 alSourceQueueBuffers(sources_[i],2,buffers_);
                 alSourcePlay(sources_[i]);  // TODO: This would be better handled by
+                ALCHECKERROR();
                 // alSourcePlayv((ALuint *)&sources_[0]..)...;
             }
             processed=1;
@@ -243,16 +253,17 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
                     break;
             }
 
-
             if(processed) {
                 for(unsigned int i=0;i<sources_.size();i++)
                     alSourceUnqueueBuffers(sources_[i],1,&albuffer);
                 alBufferData(albuffer,format_,buffer,length,frequency_);
                 for(unsigned int i=0;i<sources_.size();i++)
                     alSourceQueueBuffers(sources_[i],1,&albuffer);
+                YieldCurrentThread();
             } else {
                 LEAVE_CRITICAL;
                 YieldCurrentThread();
+                OpenThreads::Thread::microSleep(1000*10);
                 ENTER_CRITICAL;
                 // Not sure if this is necessary, but just in case...
                 if(removesources_.size()) {
@@ -261,13 +272,14 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
                 }
             } // if(processed) else
         } // if(state!=AL_PLAYING) else
+
     } // while(!processed)
 
     LEAVE_CRITICAL;
     bool ret;
     runmutex_.lock();
-    ret=stoprunning_;
-    runmutex_.unlock();
+    ret=shouldStop();runmutex_.unlock();
+    
     return ret;
 }
 

@@ -22,6 +22,7 @@
 #include "openalpp/Filestream"
 #include "openalpp/Sample"
 #include <vorbis/vorbisfile.h>
+#include <sstream>
 
 #ifdef _WIN32 /* We need the following two to set stdin/stdout to binary */
 #include <io.h>
@@ -39,6 +40,11 @@ FileStream::FileStream(const std::string& filename,const int buffersize)
     if(!filehandle)
         throw FileError("FileStream: Couldn't open file: ");
 
+    unsigned long	ulFrequency = 0;
+    unsigned long	ulFormat = 0;
+    unsigned long	ulBufferSize;
+    unsigned long	ulChannels=0;
+
     oggfile = new OggVorbis_File;
     // Check for file type, create a FileStreamUpdater if a known type is
     // detected, otherwise throw an error.
@@ -46,16 +52,52 @@ FileStream::FileStream(const std::string& filename,const int buffersize)
     if(ov_open(filehandle, oggfile, NULL, 0)>=0) 
     {
         vorbis_info *ogginfo=ov_info(oggfile,-1);
-        ALenum format;
-        if(ogginfo->channels==1) // We'll request 16 bit later...
-            format=AL_FORMAT_MONO16;
-        else
-            format=AL_FORMAT_STEREO16;
+        
+        ulFrequency = ogginfo->rate;
+        ulChannels = ogginfo->channels;
+
+        if (ulChannels==1) {// We'll request 16 bit later...
+          ulFormat=AL_FORMAT_MONO16;
+          // Set BufferSize to 250ms (Frequency * 2 (16bit) divided by 4 (quarter of a second))
+          ulBufferSize = ulFrequency >> 1;
+          // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+          ulBufferSize -= (ulBufferSize % 2);
+          ulBufferSize = ulBufferSize*2;              
+        }
+        else if (ulChannels==2) {
+          ulFormat=AL_FORMAT_STEREO16;
+          // Set BufferSize to 250ms (Frequency * 4 (16bit stereo) divided by 4 (quarter of a second))
+          ulBufferSize = ulFrequency;
+          // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+          ulBufferSize -= (ulBufferSize % 4);
+          ulBufferSize = ulBufferSize*2;              
+        }
+        else if (ulChannels==4) {
+          ulFormat = alGetEnumValue("AL_FORMAT_QUAD16");
+          // Set BufferSize to 250ms (Frequency * 8 (16bit 4-channel) divided by 4 (quarter of a second))
+          ulBufferSize = ulFrequency * 2;
+          // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+          ulBufferSize -= (ulBufferSize % 8);
+        }
+        else if (ulChannels == 6)
+        {
+          ulFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+          // Set BufferSize to 250ms (Frequency * 12 (16bit 6-channel) divided by 4 (quarter of a second))
+          ulBufferSize = ulFrequency * 3;
+          // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+          ulBufferSize -= (ulBufferSize % 12);
+        }
+        else {
+          fclose(filehandle);
+          std::ostringstream str;
+          str << "FileStream: File " << filename << " contains " << ulChannels << " which is not recognized" << std::endl;
+          throw FileError(str.str().c_str());
+        }
 
         updater_=new FileStreamUpdater(oggfile,
             buffer_->getName(),buffer2_->getAlBuffer(),
-            format,ogginfo->rate,
-            buffersize*sampleSize(format)); 
+            ulFormat,ulFrequency,
+            ulBufferSize); 
 
     } 
     else 

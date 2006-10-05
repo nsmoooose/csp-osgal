@@ -17,6 +17,8 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 */
+#define _USE_MATH_DEFINES 
+#include <cmath>
 
 #include <iostream>
 #include <openalpp/Source>
@@ -45,8 +47,7 @@ int main(int argc,char **argv) {
 
         osg::ref_ptr<Source> source = new Source(new FileStream(argv[1]));
 
-        //source->setSound(new FileStream(argv[1]));
-        source->setAmbient();
+        source->setLooping(true);
         source->play();
 
         std::cout << "Press return to exit" << std::endl;

@@ -55,7 +55,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oalpp Example multiple", ".
 		{2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3} = {2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oalpp Example playstream", "..\examples\openalpp\playstream.vcproj", "{33F6F3B5-3247-476A-A2D9-19316B88423B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oalpp Example capture", "..\examples\openalpp\capture.vcproj", "{33F643AF-32B7-471A-A209-193C6B88423B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3} = {2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oalpp Example multiple_oggstreams", "..\examples\openalpp\multiple_oggstreams.vcproj", "{33F6F3B5-3247-476A-A2D9-19316B88423B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3} = {2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oalpp Example playOgg", "..\examples\openalpp\playOgg.vcproj", "{33F6F3B5-3247-476A-A2D9-19316B88423B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3} = {2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3}
 	EndProjectSection
@@ -106,6 +116,14 @@ Global
 		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Debug.Build.0 = Debug|Win32
 		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Release.ActiveCfg = Release|Win32
 		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Release.Build.0 = Release|Win32
+		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Debug.ActiveCfg = Debug|Win32
+		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Debug.Build.0 = Debug|Win32
+		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Release.ActiveCfg = Release|Win32
+		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Release.Build.0 = Release|Win32
+		{33F643AF-32B7-471A-A209-193C6B88423B}.Debug.ActiveCfg = Debug|Win32
+		{33F643AF-32B7-471A-A209-193C6B88423B}.Debug.Build.0 = Debug|Win32
+		{33F643AF-32B7-471A-A209-193C6B88423B}.Release.ActiveCfg = Release|Win32
+		{33F643AF-32B7-471A-A209-193C6B88423B}.Release.Build.0 = Release|Win32
 		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Debug.ActiveCfg = Debug|Win32
 		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Debug.Build.0 = Debug|Win32
 		{33F6F3B5-3247-476A-A2D9-19316B88423B}.Release.ActiveCfg = Release|Win32

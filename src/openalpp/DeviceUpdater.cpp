@@ -17,21 +17,11 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 */
-#ifdef ALPP_USE_PORTAUDIO
 
-#include "openalpp/deviceupdater.h"
+#include "openalpp/DeviceUpdater"
 
-namespace openalpp {
+using namespace openalpp;
 
-static int RecordCallback(void *inputbuffer,void *outputbuffer,
-			  unsigned long nframes,
-			  PaTimestamp outtime, void *object) {
-  ((DeviceUpdater *)object)->Enter();
-  ((DeviceUpdater *)object)->CopyInput(inputbuffer,nframes);
-  ((DeviceUpdater *)object)->post();
-  ((DeviceUpdater *)object)->wait();
-  return 0;
-}
 
 ALenum ALFormat(SampleFormat format) {
   switch(format) {
@@ -47,82 +37,103 @@ ALenum ALFormat(SampleFormat format) {
   return 0;
 }
 
-DeviceUpdater::DeviceUpdater(int device, unsigned int frequency,unsigned int buffersize,
-			     SampleFormat format,
-			     ALuint buffer1,ALuint buffer2) 
-			     :  StreamUpdater(buffer1,buffer2,ALFormat(format),frequency) {
-  PaSampleFormat paformat;
+DeviceUpdater::DeviceUpdater(int device, unsigned int frequency,unsigned int bufferSize,
+			     SampleFormat format, ALuint buffer1,ALuint buffer2) 
+			     :  StreamUpdater(buffer1,buffer2,ALFormat(format),frequency), pCaptureDevice_(0L),
+              totalDataSize_(0){
+
+                
+                
   int nchannels;
+  int bitsPerSample;
   switch(format) {
     case(Mono8):
       format_=AL_FORMAT_MONO8;
-      paformat=paInt8;
       nchannels=1;
-      bytesperframe_=1;
+      bitsPerSample=8;
       break;
     case(Mono16):
       format_=AL_FORMAT_MONO16;
-      paformat=paInt16;
+      bitsPerSample=16;
       nchannels=1;
-      bytesperframe_=2;
       break;
     case(Stereo8):
       format_=AL_FORMAT_STEREO8;
-      paformat=paInt8;
       nchannels=2;
-      bytesperframe_=2;
+      bitsPerSample=16;
       break;
     case(Stereo16):
       format_=AL_FORMAT_STEREO16;
-      paformat=paInt16;
       nchannels=2;
-      bytesperframe_=4;
+      bitsPerSample=32;
       break;
   }
+  blockAlign_ = nchannels * bitsPerSample / 8;
 
-  PaDeviceID devid=paNoDevice;
-  if(device<0)
-    devid=Pa_GetDefaultInputDeviceID();
-  else if(device<Pa_CountDevices()) {
-    const PaDeviceInfo *devinfo=Pa_GetDeviceInfo((PaDeviceID)device);
-    if(devinfo->maxInputChannels<nchannels)
-      throw InitError("Requested number of channels not supported by device");
-    devid=(PaDeviceID)device;
-  } else
-    throw InitError("No such device");
-  if(devid==paNoDevice)
-    throw InitError("Couldn't open device");  
-
-  maxtmpbufsize_=buffersize;
-  tmpbuffer_=new char[buffersize];
+  // Calculate the maximum sleeptime we can have depending on the data generated and
+  // the buffersize
+  float max_sleep_time = 8.0*bufferSize/(bitsPerSample * frequency);
   
-  PaError err=Pa_OpenStream(&stream_,
-			    devid,nchannels,paformat,NULL,
-			    paNoDevice,0,paformat,NULL,
-			    frequency,buffersize/bytesperframe_,2,paClipOff,
-			    RecordCallback,this);
-  if(err!=paNoError)
-    throw InitError("Failed to open input stream");
+  // Set the idle time to be slightly less than that to release the CPU
+  setSleepTime(max_sleep_time * 0.2);
+
+  const char *szDefaultCaptureDevice = alcGetString(NULL, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
+  std::cerr << "Default capture device:  " << szDefaultCaptureDevice << std::endl;
+
+  pCaptureDevice_ = alcCaptureOpenDevice(szDefaultCaptureDevice, frequency, format_, bufferSize);
+  if (pCaptureDevice_)
+  {
+    std::cerr << "Opened '" << alcGetString(pCaptureDevice_, ALC_CAPTURE_DEVICE_SPECIFIER) <<"' Capture Device" << std::endl;
+  }
+  else {
+    throw InitError("DeviceUpdater::init() Unable to initialize capture device");
+  }
+
+
+  maxtmpbufsize_=bufferSize;
+  tmpBufSize_ = maxtmpbufsize_;
+  tmpBuffer_=new char[maxtmpbufsize_];
 }
 
 DeviceUpdater::~DeviceUpdater() {
-  Pa_CloseStream(stream_);
-  delete[] tmpbuffer_;
+  delete[] tmpBuffer_;
 }
 
 void DeviceUpdater::run() {
-  Pa_StartStream(stream_);
-  bool done=false;
+
+  int iSamplesAvailable=0;
+  int nSamples = tmpBufSize_ / blockAlign_;
+  bool done = false;
   do {
-    wait();
-    Enter();
-    done=Update(tmpbuffer_,tmpbufsize_);
-    post();
-  } while(!done);
-  Pa_StopStream(stream_);
+
+    // Start audio capture
+    alcCaptureStart(pCaptureDevice_);
+    
+    // Find out how many samples have been captured
+    alcGetIntegerv(pCaptureDevice_, ALC_CAPTURE_SAMPLES, 1, &iSamplesAvailable);
+    if (iSamplesAvailable > nSamples)
+    {
+      //std::cerr << " got data " << std::endl;
+      // Consume Samples
+      alcCaptureSamples(pCaptureDevice_, tmpBuffer_, nSamples);
+
+      // Record total amount of data recorded
+      enter();
+
+      done=update(tmpBuffer_,tmpBufSize_);
+      totalDataSize_ += tmpBufSize_;
+      leave();
+    }
+    YieldCurrentThread();
+    OpenThreads::Thread::microSleep(10*1000);
+    //std::cerr << " capturing data " << std::endl;
+
+  } while(!shouldStop() && !done);
+  alcCaptureStop(pCaptureDevice_);
+
 }
 
-void DeviceUpdater::CopyInput(void *tempbuffer,int length) {
+/*void DeviceUpdater::CopyInput(void *tempbuffer,int length) {
   if(!tempbuffer)
     return;
   length*=bytesperframe_;
@@ -133,5 +144,9 @@ void DeviceUpdater::CopyInput(void *tempbuffer,int length) {
   memcpy(tmpbuffer_,tempbuffer,tmpbufsize_);
 }
 
+*/
+void DeviceUpdater::stop()
+{
+  StreamUpdater::stop();
+  alcCaptureStop(pCaptureDevice_);
 }
-#endif // ifdef ALPP_USE_PORTAUDIO

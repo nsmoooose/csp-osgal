@@ -19,6 +19,7 @@
 */
 
 #include "openalpp/Source"
+#include "openalpp/FileStream"
 
 using namespace openalpp;
 
@@ -34,7 +35,12 @@ Source::Source(const Stream *stream) : SourceBase() {
   alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
 }
 
+Source::Source(const FileStream *stream) : SourceBase() {
+  streaming_=true;
 
+  sounddata_=new FileStream(*stream);
+  alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
+}
 Source::Source(const std::string& filename,float x,float y,float z)
   : SourceBase(x,y,z) {
   streaming_=false;
@@ -136,9 +142,18 @@ void Source::play(const Stream *stream) {
   SourceBase::play();
 }
 
+void Source::setLooping(bool loop) {
+  FileStream *stream = dynamic_cast<FileStream *>(sounddata_.get());
+  if (stream)
+    stream->setLooping(loop);
+}
+
 void Source::play() {
   if(streaming_ && !isPaused()) {
     alSourcei(sourcename_,AL_LOOPING,AL_FALSE); //Streaming sources can't loop...
+    // Remove any previous attached buffers if its a Source attached to a stream
+    alSourcei(sourcename_,AL_BUFFER,0);
+
     ((Stream *)sounddata_.get())->record(sourcename_);
   }
   SourceBase::play();

@@ -72,7 +72,7 @@ class OPENALPP_API SourceBase : public PositionedObject {
    * Turn on/off looping.
    * @param loop is true if the source should loop, false otherwise.
    */
-  void setLooping(bool loop = true);
+  virtual void setLooping(bool loop = true);
 
   /**
    * Check whether the source is looping.

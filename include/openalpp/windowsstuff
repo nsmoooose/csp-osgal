@@ -37,17 +37,6 @@ inline void usleep( int x ) { Sleep( x /1000 ); };
 #include <AL/alut.h>
 
 #define alGetSourceiv alGetSourcei
-/*inline OPENALPP_API ALboolean alutLoadWAV(const char *fname,ALvoid **buffer,ALint *format,
-			     ALsizei *size,ALsizei *bits,ALsizei *freq) {
-  ALboolean loop;
-  alutLoadWAVFile(const_cast<char *>(fname),format,buffer,size,freq,&loop);
-  if(*format==AL_FORMAT_STEREO16 || *format==AL_FORMAT_MONO16)
-    *bits=16;
-  else
-    *bits=8;
-  return AL_TRUE;
-}
-*/
 
 #endif
 #else

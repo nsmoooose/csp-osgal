@@ -69,6 +69,12 @@ protected:
    * Destructor.
    */
   virtual ~InputDevice();
+
+	ALCdevice		*pCaptureDevice_;
+	unsigned long bufferSize_;
+	unsigned long sampleRate_;
+	SampleFormat sampleFormat_;
+
 };
 
 }

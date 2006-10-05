@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="oalpp Example playstream"
+	Name="oalpp Example multiple_oggstreams"
 	ProjectGUID="{33F6F3B5-3247-476A-A2D9-19316B88423B}"
-	RootNamespace="oalpp Example playstream"
+	RootNamespace="oalpp Example multiple_oggstreams"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -43,7 +43,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="osg.lib"
-				OutputFile="$(OutDir)/oalpp_playstream.exe"
+				OutputFile="$(OutDir)/oalpp_multiple_oggstreams.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\lib"
@@ -52,7 +52,7 @@
 				SubSystem="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName="$(IntDir)/playstream.tlb"/>
+				TypeLibraryName="$(IntDir)/multiple_oggstreams.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -106,7 +106,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="osgd.lib"
-				OutputFile="$(OutDir)/oalpp_playstreamd.exe"
+				OutputFile="$(OutDir)/oalpp_multiple_oggstreamsd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\lib"
@@ -146,7 +146,7 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="..\..\..\examples\openalpp\playstream.cpp">
+				RelativePath="..\..\..\examples\openalpp\multiple_oggstreams.cpp">
 			</File>
 		</Filter>
 	</Files>

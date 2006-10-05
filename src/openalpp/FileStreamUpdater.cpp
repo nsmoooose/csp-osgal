@@ -58,10 +58,9 @@ void FileStreamUpdater::run()
 {
 
     runmutex_.lock();
-
     bool eofReached = false;
 
-    while(!stoprunning_)
+    while(!shouldStop())
     {
         runmutex_.unlock();
 
@@ -70,7 +69,7 @@ void FileStreamUpdater::run()
 
         while (count < buffersize_)
         {
-            long amt;
+          long amt;
 
             if (seekPending_)
             {
@@ -106,8 +105,11 @@ void FileStreamUpdater::run()
                 {
                     if(!ov_seekable(oggfile_))
                         break;
-                    if(!ov_time_seek(oggfile_,0.0))
-                        break;
+                    if(!ov_time_seek(oggfile_,0.0)) 
+                      eofReached = false;
+                    else
+                      break;
+
                 }
             }
             else
@@ -127,8 +129,11 @@ void FileStreamUpdater::run()
         
 
         update(buffer_, count);
-        
+        //setSleepTime(10*1000);
+        //sleep();
 
+        //std::cerr << "FileStreamUpdater" << std::endl;
+        
         runmutex_.lock();
     }
 

@@ -39,8 +39,8 @@ extern "C" {
 #include "openalpp/Audiobase"
 #include "openalpp/Error"
 #include "openalpp/windowsstuff"
-#include "OpenThreads/Thread"
-#include "OpenThreads/Mutex"
+#include <OpenThreads/Thread>
+#include <OpenThreads/Mutex>
 #include <osg/Referenced>
 
 namespace openalpp {
@@ -48,12 +48,8 @@ namespace openalpp {
 /**
  * Base class for (threaded) updating of stream buffers.
  */
-  class OPENALPP_API StreamUpdater : public OpenThreads::Thread, public OpenThreads::Mutex, public osg::Referenced { //ost::Mutex {
-  /**
-   * #references to this instance.
-   * If zero => delete this.
-   */
-  //int nrefs_;
+  class OPENALPP_API StreamUpdater : public OpenThreads::Thread, public OpenThreads::Mutex, public osg::Referenced {
+
  public:
   /**
    * Constructor.
@@ -94,21 +90,27 @@ namespace openalpp {
   bool update(void *buffer,unsigned int length); 
 
   /**
+    Tell the thread to stop executing
+    @return nothing
+  */
+  virtual void stop() { stoprunning_ = true; }
+  
+  /**
+    @return true if the stop method has been called
+    
+  */
+  bool shouldStop() const { return stoprunning_; }
+
+  /**
    * Inherited from Thread.
    * Is called after run() finishes, and deletes this.
    */
   void cancelCleanup();
 
   /**
-   * Reference this updater.
-   * @return this.
-   */
-  //StreamUpdater *reference();
+  */
+  void setSleepTime(int mseconds) { sleepTime_ = mseconds; }
 
-  /**
-   * Dereference this updater.
-   */
-//   void deReference() throw (FatalError);
  protected:
 
    /**
@@ -142,11 +144,18 @@ namespace openalpp {
    */ 
   bool stoprunning_;
 
+  
   /**
    * Mutex for stoprunning_.
    */
   OpenThreads::Mutex runmutex_;
 
+  /**
+   * Time to sleep in run method, i.e. sleeptime to reduce CPU usage
+   */
+   int sleepTime_;
+   void sleep() { OpenThreads::Thread::microSleep(sleepTime_); }
+      
 };
 
 }

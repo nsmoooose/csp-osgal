@@ -19,7 +19,6 @@
 */
 
 #include "openalpp/Sourcebase"
-
 /**
  * TODO: Should error checking be optional?
  * (a static bool throwflag in AudioBase)?

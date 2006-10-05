@@ -1,4 +1,14 @@
 NEWS
+* 061004 Updated code:
+  - Updated code for streaming ogg-files.
+    Using less CPU. Although a few calls to sleep() could cause problems when using very small buffers, 
+    but in practice it shouldnt be a problem.
+  - Added capture functionality to make it possible to capture sound through the input devices
+    available. This results in a stream that can be fed into a HW-source, just as any other stream.
+  - Added capture example and multiple_oggstreams example.
+  - Renamed play_stream to playOgg
+  - Still not tested under Linux (underway though).
+
 * 060815 Merged OpenAL++ and osgAL to simplify the buildprocess.
   - Removed .h for all header files.
   - Renamed header files to Uppercase similar to osgAL.

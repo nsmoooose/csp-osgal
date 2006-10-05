@@ -164,6 +164,9 @@
 				RelativePath="..\..\src\openalpp\AudioEnvironment.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\openalpp\Capture.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\openalpp\DeviceUpdater.cpp">
 			</File>
 			<File
@@ -179,9 +182,6 @@
 				RelativePath="..\..\src\openalpp\GroupSource.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\openalpp\InputDevice.cpp">
-			</File>
-			<File
 				RelativePath="..\..\src\openalpp\Listener.cpp">
 			</File>
 			<File
@@ -189,9 +189,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\openalpp\NetUpdater.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\openalpp\NoInputDevice.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\openalpp\Openalpp.cpp">
@@ -228,6 +225,9 @@
 				RelativePath="..\..\include\openalpp\AudioEnvironment">
 			</File>
 			<File
+				RelativePath="..\..\include\openalpp\Capture">
+			</File>
+			<File
 				RelativePath="..\..\include\openalpp\config">
 			</File>
 			<File
@@ -247,9 +247,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\openalpp\GroupSource">
-			</File>
-			<File
-				RelativePath="..\..\include\openalpp\InputDevice">
 			</File>
 			<File
 				RelativePath="..\..\include\openalpp\Listener">

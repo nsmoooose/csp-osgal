@@ -23,7 +23,6 @@ using namespace openalpp;
 
 SoundData::SoundBuffer::SoundBuffer() throw (NameError) : buffername_(0) {
   alGenBuffers(1,&buffername_);
-  std::cerr << "alGenBuffers: " << buffername_ << std::endl;
 
   if(alGetError()!=AL_FALSE)
   {
