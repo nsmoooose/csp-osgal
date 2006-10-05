@@ -54,10 +54,6 @@ fi
 CFLAGS="$CPPFLAGS -I/usr/local/include"
 
 
-# PortAudio
-#AC_CHECK_LIB(portaudio,main,WITH_PORTAUDIO="yes")
-#AM_CONDITIONAL(WITH_PORTAUDIO, test "$WITH_PORTAUDIO" = "yes")
-WITH_PORTAUDIO="no"
 
 # ***** Open Scenegraph
 OSG_FOUND="no"
@@ -122,7 +118,7 @@ AC_CONFIG_FILES([Makefile
 	include/openalpp/Makefile 
 	src/Makefile 
 	src/osgAL/Makefile 
-	src/ospenalpp/Makefile 
+	src/openalpp/Makefile 
 	src/osgPlugin/Makefile 
 	examples/Makefile 
 	osgal.pc

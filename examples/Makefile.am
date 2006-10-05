@@ -1,2 +1,2 @@
 
-SUBDIRS =       osgal osgalmultiple osgalocclude osgalviewer
+SUBDIRS =       oalpp osgal osgalmultiple osgalocclude osgalviewer 
