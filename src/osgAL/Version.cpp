@@ -23,7 +23,7 @@
 
 std::string osgAL::getVersion()
 {
-  return "0.4";
+  return "0.5";
 }
 
 

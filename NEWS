@@ -1,5 +1,6 @@
 NEWS
-* 061004 Updated code:
+* Version 0.5
+  061004 Updated code:
   - Updated code for streaming ogg-files.
     Using less CPU. Although a few calls to sleep() could cause problems when using very small buffers, 
     but in practice it shouldnt be a problem.
