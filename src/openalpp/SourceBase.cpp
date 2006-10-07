@@ -19,6 +19,7 @@
 */
 
 #include "openalpp/Sourcebase"
+#include <sstream>
 /**
  * TODO: Should error checking be optional?
  * (a static bool throwflag in AudioBase)?
@@ -33,7 +34,6 @@ void SourceBase::init() throw (MemoryError,NameError) {
 
   nlinkedsources_=1;
   alloclinkedsources_=2;
-  //linkedsources_=(ALuint *)malloc(sizeof(ALuint)*alloclinkedsources_);
   linkedsources_ = new ALuint[alloclinkedsources_];
 
   if(!linkedsources_)
@@ -59,13 +59,14 @@ SourceBase::~SourceBase() {
   stop();
 
   alDeleteSources(1,&sourcename_);
-  //free(linkedsources_);
   delete [] linkedsources_;
 
   ALenum status = alGetError();
   if (status != AL_FALSE)
   {
-      std::cerr << "~SourceBase() - Warning - Error deleting sources\n";
+    
+    std::cerr << "~SourceBase() - Warning - Error deleting sources\n";
+    std::cerr << alGetErrorString(status) << std::endl;
   }
 }
   
@@ -76,25 +77,6 @@ SourceBase::SourceBase(const SourceBase &sourcebase)
     return;
 
   *this = sourcebase;
-
-
-/*  float a,b,c;
-  sourcebase.getPosition(a,b,c);
-  setPosition(a,b,c);
-  sourcebase.getVelocity(a,b,c);
-  setVelocity(a,b,c);
-  setPitch(sourcebase.getPitch());
-  sourcebase.getDirection(a,b,c);
-  setDirection(a,b,c);
-  sourcebase.getSoundCone(a,b,c);
-  setSoundCone(a,b,c);
-  sourcebase.getMinMaxGain(a,b);
-  setMinMaxGain(a,b);
-  setReferenceDistance(sourcebase.getReferenceDistance());
-  setRolloffFactor(sourcebase.getRolloffFactor());
-  setMaxDistance(sourcebase.getMaxDistance());
-  setLooping(sourcebase.isLooping());
-  setGain(sourcebase.getGain());*/
 }
 
 SourceBase &SourceBase::operator=(const SourceBase &sourcebase) {
@@ -124,10 +106,11 @@ SourceBase &SourceBase::operator=(const SourceBase &sourcebase) {
 
 void SourceBase::play() {
     alSourcePlayv(nlinkedsources_,linkedsources_);
-
-    if (alGetError() != AL_NO_ERROR)
+    int status = alGetError();
+    if (status != AL_NO_ERROR)
     {
         std::cerr << "SourceBase::play() - Warning - Error playing sources\n";
+        std::cerr << alGetErrorString(status) << std::endl;
     }
 }
 
@@ -137,9 +120,11 @@ void SourceBase::pause()
 
     alSourcePausev(nlinkedsources_,linkedsources_);
 
-    if (alGetError() != AL_NO_ERROR)
+    int status = alGetError();
+    if (status != AL_NO_ERROR)
     {
         std::cerr << "SourceBase::pause() - Warning - Error pausing sources\n";
+        std::cerr << alGetErrorString(status) << std::endl;
     }
 }
 
@@ -151,9 +136,11 @@ void SourceBase::stop() {
 
     alSourceStopv(nlinkedsources_,linkedsources_);
 
-    if (alGetError() != AL_FALSE)
+    int status = alGetError();
+    if (status != AL_FALSE)
     {
         std::cerr << "SourceBase::stop() - Warning - Error stopping sources\n";
+        std::cerr << alGetErrorString(status) << std::endl;
     }
 }
 
@@ -240,10 +227,10 @@ void SourceBase::setGain(float gain) {
   if(error!=AL_FALSE)
     switch(error) {
       case(AL_INVALID_VALUE):
-	throw ValueError("Invalid value for gain");
-	break;
+	      throw ValueError("Invalid value for gain");
+	      break;
       default:
-	throw FatalError("Error trying to set gain!");
+	      throw FatalError("Error trying to set gain!");
     }
 }
 
@@ -259,11 +246,19 @@ void SourceBase::setMinMaxGain(float min, float max) {
   ALenum error=alGetError();
   if(error!=AL_FALSE)
     switch(error) {
-      case(AL_INVALID_VALUE):
-	throw ValueError("Invalid value for min/max gain");
-	break;
+      case(AL_INVALID_VALUE): {
+        std::ostringstream str;
+        str << "Invalid value for min/max gain: " << alGetErrorString(error) << std::ends;
+        throw ValueError(str.str().c_str());
+      }
+
+	      break;
       default:
-	throw FatalError("Error trying to set min/max gain!");
+        {
+          std::ostringstream str;
+          str << "Invalid value for min/max gain: " << alGetErrorString(error) << std::ends;
+          throw ValueError(str.str().c_str());
+        }
     }
 }
 
@@ -283,8 +278,14 @@ void SourceBase::setAmbient(bool ambient) {
     alSourcei(sourcename_,AL_SOURCE_RELATIVE,AL_FALSE);
     alSourcef(sourcename_,AL_ROLLOFF_FACTOR,1.0);
   }
-  if(alGetError()!=AL_FALSE)
-    throw FatalError("Error trying to make/unmake sound ambient!");
+  int error = alGetError();
+  if(error !=AL_FALSE)
+  {
+    std::ostringstream str;
+    str << "Error trying to make/unmake sound ambient: " << alGetErrorString(error) << std::ends;
+    throw ValueError(str.str().c_str());
+  }
+
 }
 
 bool SourceBase::isAmbient() const {
@@ -310,8 +311,13 @@ bool SourceBase::isRelative() const {
 
 void SourceBase::setReferenceDistance(float distance) {
   alSourcef(sourcename_,AL_REFERENCE_DISTANCE,distance);
-  if(alGetError()!=AL_FALSE)
-    throw FatalError("Error trying to set reference distance!");
+  int error = alGetError();
+  if(error !=AL_FALSE)
+  {
+    std::ostringstream str;
+    str << "Error trying to set reference distance: " << alGetErrorString(error) << std::ends;
+    throw FatalError(str.str().c_str());
+  }
 }
 
 float SourceBase::getReferenceDistance() const {
@@ -322,8 +328,13 @@ float SourceBase::getReferenceDistance() const {
 
 void SourceBase::setMaxDistance(float distance) {
   alSourcef(sourcename_,AL_MAX_DISTANCE,distance);
-  if(alGetError()!=AL_FALSE)
-    throw FatalError("Error trying to set max distance!");
+  int error = alGetError();
+  if(error!=AL_FALSE)
+  {
+    std::ostringstream str;
+    str << "Error trying to set max distance: " << alGetErrorString(error) << std::ends;
+    throw FatalError(str.str().c_str());
+  }
 }
 
 float SourceBase::getMaxDistance() const {
@@ -334,8 +345,13 @@ float SourceBase::getMaxDistance() const {
 
 void SourceBase::setRolloffFactor(float factor) {
   alSourcef(sourcename_,AL_ROLLOFF_FACTOR,factor);
-  if(alGetError()!=AL_FALSE)
-    throw FatalError("Error trying to set rolloff factor!");
+  int error = alGetError();
+  if(error!=AL_FALSE)
+  {
+    std::ostringstream str;
+    str << "Error trying to set rolloff factor: " << alGetErrorString(error) << std::ends;
+    throw FatalError(str.str().c_str());
+  }
 }
 
 float SourceBase::getRolloffFactor() const {
@@ -350,10 +366,18 @@ void SourceBase::setPitch(float pitch) {
   if(error!=AL_FALSE)
     switch(error) {
       case(AL_INVALID_VALUE):
-	throw ValueError("Invalid value for pitch");
-	break;
+        {
+          std::ostringstream str;
+          str << "Invalid value for pitch" << alGetErrorString(error) << std::ends;
+          throw ValueError(str.str().c_str());
+        }
+	      break;
       default:
-	throw FatalError("Error trying to set pitch!");
+        {
+          std::ostringstream str;
+          str << "Error trying to set pitch: " << alGetErrorString(error) << std::ends;
+          throw FatalError(str.str().c_str());
+        }
     }
 }
 
@@ -366,8 +390,13 @@ float SourceBase::getPitch() const {
 void SourceBase::setReverbScale(float scale) throw (InitError,ValueError) {
   if(reverbinitiated_) {
     alReverbScale(sourcename_,scale);
-    if(alGetError()!=AL_FALSE)
-      throw ValueError("Reverb scale must be in range [0.0,1.0]");
+    int error = alGetError();
+    if(error!=AL_FALSE) 
+    {
+      std::ostringstream str;
+      str << "Reverb scale must be in range [0.0,1.0]" << alGetErrorString(error) << std::ends;
+      throw ValueError(str.str().c_str());
+    }
     reverbscale_=scale;
   } else
     throw InitError("Reverb not initialized");
@@ -376,8 +405,13 @@ void SourceBase::setReverbScale(float scale) throw (InitError,ValueError) {
 void SourceBase::setReverbDelay(float delay) throw (InitError,ValueError) {
   if(reverbinitiated_) {
     alReverbDelay(sourcename_,delay);
-    if(alGetError()!=AL_FALSE)
-      throw ValueError("Reverb delay must be in range [0.0,2.0]");
+    int error = alGetError();  
+    if(error!=AL_FALSE)
+    {
+      std::ostringstream str;
+      str << "Reverb delay must be in range [0.0,1.0]" << alGetErrorString(error) << std::ends;
+      throw ValueError(str.str().c_str());
+    }
     reverbdelay_=delay;
   } else
     throw InitError("Reverb not initialized");
@@ -443,10 +477,18 @@ void SourceBase::setPosition(float x, float y, float z) {
   if(error!=AL_FALSE)
     switch(error) {
       case(AL_INVALID_VALUE):
-	      throw ValueError("Invalid value for position");
+        {
+          std::ostringstream str;
+          str << "Invalid value for position" << alGetErrorString(error) << std::ends;
+          throw ValueError(str.str().c_str());
+        }
 	      break;
       default:
-	      throw FatalError("Error trying to set position!");
+        {
+          std::ostringstream str;
+          str << "Error trying to set position: " << alGetErrorString(error) << std::ends;
+          throw FatalError(str.str().c_str());
+        }
     }
 }
 
@@ -462,13 +504,11 @@ void SourceBase::setVelocity(float vx, float vy, float vz) {
   alSource3f(sourcename_,AL_VELOCITY,vx,vy,vz);
   ALenum error=alGetError();
   if(error!=AL_FALSE)
-    switch(error) {
-      case(AL_INVALID_VALUE):
-	throw ValueError("Invalid value for velocity");
-	break;
-      default:
-	throw FatalError("Error trying to set velocity!");
-    }
+  {
+    std::ostringstream str;
+    str << "Error setting velocity for reverb: " << alGetErrorString(error) << std::ends;
+    throw ValueError(str.str().c_str());
+  }
 }
 
 void SourceBase::getVelocity(float &vx, float &vy, float &vz) const {

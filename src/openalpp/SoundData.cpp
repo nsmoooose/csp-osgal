@@ -37,7 +37,6 @@ SoundData::SoundBuffer::~SoundBuffer() {
 
 SoundData::SoundData() throw (NameError,InitError) : AudioBase() {
   buffer_=new SoundBuffer();
-  //buffername_=buffer_->getName();
 }
 
 
@@ -45,21 +44,20 @@ SoundData::SoundData() throw (NameError,InitError) : AudioBase() {
 SoundData::SoundData(const SoundData &sounddata)
   : AudioBase() {
     buffer_=sounddata.buffer_;
-  //buffername_=buffer_->getName();
-
 }
 
-SoundData::~SoundData() {
+SoundData::~SoundData() 
+{
+  buffer_ = 0;
 }
 
 ALuint SoundData::getAlBuffer() const {
-  return buffer_->getName();// //buffername_;
+  return buffer_->getName();
 }
 
 SoundData &SoundData::operator=(const SoundData &sounddata) {
   if(this!=&sounddata) {
     buffer_=sounddata.buffer_;
-    //buffername_=buffer_->getName();
   }
   return *this;
 }

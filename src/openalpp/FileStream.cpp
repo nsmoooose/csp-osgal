@@ -45,13 +45,13 @@ FileStream::FileStream(const std::string& filename,const int buffersize)
     unsigned long	ulBufferSize;
     unsigned long	ulChannels=0;
 
-    oggfile = new OggVorbis_File;
+    oggfile_ = new OggVorbis_File;
     // Check for file type, create a FileStreamUpdater if a known type is
     // detected, otherwise throw an error.
 
-    if(ov_open(filehandle, oggfile, NULL, 0)>=0) 
+    if(ov_open(filehandle, oggfile_, NULL, 0)>=0) 
     {
-        vorbis_info *ogginfo=ov_info(oggfile,-1);
+        vorbis_info *ogginfo=ov_info(oggfile_,-1);
         
         ulFrequency = ogginfo->rate;
         ulChannels = ogginfo->channels;
@@ -94,7 +94,7 @@ FileStream::FileStream(const std::string& filename,const int buffersize)
           throw FileError(str.str().c_str());
         }
 
-        updater_=new FileStreamUpdater(oggfile,
+        updater_=new FileStreamUpdater(oggfile_,
             buffer_->getName(),buffer2_->getAlBuffer(),
             ulFormat,ulFrequency,
             ulBufferSize); 
@@ -109,7 +109,7 @@ FileStream::FileStream(const std::string& filename,const int buffersize)
 
 FileStream::FileStream(const FileStream &stream)
 :   Stream((const Stream &)stream),
-    oggfile(stream.oggfile)
+    oggfile_(stream.oggfile_)
 {
 }
 
@@ -121,7 +121,7 @@ FileStream &FileStream::operator=(const FileStream &stream) {
     if(&stream!=this) 
     {
         Stream::operator=((const Stream &)stream);
-        oggfile = stream.oggfile;
+        oggfile_ = stream.oggfile_;
     }
     return *this;
 }

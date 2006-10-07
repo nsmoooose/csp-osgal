@@ -44,13 +44,6 @@ class OPENALPP_API Source : public SourceBase {
    */
   Source(float x = 0.0, float y = 0.0, float z = 0.0);
   
-  /**
-   * Constructor.
-   * Sets a new (streamed) buffer for the source.
-   * The source should _not_ be playing when doing this.
-   * @param stream is the new buffer.
-   */
-  Source(const FileStream *stream);
 
   /**
    * Constructor.
@@ -58,7 +51,7 @@ class OPENALPP_API Source : public SourceBase {
    * The source should _not_ be playing when doing this.
    * @param stream is the new buffer.
    */
-  Source(const Stream *stream);
+  Source( Stream *stream );
 
   
   /**
@@ -66,7 +59,7 @@ class OPENALPP_API Source : public SourceBase {
    * Creates the source and a buffer with the specified file.
    * @param filename is the name of the file.
    */
-  Source(const std::string& filename,float x=0.0,float y=0.0,float z=0.0);
+  Source(const std::string& filename);
 
   /**
    * Turn on/off looping.
@@ -80,14 +73,8 @@ class OPENALPP_API Source : public SourceBase {
    * Creates the source with the specified buffer.
    * @param buffer is the buffer to use.
    */
-  Source(const Sample &buffer,float x=0.0,float y=0.0,float z=0.0);
+  Source( Sample *buffer );
 
-  /**
-   * Constructor.
-   * Creates the source with the specified stream.
-   * @param stream is the stream to use.
-   */
-  Source(const Stream &stream,float x=0.0,float y=0.0,float z=0.0);
 
   /**
    * Copy constructor.
@@ -107,7 +94,7 @@ class OPENALPP_API Source : public SourceBase {
    * The source should _not_ be playing when doing this.
    * @param buffer is the new buffer.
    */
-  void setSound(const Sample *buffer);
+  void setSound( Sample *buffer);
 
   /**
    * Sets a new (streamed) buffer for the source.
@@ -116,7 +103,7 @@ class OPENALPP_API Source : public SourceBase {
    */
   void setSound(Stream *stream);
 
-  void setSound(const Stream *stream);
+  //void setSound(const Stream *stream);
 
   /**
    * Gets the buffer associated with the source.
@@ -136,14 +123,14 @@ class OPENALPP_API Source : public SourceBase {
    * This will change the source's buffer.
    * @param buffer is the buffer to play.
    */
-  void play(const Sample *buffer);
+  void play( Sample *buffer);
     
   /**
    * Play a stream on the source.
    * This will change the source's buffer.
    * @param stream is the stream to play.
    */
-  void play(const Stream *stream);
+  void play( Stream *stream);
     
   /**
    * Play this source.

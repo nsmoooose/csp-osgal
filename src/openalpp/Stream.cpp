@@ -23,7 +23,7 @@
 
 using namespace openalpp;
 
-Stream::Stream() throw (NameError) : SoundData() {
+Stream::Stream() throw (NameError) : SoundData(), isRecording_(false) {
   buffer2_=new SoundData();
   updater_=NULL;
 }
@@ -31,30 +31,30 @@ Stream::Stream() throw (NameError) : SoundData() {
 Stream::Stream(const Stream &stream) : SoundData((const SoundData &)stream) {
   buffer2_=stream.buffer2_;//->reference();
   updater_=stream.updater_;//->reference();
+  isRecording_ = stream.isRecording_;
 }
 
 Stream &Stream::operator=(const Stream &stream) {
   if(this!=&stream) {
     SoundData::operator=((const SoundData &)stream);
-    //buffer2_->deReference();
     buffer2_=stream.buffer2_;//->reference();
-//    updater_;//->deReference();
     updater_=stream.updater_;//->reference();
   }
   return *this;
 }
 
 Stream::~Stream() {
-  //if(buffer2_)
-  //  buffer2_->deReference();
-  //if(updater_)
-  //  updater_->deReference();
+  updater_ = 0L;
 }
 
 void Stream::record(ALuint sourcename) {
   if(!updater_)
     throw FatalError("No updater thread for stream!");
+  if (!isRecording_)
+    alSourcei(sourcename,AL_BUFFER,0);
+
   updater_->addSource(sourcename);
+  isRecording_ = true;
 }
 
 
@@ -71,4 +71,5 @@ void Stream::stop(ALuint sourcename) {
   if(!updater_)
     throw FatalError("No updater thread for stream!");
   updater_->removeSource(sourcename);
+  isRecording_ = false;
 }

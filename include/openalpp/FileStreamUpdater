@@ -44,8 +44,9 @@ namespace openalpp {
 
         /**
         * Perform seek on stream
+        * @return true if seek was performed with no errors
         */
-        void seekNow(float time_s);
+        bool seekNow(float time_s);
 
     public:
         /**

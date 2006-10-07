@@ -45,13 +45,40 @@ int main(int argc,char **argv) {
   try 
     {
 
-        osg::ref_ptr<Source> source = new Source(new FileStream(argv[1]));
+      osg::ref_ptr<FileStream> fstream = new FileStream(argv[1]);
+      osg::ref_ptr<Source> source = new Source(fstream.get());
 
-        source->setLooping(true);
-        source->play();
+      source->setLooping(true);
+     //   source->play();
 
-        std::cout << "Press return to exit" << std::endl;
-        std::cin.get();
+      while(1) {
+          std::cerr << "1. play" << std::endl;
+          std::cerr << "2. stop" << std::endl;
+          std::cerr << "3. rewind" << std::endl;
+          std::cerr << "4. pause" << std::endl;
+
+          std::cout << "Press q+return to exit> " << std::endl;
+
+
+          std::string line;
+          std::getline(std::cin, line, '\n');
+          
+
+          if (line == "1") {
+            source->play();
+          }
+          else if (line == "2") 
+            source->stop();
+          else if (line == "3") 
+            source->seek(0);
+          else if (line=="4")
+            source->pause();
+          else if (line=="q")
+            break;
+          else
+            std::cerr << "'" << line << "' is an invalid choice" << std::endl;
+      }
+      source = 0L;
     } 
     catch(openalpp::Error e) 
     {

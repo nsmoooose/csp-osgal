@@ -42,13 +42,15 @@ extern "C" {
 #include <OpenThreads/Thread>
 #include <OpenThreads/Mutex>
 #include <osg/Referenced>
+#include <osgDB/ReentrantMutex>
+#include <openalpp/Event>
 
 namespace openalpp {
 
 /**
  * Base class for (threaded) updating of stream buffers.
  */
-  class OPENALPP_API StreamUpdater : public OpenThreads::Thread, public OpenThreads::Mutex, public osg::Referenced {
+  class OPENALPP_API StreamUpdater : public OpenThreads::Thread, public osgDB::ReentrantMutex, public osg::Referenced {
 
  public:
   /**
@@ -81,6 +83,16 @@ namespace openalpp {
 
 
   /**
+   * Tell this StreamUpdater thread to wait until some thread call its release
+   */
+  void hold() { m_playEvent.reset(); } 
+  
+  /**
+   * Release this thread.
+   */
+  void release() { m_playEvent.signal(); }
+
+  /**
    * Update the stream.
    * I.e. add new data to play.
    * @param buffer is a pointer to sound data.
@@ -90,10 +102,10 @@ namespace openalpp {
   bool update(void *buffer,unsigned int length); 
 
   /**
-    Tell the thread to stop executing
+    Tell the thread to stop executing, also release it if its waiting to play.
     @return nothing
   */
-  virtual void stop() { stoprunning_ = true; }
+  virtual void stop() { stoprunning_ = true; release(); }
   
   /**
     @return true if the stop method has been called
@@ -113,11 +125,25 @@ namespace openalpp {
 
  protected:
 
+  /**
+   * Remove any sources that the user has scheduled for removal.
+   */
+  void processRemovedSources();
+
+  /**
+   * Add any sources that the user has scheduled for adding.
+   */
+  void processAddedSources();
+
    /**
    * Destructor.
    */
   virtual ~StreamUpdater();
 
+  /**
+   *  Wait for someone to call release. This indicates that we should start playing a stream
+   */
+  void waitForPlay() { m_playEvent.wait(); }
    
    /**
    * Names of the buffers to update.
@@ -156,6 +182,11 @@ namespace openalpp {
    int sleepTime_;
    void sleep() { OpenThreads::Thread::microSleep(sleepTime_); }
       
+
+  /** Event signalling that source is playing
+   *
+   */
+  Event m_playEvent;
 };
 
 }

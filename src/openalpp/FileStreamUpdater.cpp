@@ -22,6 +22,25 @@
 
 using namespace openalpp;
 
+const char *getOggVorbisErrorMessage(int e)
+{
+  switch(e) {
+    case (OV_ENOSEEK):
+      return "Bitstream is not seekable.";
+    case (OV_EINVAL):
+      return "Invalid argument value; possibly called with an OggVorbis_File structure that isn't open.";
+    case (OV_EREAD):
+      return "A read from media returned an error.";
+    case (OV_EFAULT):
+      return "Internal logic fault; indicates a bug or heap/stack corruption.";
+    case (OV_EBADLINK):
+      return "Invalid stream section supplied to libvorbisfile, or the requested link is corrupt.";
+    default:
+      return "Invalid error code specified";
+    }
+  return "";
+}
+
 FileStreamUpdater::FileStreamUpdater(
                                      OggVorbis_File *oggfile,
                                      const ALuint buffer1,ALuint buffer2,
@@ -75,6 +94,9 @@ void FileStreamUpdater::run()
             {
                 seekNow(seekTime_);
                 seekPending_ = false;
+                count = 0;
+                continue;
+
             }
 
             if (!eofReached)
@@ -105,7 +127,7 @@ void FileStreamUpdater::run()
                 {
                     if(!ov_seekable(oggfile_))
                         break;
-                    if(!ov_time_seek(oggfile_,0.0)) 
+                    if(seekNow(0.0)) 
                       eofReached = false;
                     else
                       break;
@@ -114,8 +136,8 @@ void FileStreamUpdater::run()
             }
             else
             {
-                fprintf(stderr, "FileStreamUpdater::run() - ov_read error\n");
-                break;
+              std::cerr << "FileStreamUpdater::run() - ov_read error" << std::endl;
+              break;
             }
 
 
@@ -147,12 +169,19 @@ void FileStreamUpdater::seek(float time_s)
     seekPending_ = true;
 }
 
-void FileStreamUpdater::seekNow(float time_s)
+bool FileStreamUpdater::seekNow(float time_s)
 {
     if ((oggfile_) && ov_seekable(oggfile_))
     {
-        ov_time_seek(oggfile_, time_s);
+     int s = ov_time_seek(oggfile_, time_s);
+     if (s) {
+       const char *str = getOggVorbisErrorMessage(s);
+       std::cerr << "Error seeking oggstream: " << str << std::endl;
+       return false;
+     }
+     return true;
     }
+    return false;
 }
 
 void FileStreamUpdater::setLooping(bool loop) {

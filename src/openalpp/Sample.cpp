@@ -20,28 +20,17 @@
 
 #include "openalpp/Sample"
 #include <sstream>
-#include <AL/alut.h>
+#include <alut.h>
 
 using namespace openalpp;
 
   Sample::Sample(const std::string& filename) throw (FileError)
   : SoundData(),filename_(filename) {
-//  ALsizei size,bits,freq;
- // ALenum format,error;
- // ALvoid *data;
-  //ALboolean success;
-
   ALuint success = alutCreateBufferFromFile (filename.c_str());
 
-  //success=alutLoadWAV(filename.c_str(),&data,&format,&size,&bits,&freq);
   if(success!=AL_NONE) {
-    //buffername_ = success;
     buffer_ = new SoundBuffer(success);
 
-    //alBufferData(buffername_,format,data,size,freq);
-    //if((error=alGetError())!=AL_FALSE)
-    //  throw FileError("Error buffering sound");
-    //free(data);
   } else {
     ALenum error = alutGetError ();
     const char *error_str = alutGetErrorString (error);
@@ -52,7 +41,7 @@ using namespace openalpp;
 }
 
 Sample::Sample(const Sample &sample)
-  : SoundData(/*(const SoundData &)*/sample), filename_(sample.filename_) {
+  : SoundData(sample), filename_(sample.filename_) {
 }
 
 Sample::Sample(ALenum format,ALvoid* data,ALsizei size,ALsizei freq) throw (FileError)

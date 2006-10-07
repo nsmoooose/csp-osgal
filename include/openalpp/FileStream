@@ -72,7 +72,7 @@ protected:
    */
   virtual ~FileStream();
 
-    OggVorbis_File* oggfile;
+    OggVorbis_File* oggfile_;
 
 };
 

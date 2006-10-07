@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="osgd.lib openthreadswin32d.lib alut.lib openal32.lib  winmm.lib  dsound.lib vorbisfile_d.lib ogg_d.lib"
+				AdditionalDependencies="osgdbd.lib osgd.lib openthreadswin32d.lib alut.lib openal32.lib  winmm.lib  dsound.lib vorbisfile_d.lib ogg_d.lib"
 				OutputFile="../../bin/$(ProjectName)d.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
@@ -111,7 +111,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="osg.lib  openthreadswin32.lib alut.lib openal32.lib vorbisfile.lib ogg.lib winmm.lib wsock32.lib dsound.lib"
+				AdditionalDependencies="osgdb.lib  osg.lib  openthreadswin32.lib alut.lib openal32.lib vorbisfile.lib ogg.lib winmm.lib wsock32.lib dsound.lib"
 				OutputFile="../../bin/$(ProjectName).dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -171,6 +171,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\openalpp\Error.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\openalpp\Event.cpp">
 			</File>
 			<File
 				RelativePath="..\..\src\openalpp\FileStream.cpp">
@@ -235,6 +238,9 @@
 			</File>
 			<File
 				RelativePath="..\..\include\openalpp\Error">
+			</File>
+			<File
+				RelativePath="..\..\include\openalpp\Event">
 			</File>
 			<File
 				RelativePath="..\..\include\openalpp\Export">

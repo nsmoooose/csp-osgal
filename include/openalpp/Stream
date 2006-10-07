@@ -90,6 +90,7 @@ protected:
    */
    virtual ~Stream();
 
+    bool isRecording_;
 };
 
 }

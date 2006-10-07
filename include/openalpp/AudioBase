@@ -25,15 +25,15 @@
 #include <cstdlib>
 
 extern "C" {
-#include <AL/al.h>
-#include <AL/alut.h>
-#include <AL/alc.h>
+#include <al.h>
+#include <alut.h>
+#include <alc.h>
 }
 
 #include "openalpp/windowsstuff"
 #include "openalpp/Error"
 #include <osg/Referenced>
-#include "osg/ref_ptr"
+#include <osg/ref_ptr>
 
 /**
  * \mainpage
@@ -122,6 +122,18 @@ class OPENALPP_API AudioBase : public osg::Referenced {
    */
   static void (*alReverbDelay)(ALuint sid, ALfloat param);
 };
+
+  const char *alGetErrorString(ALenum error);
+
+#include <iostream>
+  #define ALCHECKERROR() \
+  { \
+    ALenum e; \
+    if ((e=alGetError()) != AL_NO_ERROR){ \
+      const char *msg = openalpp::alGetErrorString(e); \
+      std::cerr << "alError: (" << e << ") " << __FILE__ << " at Line: " << __LINE__  << ": " << msg << std::endl; \
+    } \
+  }
 
 }
 

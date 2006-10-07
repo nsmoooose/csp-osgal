@@ -108,6 +108,28 @@ AudioBase::~AudioBase() {
   }
 }
 
+
+const char *openalpp::alGetErrorString(ALenum error)
+{
+  switch (error) {
+    case (AL_INVALID_NAME):
+      return "Invalid Name parameter passed to AL call.";
+    case (AL_INVALID_ENUM):
+      return "Invalid parameter passed to AL call.";
+    case (AL_INVALID_VALUE):
+      return "Invalid enum parameter value.";
+    case (AL_INVALID_OPERATION):
+      return "Illegal call.";
+    case (AL_OUT_OF_MEMORY):
+      return "Óut of memory.";
+    default:
+      return "No message associated wíth error code.";
+
+  }
+  return "";
+}
+
+
 // Static members
 int AudioBase::instances_=0;
 ALCdevice *AudioBase::device_=NULL;

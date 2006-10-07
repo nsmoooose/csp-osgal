@@ -23,8 +23,9 @@
 
 #include "openalpp/Streamupdater"
 
-#define ENTER_CRITICAL lock()
-#define LEAVE_CRITICAL unlock()
+#define ENTER_CRITICAL lock(); 
+
+#define LEAVE_CRITICAL unlock(); 
 
 #ifdef _DEBUG
 // for memory leak reporting
@@ -34,14 +35,7 @@
 #define DEBUG_NEW new
 #endif
 
-#define ALCHECKERROR() \
-  { \
-  ALenum e; \
-if ((e=alGetError()) != AL_NO_ERROR){ \
-  const char *msg = alutGetErrorString(e); \
-  std::cerr << "Error: " << e << " ALUT: " << msg << std::endl; \
-} \
-  }
+
 
 using namespace openalpp;
 
@@ -51,12 +45,20 @@ StreamUpdater::StreamUpdater(ALuint buffer1,ALuint buffer2,
 {
     buffers_[0]=buffer1;
     buffers_[1]=buffer2;
+
+    // Start by not letting this thread stream data
+    m_playEvent.reset();
+
 }
 
 StreamUpdater::~StreamUpdater() {
     runmutex_.lock();
     stop();
     runmutex_.unlock();
+
+    release();
+
+    cancel();
 
     /* remove all sources, there may be a better way
     ** but otherwise sources are not removed for streams that reach EOF
@@ -73,25 +75,98 @@ StreamUpdater::~StreamUpdater() {
         }
     }
     sources_.clear();
+    removesources_.clear();
+    newsources_.clear();
 
-
-    cancel();
 }
 
 void StreamUpdater::addSource(ALuint sourcename) {
-    ENTER_CRITICAL;
-    alSourceStop(sourcename);
-    newsources_.push_back(sourcename);
-    if(!sources_.size())
-        start();
-    LEAVE_CRITICAL;
+  OpenThreads::ScopedLock<OpenThreads::Mutex> scope_lock(*this);
+
+  alSourceStop(sourcename);
+  newsources_.push_back(sourcename);
+  if(!sources_.size()) {
+    if (!isRunning()) {
+      start(); // Now when we have added a source, start the thread
+    }
+  }
+  release();
 }
 
 void StreamUpdater::removeSource(ALuint sourcename) {
-    ENTER_CRITICAL;
+  {
+    OpenThreads::ScopedLock<OpenThreads::Mutex> scope_lock(*this);
     removesources_.push_back(sourcename);
-    LEAVE_CRITICAL;
+  }    
+
+  // If there are no more sources, tell the thread to wait
+  if (!(sources_.size()-1))
+    hold();
 }
+
+void StreamUpdater::processRemovedSources()
+{
+  // remove sources that are queued for removal
+  OpenThreads::ScopedLock<OpenThreads::Mutex> scope_lock(*this);
+  while (sources_.size() && removesources_.size()) 
+  {
+    for (unsigned int i=0;i<sources_.size();i++)
+      if (removesources_.back()==sources_[i]) 
+      {
+        alSourceStop(removesources_.back());
+        ALuint dump[2];
+        ALint nqueued;
+        alGetSourceiv(removesources_.back(),AL_BUFFERS_QUEUED,&nqueued);
+        if(nqueued)
+          alSourceUnqueueBuffers(removesources_.back(),nqueued,dump);
+        alGetError();
+        while((i+1)<sources_.size())
+          sources_[i]=sources_[i+1];
+        break;
+      }
+      sources_.pop_back();
+      removesources_.pop_back();
+  }
+  removesources_.clear();
+}
+
+
+void StreamUpdater::processAddedSources()
+{
+  /* Add sources queued to be added, waiting until at least
+  ** one source is added.
+  ** Do not add duplicates */
+  OpenThreads::ScopedLock<OpenThreads::Mutex> scope_lock(*this);
+
+  while (newsources_.size()) 
+  {
+    if (newsources_.size()) 
+    {
+      while(newsources_.size())
+      {
+        bool duplicateSource = false;
+        for (size_t n=0; n<sources_.size(); ++n)
+        {
+          if (sources_[n] == newsources_.back()) {
+            duplicateSource = true;
+            newsources_.pop_back();
+            if (!newsources_.size())
+              break;
+          }
+        }
+        if (!duplicateSource)
+        {
+          sources_.push_back(newsources_.back());
+          alSourceStop(newsources_.back());
+          newsources_.pop_back();
+        }
+      }
+    } 
+  }
+  
+
+}
+
 
 /**
 * If playing, wait for a buffer to be processed,
@@ -109,66 +184,15 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
     ALint processed,state;
     ALuint albuffer=0;
 
+    // Wait here until someone calls release, which indicates that there are sources to be processed
+    waitForPlay();
+    processRemovedSources();
+    processAddedSources();
+
     ENTER_CRITICAL;
-
-    // remove sources that are queued for removal
-    while (sources_.size() && removesources_.size()) 
-    {
-        for (unsigned int i=0;i<sources_.size();i++)
-            if (removesources_.back()==sources_[i]) 
-            {
-                alSourceStop(removesources_.back());
-                ALuint dump[2];
-                ALint nqueued;
-                alGetSourceiv(removesources_.back(),AL_BUFFERS_QUEUED,&nqueued);
-                if(nqueued)
-                    alSourceUnqueueBuffers(removesources_.back(),nqueued,dump);
-                alGetError();
-                while((i+1)<sources_.size())
-                    sources_[i]=sources_[i+1];
-                break;
-            }
-            sources_.pop_back();
-            removesources_.pop_back();
-    }
-
-
-    /* Add sources queued to be added, waiting until at least
-    ** one source is added.
-    ** Do not add duplicates */
-    while (newsources_.size() || !sources_.size()) 
-    {
-      if (newsources_.size()) 
-        {
-            while(newsources_.size())
-            {
-                bool duplicateSource = false;
-                for (size_t n=0; n<sources_.size(); ++n)
-                {
-                    if (sources_[n] == newsources_.back())
-                    {
-                        duplicateSource = true;
-                    }
-                }
-                if (!duplicateSource)
-                {
-                    sources_.push_back(newsources_.back());
-                    alSourceStop(newsources_.back());
-                    newsources_.pop_back();
-                }
-            }
-        } 
-        else 
-        {
-            LEAVE_CRITICAL;
-            OpenThreads::Thread::microSleep(50*1000);
-            ENTER_CRITICAL;
-        }
-    }
-
-
     processed = 0;
-    while (!processed) 
+
+    while (sources_.size() && !processed) 
     {
 
         state=AL_PLAYING;
@@ -179,17 +203,20 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
                 break;
         }
 
+        ///Todo: Pause is really not something that is very well implemented right now.
+        // It only uses state of first source to make out if we are in pause state or not.
+
         /* a hack to get the paused mode to work, wait for non paused state,
         ** using only the first source */
         if (state == AL_PAUSED)
         {
             while (state == AL_PAUSED)
             {
-                LEAVE_CRITICAL;
-                YieldCurrentThread();
-                ENTER_CRITICAL;
-
-                alGetSourceiv(sources_[0], AL_SOURCE_STATE, &state);
+              LEAVE_CRITICAL;
+              YieldCurrentThread();
+              ENTER_CRITICAL;
+              OpenThreads::Thread::microSleep(1);
+              alGetSourceiv(sources_[0], AL_SOURCE_STATE, &state);
             }
         }
 
@@ -203,10 +230,11 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
                 alSourceStop(sources_[i]);
                 ALint nqueued;
                 alGetSourceiv(sources_[i], AL_BUFFERS_QUEUED, &nqueued);
-
+                ALCHECKERROR();
                 if (nqueued)
                 {
                     alSourcePlay(sources_[i]);
+                    ALCHECKERROR();
                 }
                 else
                 {
@@ -225,18 +253,24 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
                 // synchronized (they have to be unless we start using different
                 // buffers for each source)...
                 alSourceStop(sources_[i]);
+                ALCHECKERROR();
                 ALint nqueued;
                 alGetSourceiv(sources_[i],AL_BUFFERS_QUEUED,&nqueued);
+                ALCHECKERROR();
                 if(nqueued)
                     alSourceUnqueueBuffers(sources_[i],nqueued,dump);
+                ALCHECKERROR();
             }
             unsigned int l = length*0.5;
             alBufferData(buffers_[0],format_,buffer,l,frequency_);
+            ALCHECKERROR();
             alBufferData(buffers_[1],format_,
                 (char *)buffer+l,l,frequency_);
+            ALCHECKERROR();
             for(unsigned int i=0;i<sources_.size();i++) 
             {
                 alSourceQueueBuffers(sources_[i],2,buffers_);
+                ALCHECKERROR();
                 alSourcePlay(sources_[i]);  // TODO: This would be better handled by
                 ALCHECKERROR();
                 // alSourcePlayv((ALuint *)&sources_[0]..)...;
@@ -249,36 +283,43 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
             processed=1;
             for(unsigned int i=0;i<sources_.size();i++) {
                 alGetSourceiv(sources_[i],AL_BUFFERS_PROCESSED,&processed);
+                ALCHECKERROR();
                 if(!processed)
                     break;
             }
+            ALCHECKERROR();
 
             if(processed) {
-                for(unsigned int i=0;i<sources_.size();i++)
-                    alSourceUnqueueBuffers(sources_[i],1,&albuffer);
-                alBufferData(albuffer,format_,buffer,length,frequency_);
-                for(unsigned int i=0;i<sources_.size();i++)
-                    alSourceQueueBuffers(sources_[i],1,&albuffer);
-                YieldCurrentThread();
+              for(unsigned int i=0;i<sources_.size();i++) {
+                alSourceUnqueueBuffers(sources_[i],1,&albuffer);
+                ALCHECKERROR();
+              }
+              alBufferData(albuffer,format_,buffer,length,frequency_);
+              ALCHECKERROR();
+              for(unsigned int i=0;i<sources_.size();i++)
+                alSourceQueueBuffers(sources_[i],1,&albuffer);
+              YieldCurrentThread();
             } else {
+              LEAVE_CRITICAL;
+              YieldCurrentThread();
+              OpenThreads::Thread::microSleep(1000*10);
+              ENTER_CRITICAL;
+              // Not sure if this is necessary, but just in case...
+              if(removesources_.size()) {                
                 LEAVE_CRITICAL;
-                YieldCurrentThread();
-                OpenThreads::Thread::microSleep(1000*10);
-                ENTER_CRITICAL;
-                // Not sure if this is necessary, but just in case...
-                if(removesources_.size()) {
-                    LEAVE_CRITICAL;
-                    return update(buffer,length);
-                }
+                return update(buffer,length);
+              }
             } // if(processed) else
         } // if(state!=AL_PLAYING) else
 
     } // while(!processed)
+    ALCHECKERROR();
 
     LEAVE_CRITICAL;
     bool ret;
     runmutex_.lock();
-    ret=shouldStop();runmutex_.unlock();
+    ret=shouldStop();
+    runmutex_.unlock();
     
     return ret;
 }

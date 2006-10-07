@@ -28,54 +28,35 @@ Source::Source(float x, float y, float z) : SourceBase(x,y,z) {
   sounddata_=NULL;
 }
 
-Source::Source(const Stream *stream) : SourceBase() {
-  streaming_=true;
-
-  sounddata_=new Stream(*stream);
-  alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
-}
-
-Source::Source(const FileStream *stream) : SourceBase() {
-  streaming_=true;
-
-  sounddata_=new FileStream(*stream);
-  alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
-}
-Source::Source(const std::string& filename,float x,float y,float z)
-  : SourceBase(x,y,z) {
+Source::Source(const std::string& filename)
+  : SourceBase() {
   streaming_=false;
   sounddata_=new Sample(filename);
   alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
 }
 
-Source::Source(const Sample &buffer,float x,float y,float z)
-  : SourceBase(x,y,z) {
-  streaming_=false;
-  sounddata_=new Sample(buffer);
-  alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
+
+Source::Source( Stream *stream) : SourceBase() {
+  setSound(stream);
 }
 
-
-  Source::Source(const Stream &stream,float x,float y,float z) 
-  : SourceBase(x,y,z) {
-  streaming_=true;
-  sounddata_=new Stream(stream);
-  // Associate the source with a buffer, even if update will change this later on.
-  // otherwise OpenAL will crash.
-  alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
+Source::Source( Sample *sample) : SourceBase() {
+  setSound(sample);
 }
 
-Source::Source(const Source &source) : SourceBase(source) {
+Source::Source( const Source &source) : SourceBase(source) {
   streaming_=source.streaming_;
   if(streaming_)
-    sounddata_=new Stream(*(const Stream *)source.getSound());
+    sounddata_= new Stream(*(const Stream *)source.getSound());
   else
-    sounddata_=new Sample(*(const Sample *)source.getSound());
+    sounddata_= new Sample(*(const Sample *)source.getSound());
+
   alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
 }
 
 Source::~Source() {
   stop();
+  sounddata_ = 0L;
 }
 
 // TODO: Add flag for wether the sound should be loaded. This is useful for
@@ -86,12 +67,15 @@ void Source::setSound(const std::string& filename) {
   alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
 }
 
-void Source::setSound(const Sample *buffer) {
+void Source::setSound( Sample *buffer ) {
+  
+
   streaming_=false;
 
-  osg::ref_ptr<SoundData> tmp = sounddata_;
-  sounddata_=new Sample(*buffer);
+  //osg::ref_ptr<SoundData> tmp = sounddata_;
+  sounddata_=buffer; //new Sample(*buffer);
   alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
+
 }
 
 void Source::setSound(Stream *stream) {
@@ -106,9 +90,9 @@ void Source::setSound(Stream *stream) {
   sounddata_= stream;
   alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
 }
-
-void Source::setSound(const Stream *stream) {
-  streaming_=true;
+/*
+void Source::setSound( Stream *stream ) {
+  //streaming_=true;
 
   if (sounddata_.valid())
   {
@@ -116,11 +100,12 @@ void Source::setSound(const Stream *stream) {
           "resetting stream not supported, create new source\n");
       return;
   }
+  setSound(stream); 
 
-  sounddata_=new Stream(*stream);
-  alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
+  //sounddata_=new Stream(*stream);
+  //alSourcei(sourcename_,AL_BUFFER,sounddata_->getAlBuffer());
 }
-
+*/
 const SoundData *Source::getSound() const {
   return sounddata_.get();
 }
@@ -130,12 +115,12 @@ void Source::play(const std::string& filename) {
   SourceBase::play();
 }
 
-void Source::play(const Sample *buffer) {
+void Source::play( Sample *buffer) {
   setSound(buffer);
   SourceBase::play();
 }
 
-void Source::play(const Stream *stream) {
+void Source::play( Stream *stream) {
   alSourcei(sourcename_,AL_LOOPING,AL_FALSE); //Streaming sources can't loop...
   setSound(stream);
   ((Stream *)sounddata_.get())->record(sourcename_);
@@ -152,7 +137,6 @@ void Source::play() {
   if(streaming_ && !isPaused()) {
     alSourcei(sourcename_,AL_LOOPING,AL_FALSE); //Streaming sources can't loop...
     // Remove any previous attached buffers if its a Source attached to a stream
-    alSourcei(sourcename_,AL_BUFFER,0);
 
     ((Stream *)sounddata_.get())->record(sourcename_);
   }

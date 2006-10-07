@@ -41,34 +41,69 @@ int main(int argc,char **argv) {
   try 
   {
 
-    osg::ref_ptr<Capture> input = new Capture();
+    osg::ref_ptr<Capture> input = new Capture(0,44100*0.5,2048*4,Mono16);
     osg::ref_ptr<Source> source = new Source(input.get());
 
     source->setAmbient();
-    source->play(); // Start recording and stream it to the Source.
 
     float limits[2] = {5,-15};
     float delay=10;
     float time=0,angle=0;
+    float pitch = 1;
+    while(1) {
+      std::cerr << "1. Start streaming from input device" << std::endl;
+      std::cerr << "2. Stop streaming" << std::endl;
+      std::cerr << "3. Move sound left/right for 3 seconds" << std::endl;
+      std::cerr << "+. increase pitch" << std::endl;
+      std::cerr << "-. decrease pitch" << std::endl;
 
-    source->setPosition(limits[0],0.0,0.0);
-    std::cerr << "Moving sound 5 laps..." << std::endl;
-    const int no_laps=5;
+      std::cout << "Press q+return to exit> " << std::endl;
 
-    // Do a cheat time loop.
-    while(angle<(M_PI*2.0*no_laps)) {
-      usleep(delay*1000); // Wait for delay milliseconds
 
-      time +=delay/1000; // Calculate the time in the loop
-      angle=M_PI *time;  // What is the resulting angle
+      std::string line;
+      std::getline(std::cin, line, '\n');
 
-      // Calculate a new position
-      source->setPosition(limits[0]*cos(angle),0.0,limits[1]*sin(angle));
+
+      if (line == "1") {
+        source->play();
+      }
+      else if (line == "2") 
+        source->stop();
+      else if (line == "+") {
+        pitch *= 1.1;
+        std::cerr << "Setting pitch to: " << pitch << std::endl;
+        source->setPitch(pitch);
+
+      }
+      else if (line=="-"){
+        pitch *= 0.9;
+        std::cerr << "Setting pitch to: " << pitch << std::endl;
+        source->setPitch(pitch);
+
+      }
+      else if (line=="q")
+        break;
+      else if (line == "3") {
+        source->setPosition(limits[0],0.0,0.0);
+        std::cerr << "Moving sound 3 laps..." << std::endl;
+        const int no_laps=3;
+
+        // Do a cheat time loop.
+        while(angle<(M_PI*2.0*no_laps)) {
+          usleep(delay*1000); // Wait for delay milliseconds
+
+          time +=delay/1000; // Calculate the time in the loop
+          angle=M_PI *time;  // What is the resulting angle
+
+          // Calculate a new position
+          source->setPosition(limits[0]*cos(angle),0.0,limits[1]*sin(angle));
+        }
+        
+      }
+      else
+        std::cerr << "'" << line << "' is an invalid choice" << std::endl;
     }
-
-
-    std::cout << "Press return to exit" << std::endl;
-    std::cin.get();
+    source = 0L;
   } 
   catch(openalpp::Error e) 
   {
