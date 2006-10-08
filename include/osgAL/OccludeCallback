@@ -63,10 +63,10 @@ public:
   */
   OccludeCallback();
   
-    // Implementation of virtual functions of osg::Object
+  // Implementation of virtual functions of osg::Object
   virtual osg::Object* cloneType() const { return new OccludeCallback(); }
   virtual osg::Object* clone(const osg::CopyOp& copyop) const {
-	return new OccludeCallback(*this); 
+	  return new OccludeCallback(*this); 
   }
   virtual const char* libraryName() const { return "osgAL"; }
   virtual const char* className() const { return "OccludeCallback"; }
@@ -82,25 +82,25 @@ public:
   
   /// Set the node that will occlude the sound
   void setOccludingNode(osg::Node *root) {
-	m_root = root;
+	  m_root = root;
   }
   
   /// Get the node that will occlude the sound
   osg::Node * getOccludingNode() {
-	return m_root.get();
+	  return m_root.get();
   }
 
   /// Get in const the node that will occlude the sound
   const osg::Node * getOccludingNode() const {
-	return m_root.get();
+	  return m_root.get();
   }     
   
-  protected:
+protected:
 	virtual void operator()(double distance, osg::Node *occluder, bool left_occluded, bool right_occluded);
 
-    SoundNode *getSoundNode() { return m_sound_node; }
+  SoundNode *getSoundNode() { return m_sound_node; }
     
-  private:
+private:
 	friend class SoundNode;
 	
 	/*! Executed from SoundNode::traverse.

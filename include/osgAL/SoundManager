@@ -72,13 +72,15 @@ namespace osgAL
     SoundState a Source is allocated.
     When the SoundManager realizes that a SoundState is not playing anymore, it is removed from
     the list of active SoundStates and put back in to the FlyWeight set of available SoundStates.
+    
+  This makes the pushSoundEvent method suitable for playing soundeffects.
 */
 class OSGAL_EXPORT SoundManager : public osg::Referenced
 {
 public:
 
    
-  /// Return the singleton object
+  /// Return a pointer to the singleton object
   static SoundManager* instance( void );
 
   /*! Deallocates any allocated memory, this method have to be called prior to the end of main()
@@ -86,7 +88,6 @@ public:
   */
   virtual void shutdown();
 
-    /// Return a pointer to the singleton object
 
   /// Returns true if the SoundManager is initalized
   bool initialized() { return m_initialized; }
@@ -109,12 +110,12 @@ public:
     path there. If it can be found, it will return to that Sample.
     Otherwise it will be loaded from disk.
   */
-  openalpp::Sample* SoundManager::getSample( const std::string& path, bool add_to_cache=true );
+  openalpp::Sample* getSample( const std::string& path, bool add_to_cache=true );
 
   /*! 
     Clear the sample cache with all loaded samples.
   */
-  void SoundManager::clearSampleCache(void) {  m_sample_cache.clear(); }
+  void clearSampleCache(void) {  m_sample_cache.clear(); }
 
 
   /*! 
@@ -124,12 +125,12 @@ public:
     path there. If it can be found, it will return to that Stream.
     Otherwise it will be loaded from disk.
   */
-  openalpp::Stream* SoundManager::getStream( const std::string& path, bool add_to_cache=true );
+  openalpp::Stream* getStream( const std::string& path, bool add_to_cache=true );
 
   /*! 
     Clear the Stream cache with all loaded streams.
   */
-  void SoundManager::clearStreamCache(void) {  m_stream_cache.clear(); }
+  void clearStreamCache(void) {  m_stream_cache.clear(); }
 
 
   /*!
@@ -253,7 +254,7 @@ private:
   openalpp::Source *getSource(unsigned int priority, bool registrate_as_active=true, int depth=0);
 
   /// Destructor
-	~SoundManager();
+	virtual ~SoundManager();
 
   /// Default Constructor
   SoundManager( void );
@@ -267,7 +268,7 @@ private:
 
     SoundState *getSoundState(SoundState *state);
     void releaseSoundState(SoundState *state);
-	void clean() { m_sound_states.resize(0); }
+	  void clean() { m_sound_states.resize(0); }
   private:
 
     std::vector< osg::ref_ptr<SoundState> > m_sound_states;
@@ -361,59 +362,4 @@ inline openalpp::AudioEnvironment *SoundManager::getEnvironment()
 
 #define g_SoundManager osgAL::SoundManager::instance()
 #endif
-
-
-/*------------------------------------------
-* $Source: /cvsroot/osgal/osgAL/include/osgAL/SoundManager,v $
-* $Revision: 1.10 $ 
-* $Date: 2006/02/01 10:02:17 $
-* $Author: vr-anders $ 
-  $Locker:  $
-
-  Author: Anders Backman
-  VRlab, Umeå University, 2004
- 
-* $Log: SoundManager,v $
-* Revision 1.10  2006/02/01 10:02:17  vr-anders
-* Fixed typo in error message.
-*
-* Revision 1.9  2005/12/08 12:41:15  vr-anders
-* Added stopAllSources() method
-*
-* Revision 1.8  2005/11/14 08:49:11  vr-anders
-* Moved processing of queued soundstates into a separate method.
-*
-* Revision 1.7  2005/05/27 07:21:35  vr-anders
-*   Alberto Jaspe (videaLAB / University of La Corua)
-*   - Several miscelaneus bugfixes.
-*   - Added support for reading/writing from/to osg files.
-*   - Important bugfixes in doppler issues.
-*   - Using just one update frequency for listener and sources, in SoundManager.
-*   - Using a state for clamp function for max velocites in both listener and sources,
-*     disabled by default.
-*   - Replaced the FilePath Manager for the osgDB support.
-*   - Added a new example called osgalviewer, that acts like osgviewer, but with some
-*     features oriented to treat with Sound Nodes.
-*   - Compiled and tested with OSG 0.9.9.
-*
-* Revision 1.6  2005/01/31 10:49:53  vrlab
-* *** empty log message ***
-*
-* Revision 1.5  2004/11/11 07:47:35  andersb
-* Added a simple occlude method for occluding soundsources against geometry
-*
-* Revision 1.4  2004/04/20 12:26:03  andersb
-* Added SoundRoot
-*
-* Revision 1.3  2004/03/05 09:42:30  andersb
-* *** empty log message ***
-*
-* Revision 1.2  2004/03/03 07:50:49  andersb
-* *** empty log message ***
-*
-* Revision 1.1.1.1  2004/03/02 07:20:58  andersb
-* Initial Version of the osgAL library
-*
-*
---------------------------------------------*/
 

@@ -1,4 +1,13 @@
 NEWS
+* 061008, Anders Backman
+  - Fixed numerous bugs in streaming code.
+  - Restructured the strange copying of Streams/Samples in constructors of Source class.
+  - Using more consistent reference pointing
+  - Got rid of crasch bug if Sources remained unallocated.
+  - Added "menus" to capture demo and playOgg demo.
+  - Fixed problem with attaching new streams to a playing source.
+
+
 * Version 0.5
   061004 Updated code:
   - Updated code for streaming ogg-files.

@@ -22,7 +22,7 @@
 #ifndef __SoundState_h__
 #define __SoundState_h__
 
-
+#include <limits>
 #include "osgAL/Export"
 
 #include <string>
@@ -295,7 +295,7 @@ private:
 
   
   /// Clear all the flags indicating a value has been set
-  void setAll(bool flag) { for(unsigned int i=0; i < m_is_set.size(); i++) m_is_set[i]=flag; }
+  void setAll(bool flag);
   
   osg::ref_ptr<openalpp::Stream> m_stream;
   osg::ref_ptr<openalpp::Sample> m_sample;
@@ -317,59 +317,20 @@ private:
 
 
   /// Return true if SetField f is set since last call to apply() or clear()
-  bool isSet(SetField f) { return m_is_set[f]; }
+  bool isSet(SetField f) const { return ((m_is_set>>f)&01) != 0; } //m_is_set[f]; }
+  bool isNoneSet() const { return m_is_set==0; }
 
   /// Set the given field to true
-  void set(SetField f) { m_is_set[f] = true; }
+  void set(SetField f) { m_is_set |=  (01 << f); } //[f] = true; }
 
   // Clear the given field to false
-  void clear(SetField f)  { m_is_set[f] = false; }
+  void clear(SetField f)  { m_is_set &=  ~(01 << f); }//[f] = false; }
 
-  std::vector<bool> m_is_set;
+  unsigned m_is_set;
+  //std::vector<bool> m_is_set;
 
 };
 
 } // Namespace osgAL
 #endif // 
 
-/*------------------------------------------
-* $Source: /cvsroot/osgal/osgAL/include/osgAL/SoundState,v $
-* $Revision: 1.6 $ 
-* $Date: 2005/05/27 07:21:35 $
-* $Author: vr-anders $ 
-  $Locker:  $
-
-  Author: Anders Backman
-  VRlab, Umeå University, 2002
- 
-* $Log: SoundState,v $
-* Revision 1.6  2005/05/27 07:21:35  vr-anders
-*   Alberto Jaspe (videaLAB / University of La Corua)
-*   - Several miscelaneus bugfixes.
-*   - Added support for reading/writing from/to osg files.
-*   - Important bugfixes in doppler issues.
-*   - Using just one update frequency for listener and sources, in SoundManager.
-*   - Using a state for clamp function for max velocites in both listener and sources,
-*     disabled by default.
-*   - Replaced the FilePath Manager for the osgDB support.
-*   - Added a new example called osgalviewer, that acts like osgviewer, but with some
-*     features oriented to treat with Sound Nodes.
-*   - Compiled and tested with OSG 0.9.9.
-*
-* Revision 1.5  2004/11/19 07:46:09  andersb
-* *** empty log message ***
-*
-* Revision 1.4  2004/11/11 07:47:36  andersb
-* Added a simple occlude method for occluding soundsources against geometry
-*
-* Revision 1.3  2004/04/20 12:26:04  andersb
-* Added SoundRoot
-*
-* Revision 1.2  2004/03/03 07:50:49  andersb
-* *** empty log message ***
-*
-* Revision 1.1.1.1  2004/03/02 07:20:58  andersb
-* Initial Version of the osgAL library
-*
-
---------------------------------------------*/

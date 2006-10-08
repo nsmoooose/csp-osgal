@@ -472,8 +472,9 @@ ALuint SourceBase::getAlSource() const {
 }
 
 void SourceBase::setPosition(float x, float y, float z) {
-  alSource3f(sourcename_,AL_POSITION,x,y,z);
   ALenum error=alGetError();
+  alSource3f(sourcename_,AL_POSITION,x,y,z);
+  error=alGetError();
   if(error!=AL_FALSE)
     switch(error) {
       case(AL_INVALID_VALUE):

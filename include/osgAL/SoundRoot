@@ -39,8 +39,8 @@ namespace osgAL
   /**
     This class updates the internal state of the osgAL::SoundManager during cull traversal from the current 
     modelView matrix.
-	The cull traversal for this node should be called after any changes are made to the SoundManager (added
-	SoundState events or such).   
+	  The cull traversal for this node should be called after any changes are made to the SoundManager (added
+	  SoundState events or such).   
    */
   class OSGAL_EXPORT SoundRoot: public osg::Node {
   public:
@@ -48,7 +48,7 @@ namespace osgAL
     /// Default constructor
     SoundRoot();
     
-	META_Node(osgAL ,SoundRoot);
+	  META_Node(osgAL ,SoundRoot);
     
     /*!
       Executed during traversal of the scenegraph.
@@ -57,8 +57,8 @@ namespace osgAL
     */
     void traverse(osg::NodeVisitor &nv);
 
-	void setUpdateEnable(bool flag) { m_update_enabled = flag; }
-	bool getUpdateEnable()  const { return m_update_enabled; }
+	  void setUpdateEnable(bool flag) { m_update_enabled = flag; }
+	  bool getUpdateEnable()  const { return m_update_enabled; }
 	
  
   protected:

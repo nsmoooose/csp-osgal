@@ -64,69 +64,74 @@ SoundNode::SoundNode(const SoundNode &copy, const osg::CopyOp &copyop)
 
 void SoundNode::traverse(osg::NodeVisitor &nv)
 {
-    // continue only if the visitor actually is a cull visitor
-    if (nv.getVisitorType() == osg::NodeVisitor::CULL_VISITOR) {
+  // continue only if the visitor actually is a cull visitor
+  if (nv.getVisitorType() == osg::NodeVisitor::CULL_VISITOR) {
 
-      // Make sure we only execute this once during this frame.
-      // could be two or more for stereo/multipipe...
-      if ( m_sound_state && nv.getTraversalNumber() != m_last_traversal_number && nv.getFrameStamp())
-      {
-		  
-	    m_last_traversal_number = nv.getTraversalNumber();
+    // Make sure we only execute this once during this frame.
+    // could be two or more for stereo/multipipe...
+    if (!m_sound_state.valid()) {
+      // call the inherited method
+      osg::notify(osg::DEBUG_INFO) << "SoundNode::traverse() No soundstate attached to soundnode" << std::endl;
+      Node::traverse(nv);
+      return;
+    }
+    if ( m_sound_state.valid() && nv.getTraversalNumber() != m_last_traversal_number && nv.getFrameStamp())
+    {
+  		  
+      m_last_traversal_number = nv.getTraversalNumber();
 
-        // retrieve the current time
-		double t = nv.getFrameStamp()->getReferenceTime();
-        double time = t - m_last_time;
+      // retrieve the current time
+		  double t = nv.getFrameStamp()->getReferenceTime();
+      double time = t - m_last_time;
 
-		if(time >= SoundManager::instance()->getUpdateFrequency()) {
+		  if(time >= SoundManager::instance()->getUpdateFrequency()) {
 
-			osg::Matrix m;
-			m = osg::computeLocalToWorld(nv.getNodePath());
-	  
-			osg::Vec3 pos = m.getTrans();
+			  osg::Matrix m;
+			  m = osg::computeLocalToWorld(nv.getNodePath());
+  	  
+			  osg::Vec3 pos = m.getTrans();
 
-			m_sound_state->setPosition(pos);
+			  m_sound_state->setPosition(pos);
 
-			//Calculate velocity
-			osg::Vec3 velocity(0,0,0);
+			  //Calculate velocity
+			  osg::Vec3 velocity(0,0,0);
 
-			if (m_first_run) {
-				m_first_run = false;
-				m_last_time = t;
-				m_last_pos = pos;
-			}
-			else {
-				velocity = pos - m_last_pos;
-				m_last_pos = pos;
-				m_last_time = t;
-				velocity /= time;
-			}
+			  if (m_first_run) {
+				  m_first_run = false;
+				  m_last_time = t;
+				  m_last_pos = pos;
+			  }
+			  else {
+				  velocity = pos - m_last_pos;
+				  m_last_pos = pos;
+				  m_last_time = t;
+				  velocity /= time;
+			  }
 
-			if(SoundManager::instance()->getClampVelocity()) {
-				float max_vel = SoundManager::instance()->getMaxVelocity();
-				float len = velocity.length();
-				if ( len > max_vel) {
-				velocity.normalize();
-				velocity *= max_vel;
-				}
-			}
+			  if(SoundManager::instance()->getClampVelocity()) {
+				  float max_vel = SoundManager::instance()->getMaxVelocity();
+				  float len = velocity.length();
+				  if ( len > max_vel) {
+				  velocity.normalize();
+				  velocity *= max_vel;
+				  }
+			  }
 
-			m_sound_state->setVelocity(velocity);
+			  m_sound_state->setVelocity(velocity);
 
-			//Get new direction
-			osg::Vec3 dir(0,1,0);
+			  //Get new direction
+			  osg::Vec3 dir(0,1,0);
 
-			dir = dir * m;
-			dir.normalize();
-			m_sound_state->setDirection(dir);      
+			  dir = dir * m;
+			  dir.normalize();
+			  m_sound_state->setDirection(dir);      
 
-			//Only do occlusion calculations if the sound is playing
-			if (m_sound_state->getPlay() && m_occlude_callback.valid())
-				m_occlude_callback->apply(SoundManager::instance()->getListenerMatrix(), pos, this);
-		}
-      }
-
-    } 
+			  //Only do occlusion calculations if the sound is playing
+			  if (m_sound_state->getPlay() && m_occlude_callback.valid())
+				  m_occlude_callback->apply(SoundManager::instance()->getListenerMatrix(), pos, this);
+		  } // if
+    }
+  } // if cullvisitor
 	
   // call the inherited method
   Node::traverse(nv);

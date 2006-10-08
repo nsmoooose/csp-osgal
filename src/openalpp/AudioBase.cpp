@@ -101,6 +101,7 @@ AudioBase::AudioBase(int frequency,int refresh,int synchronous)
 AudioBase::~AudioBase() {
   instances_--;
   if(!instances_) {
+//    std::cerr << "All instances removed, closing OpenAL context&device" << std::endl;
     alutExit ();
     alcMakeContextCurrent(NULL);
     alcDestroyContext(context_);

@@ -163,15 +163,9 @@ SoundManager::~SoundManager()
   if (initialized()) {
     std::string msg;
     msg = "SoundManager::shutdown() should be called for the SoundManager before the deconstructor is called";
-	osg::notify(osg::WARN) << "SoundManager::~SoundManager(): " << msg << std::endl;
+	  osg::notify(osg::WARN) << "SoundManager::~SoundManager(): " << msg << std::endl;
     //throw std::runtime_error("SoundManager::~SoundManager(): " + msg);
   }
-
-  // Unregistrate at the simulation manager
-  //g_SimulationMgr->setSoundManager(0L);
-
-  //  clean();
-
 }
 
 openalpp::Source *SoundManager::getSource(unsigned int priority, bool registrate_as_active, int depth)

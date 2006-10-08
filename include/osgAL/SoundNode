@@ -27,6 +27,7 @@
 
 
 #include <osg/ref_ptr>
+#include <osg/observer_ptr>
 #include <osg/Object>
 #include <osg/Node>
 #include <osg/NodeVisitor>
@@ -64,10 +65,10 @@ namespace osgAL
     void setSoundState(SoundState *sound_state) { m_sound_state = sound_state; }
     
     /// Returns a reference to to the Soundstate associated with this SoundNode
-    SoundState *getSoundState() { return m_sound_state; }
+    SoundState *getSoundState() { return m_sound_state.get(); }
     
     /// Returns a const reference to to the Soundstate associated with this SoundNode
-    const SoundState *getSoundState() const { return m_sound_state; }    
+    const SoundState *getSoundState() const { return m_sound_state.get(); }    
     
 	/// Updates the transformation of the SoundState during Cull traversal.
     void traverse(osg::NodeVisitor &nv);
@@ -91,7 +92,7 @@ namespace osgAL
        context during the deletion of that source. Therefore, just an ordinary pointer. Memory is properly
        deallocated by the SoundManager, so its not really a problem.
     */
-    SoundState *m_sound_state;
+    osg::observer_ptr<SoundState> m_sound_state;
 
   private:
   

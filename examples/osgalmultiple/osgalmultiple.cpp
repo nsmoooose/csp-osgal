@@ -271,7 +271,8 @@ int main( int argc, char **argv )
         return 1;
     }
 
-    osgAL::SoundManager::instance()->init(16);
+    int num_hw_soundsources = 10;
+    osgAL::SoundManager::instance()->init(num_hw_soundsources);
     osgAL::SoundManager::instance()->getEnvironment()->setDistanceModel(openalpp::InverseDistance);
     osgAL::SoundManager::instance()->getEnvironment()->setDopplerFactor(1);
 
@@ -360,7 +361,7 @@ int main( int argc, char **argv )
         n++;
         // Create a sample, load a .wav file.
         file = wave_vector[n%wave_vector.size()];
-        bool add_to_cache = false;
+        bool add_to_cache = true;
         osg::ref_ptr<openalpp::Sample> sample = osgAL::SoundManager::instance()->getSample(file.c_str(), add_to_cache);
         std::cerr << "Loading sample: " << file << std::endl;
 

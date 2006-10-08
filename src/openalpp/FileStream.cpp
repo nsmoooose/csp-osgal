@@ -74,6 +74,8 @@ FileStream::FileStream(const std::string& filename,const int buffersize)
         }
         else if (ulChannels==4) {
           ulFormat = alGetEnumValue("AL_FORMAT_QUAD16");
+          if (!ulFormat) 
+            throw FatalError("QUAD16 format was requested but is not supported by OpenAL device");
           // Set BufferSize to 250ms (Frequency * 8 (16bit 4-channel) divided by 4 (quarter of a second))
           ulBufferSize = ulFrequency * 2;
           // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
@@ -82,6 +84,9 @@ FileStream::FileStream(const std::string& filename,const int buffersize)
         else if (ulChannels == 6)
         {
           ulFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+          if (!ulFormat)
+            throw FatalError("QUAD16 format was requested but is not supported by OpenAL device");
+
           // Set BufferSize to 250ms (Frequency * 12 (16bit 6-channel) divided by 4 (quarter of a second))
           ulBufferSize = ulFrequency * 3;
           // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...

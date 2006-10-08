@@ -32,9 +32,9 @@ using namespace osgAL;
 SoundRoot::SoundRoot()
   :    m_last_time(0), m_first_run(true), 
        m_last_traversal_number(0),
-	   m_update_enabled(true)
+	     m_update_enabled(true)
 {
-    setCullingActive(false);
+  setCullingActive(false);
 }
 
 

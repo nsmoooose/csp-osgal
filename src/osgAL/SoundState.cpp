@@ -34,7 +34,7 @@ m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
 m_ambient(false), m_relative(false),
 m_play(false), m_pause(false), m_priority(0)
 { 
-	m_is_set.resize(Last, false); 
+	//m_is_set.resize(Last, false); 
 }
 
 
@@ -44,9 +44,9 @@ m_innerAngle(360), m_outerAngle(360), m_outerGain(0), m_referenceDistance(1), m_
 m_rolloffFactor(1), m_pitch(1), m_occlude_damping_factor(0.5),
 m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
 m_ambient(false), m_relative(false),
-m_play(false), m_pause(false), m_priority(0)
+m_play(false), m_pause(false), m_priority(0), m_is_set(0)
 { 
-	m_is_set.resize(Last, false); 
+//	m_is_set.resize(Last, false); 
 }
 
   
@@ -149,6 +149,9 @@ void SoundState::setSource(openalpp::Source *source)
 ///
 void SoundState::apply()
 {
+  if (isNoneSet())
+    return;
+
   if (!m_source.valid())
     throw std::runtime_error("SoundState::apply(): No sound source allocated.");
 
@@ -225,6 +228,15 @@ void SoundState::apply()
   /// all changes has been set.
   setAll(false);
 }
+#ifdef max
+#undef max
+#endif
+void SoundState::setAll(bool flag) 
+{ 
+  if (flag) 
+    m_is_set = std::numeric_limits<unsigned int>::max();
+  else m_is_set = 0; 
+} //for(unsigned int i=0; i < m_is_set.size(); i++) m_is_set[i]=flag; }
 
 /*------------------------------------------
 
