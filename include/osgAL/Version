@@ -24,8 +24,16 @@
 #include <osgAL/Export>
 #include <string>
 
-
-
+/**
+ * \mainpage
+ * osgAL is an library for integration of OpenAL++ (3D sound) into OpenSceneGraph. 
+ * It consists of two separate libraries: OpenAL++ and osgAL. OpenAL++ is a C++ abstraction layer
+ * ontop of OpenAL with additional functionality of reading ogg-files, reference counting etc.
+ *
+ * OsgAL has been tested on Windows and Linux. 
+ *
+ */
+/// Integration of OpenAL++ into OpenSceneGraph.
 namespace osgAL {
 	OSGAL_EXPORT std::string getVersion();
 	OSGAL_EXPORT std::string getLibraryName();

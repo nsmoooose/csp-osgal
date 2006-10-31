@@ -27,12 +27,13 @@
 #include "openalpp/Export"
 
 
-/// Class that implements event notification. One or more threads can signal a waiting event.
+
 /*!
   This class implements a feature available in Win32API. EventNotification.
   It can hold one thread waiting for a resource, one or more other threads can signal and release this event.
   A timeout can specify the amount of time that a thread should wait for this event to be signalled.
 */
+/// Class that implements event notification. One or more threads can signal a waiting event.
 namespace openalpp {
 
 class OPENALPP_API Event

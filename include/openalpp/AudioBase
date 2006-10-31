@@ -35,24 +35,11 @@ extern "C" {
 #include <osg/Referenced>
 #include <osg/ref_ptr>
 
-/**
- * \mainpage
- * OpenAL++ is an object oriented API for OpenAL (www.openal.org). It also uses
- * PortAudio (www.portaudio.com) for audio capture.
- * In addition to the functionality of OpenAL and ALUT (the OpenAL utility
- * library).
- *
- * OpenAL++ has been tested on Windows and Linux. 
- *
- * Every class in OpenAL++ that is available to the user is a descendant of the
- * virtual base class AudioBase. This class takes care of initialization and
- * shutdown, so there is no need to do it explicitly.
- */
 
 /**
  * Namespace for OpenAL++.
  */
-
+/// C++ wrapper for OpenAL with additional functionality of handling ogg-vorbis as streams.
 namespace openalpp {
 
 /**

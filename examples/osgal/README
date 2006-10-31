@@ -1,8 +1,0 @@
-This example demonstrates how a soundnode can be attached to the scene, making it follow any transformations above.
-
-It needs bee.wav which is in the osgAL/data directory
-
-Also it shows some of the SoundManager class.
-
-
-Anders Backman, VRlab, Umeå University 2004
