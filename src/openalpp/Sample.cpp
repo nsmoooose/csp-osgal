@@ -20,12 +20,45 @@
 
 #include "openalpp/Sample"
 #include <sstream>
+#ifdef _WIN32
 #include <alut.h>
+#else // _WIN32
+#include <AL/alut.h>
+#endif // _WIN32
 
 using namespace openalpp;
 
   Sample::Sample(const std::string& filename) throw (FileError)
   : SoundData(),filename_(filename) {
+#if OPENAL_VERSION < 2007
+  ALsizei size;
+
+	ALsizei freq;
+#  if OPENAL_VERSION < 2005
+  ALsizei bits;
+  ALboolean success;
+#  endif // OPENAL_VERSION < 2005
+  ALenum format,error;
+  ALvoid* data;
+  ALboolean loop;
+
+#  if OPENAL_VERSION < 2005
+  success=alutLoadWAV(filename.c_str(),&data,&format,&size,&bits,&freq);
+  if(success==AL_TRUE && data ) {
+#  else // OPENAL_VERSION < 2005
+  alutLoadWAVFile(const_cast<ALbyte *>(filename.c_str()),&format,&data,&size,&freq,&loop);
+  if(data) {
+#  endif // OPENAL_VERSION < 2005
+    alBufferData(buffer_->buffername_,format,data,size,freq);
+    if((error=alGetError())!=AL_FALSE)
+      throw FileError("Error buffering sound");
+    free(data);
+  } else {
+    std::ostringstream str;
+    str << "Unable to load file: " << filename << std::ends;
+    throw FileError(str.str().c_str());
+  }
+#else // OPENAL_VERSION < 2007
   ALuint success = alutCreateBufferFromFile (filename.c_str());
 
   if(success!=AL_NONE) {
@@ -38,6 +71,7 @@ using namespace openalpp;
     str << "Error loading file: " << filename << ": " << error_str << std::ends;
     throw FileError(str.str().c_str());
   }
+#endif // OPENAL_VERSION < 2007
 }
 
 Sample::Sample(const Sample &sample)
