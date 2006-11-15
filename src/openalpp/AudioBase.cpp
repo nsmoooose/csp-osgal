@@ -19,7 +19,7 @@
 */
 
 
-#include "openalpp/Audiobase"
+#include "openalpp/AudioBase"
 #include "stdio.h"
 #include <sstream>
 using namespace openalpp;
@@ -28,6 +28,7 @@ AudioBase::AudioBase(int frequency,int refresh,int synchronous)
   throw (InitError)
 {
   if(!instances_) {
+#if OPENAL_VERSION >= 2007
     ALboolean success = alutInitWithoutContext (0L, 0L);
     if (success != AL_TRUE) {
       ALenum error = alutGetError ();
@@ -36,14 +37,37 @@ AudioBase::AudioBase(int frequency,int refresh,int synchronous)
       str << "Couldn't open device: " << std::string(err_str);
       throw InitError(str.str().c_str());
     }
+#endif
     // Open a write (output) device. This should (in theory) make it possible
     // to open a read (input) device later.. 
 #ifdef _WIN32
-    char *initString = 0L;//"DirectSound", "DirectSound3D", ;
-    device_ =alcOpenDevice((ALCchar *)initString);
+    //char *initString = 0L;//"DirectSound", "DirectSound3D", ;
+    char *initStringList = (char*)alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+		if (initStringList)
+		{
+			std::cout << "sound device " << initStringList << std::endl << "found" << std::endl;
+			std::string initStringList2(initStringList);
+			std::string deviceAsked = "Generic Hardware";
+			if (initStringList2.find(deviceAsked) == std::string::npos)
+				device_ = 0;
+			else
+			{
+				device_ =alcOpenDevice((const ALCchar *)deviceAsked.c_str());
+				std::cout << "device_ =alcOpenDevice((const ALCchar *)initStringList);" << std::endl;
+			}
+		}
+		else
+		{
+			std::cout << "alcGetString return NULL" << std::endl;
+			device_ = 0;
+		}
 
 #else
+#if OPENAL_VERSION < 2005
     device_=alcOpenDevice((/*const */ALubyte *)"'((direction \"write\")) '((devices '(alsa sdl native null)))");
+#else // OPENAL_VERSION < 2005
+    device_=alcOpenDevice("'((direction \"write\")) '((devices '(alsa sdl native null)))");
+#endif // OPENAL_VERSION < 2005
 #endif
     if(!device_)
       throw InitError("Couldn't open device.");
@@ -75,18 +99,23 @@ AudioBase::AudioBase(int frequency,int refresh,int synchronous)
     reverbinitiated_=false;
 
     // Check for EAX 2.0 support
+#if OPENAL_VERSION < 2005
     unsigned char szFnName[256];
-    ALboolean g_bEAX = alIsExtensionPresent((ALCchar*)"EAX2.0");
+    ALboolean g_bEAX = alIsExtensionPresent((ALubyte*)"EAX2.0");
+#else // OPENAL_VERSION < 2005
+    char szFnName[256];
+    ALboolean g_bEAX = alIsExtensionPresent("EAX2.0");
+#endif // OPENAL_VERSION < 2005
     if (g_bEAX == AL_TRUE)
     {
       sprintf((char*)szFnName, "EAXSet");
-      ALvoid *eaxSet = alGetProcAddress((ALCchar *)szFnName);
+      ALvoid *eaxSet = alGetProcAddress(szFnName);
       if (eaxSet == NULL) g_bEAX = AL_FALSE;
     }
     if (g_bEAX == AL_TRUE)
     {
       sprintf((char*)szFnName,"EAXGet");
-      ALvoid *eaxGet = alGetProcAddress((ALCchar *)szFnName);
+      ALvoid *eaxGet = alGetProcAddress(szFnName);
       if (eaxGet == NULL) g_bEAX = AL_FALSE;
     }
     if (g_bEAX == AL_TRUE)
@@ -135,7 +164,11 @@ const char *openalpp::alGetErrorString(ALenum error)
 int AudioBase::instances_=0;
 ALCdevice *AudioBase::device_=NULL;
 #ifndef WIN32
+#if OPENAL_VERSION < 2007
 void *AudioBase::context_=NULL;
+#else // OPENAL_VERSION < 2007
+ALCcontext *AudioBase::context_=NULL;
+#endif // OPENAL_VERSION < 2007
 #else
 struct ALCcontext_struct *AudioBase::context_=NULL;
 #endif
