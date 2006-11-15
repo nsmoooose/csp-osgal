@@ -18,12 +18,12 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 */
 
-#include "openalpp/Deviceupdater"
+#include "openalpp/DeviceUpdater"
 #include "openalpp/Capture"
 #include "openalpp/Sample"
 
 
-#include <portaudio.h>
+//#include <portaudio.h>
 
 using namespace openalpp;
 
