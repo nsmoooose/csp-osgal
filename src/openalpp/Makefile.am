@@ -1,40 +1,52 @@
+#
+# Copyright (C) 2004-2006 Anders Backman, VRlab <andersb@cs.umu.se>
+# Copyright (C) 2006 Loic Dachary <loic@gnu.org>
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+MAINTAINERCLEANFILES = Makefile.in
 
-INCLUDES = -I$(top_builddir)/include
+libopenalpp_la_SOURCES = \
+	AudioBase.cpp \
+	AudioConvert.cpp \
+	AudioEnvironment.cpp \
+	Capture.cpp \
+	DeviceUpdater.cpp \
+	Error.cpp \
+	Event.cpp \
+	FileStream.cpp \
+	FileStreamUpdater.cpp \
+	GroupSource.cpp \
+	Listener.cpp \
+	NetStream.cpp \
+	NetUpdater.cpp \
+	Openalpp.cpp \
+	Sample.cpp \
+	SoundData.cpp \
+	SourceBase.cpp \
+	Source.cpp \
+	Stream.cpp \
+	StreamUpdater.cpp
 
-basicfiles = \
-    audioenvironment.cpp \
-    listener.cpp \
-    audiobase.cpp \
-    sourcebase.cpp \
-    source.cpp \
-    sample.cpp \
-    sounddata.cpp \
-    audioconvert.cpp \
-    error.cpp \
-    groupsource.cpp \
-    referenced.cpp
-streamfiles = \
-    streamupdater.cpp \
-    stream.cpp
-if WITH_OGGVORBIS
-oggfiles = \
-    filestream.cpp \
-    filestreamupdater.cpp
-else
-oggfiles = nofilestream.cpp
-endif
-if WITH_PORTAUDIO
-devicefiles = \
-    deviceupdater.cpp \
-    inputdevice.cpp
-else
-devicefiles = noinputdevice.cpp
-endif
-#streamfiles=nostreaming.cpp noinputdevice.cpp nofilestream.cpp
+libopenalpp_la_CPPFLAGS = -I$(top_srcdir)/include @OPENAL_CFLAGS@ @OPENSCENEGRAPH_CFLAGS@ @VORBISFILE_CFLAGS@ @VORBIS_CFLAGS@ @FREEALUT_CFLAGS@
+libopenalpp_la_LIBADD = @OPENAL_LIBS@ @OPENSCENEGRAPH_LIBS@ @VORBISFILE_LIBS@ @VORBIS_LIBS@ @FREEALUT_LIBS@
+libopenalpp_la_LDFLAGS = -version-info 2:0:0
 
-libopenalpp_la_SOURCES = $(basicfiles) $(streamfiles) $(devicefiles) $(oggfiles)
-
-
-lib_LTLIBRARIES = libopenalpp.la
-
-
+#
+# Noinst means only the static library will be compiled
+# It is only meant as a helper library for osgAL and will be
+# linked into it so that the application user is not confused
+# with two different
+noinst_LTLIBRARIES = libopenalpp.la
