@@ -38,7 +38,7 @@
 #include "openalpp/Source"
 #include "openalpp/Listener"
 #include "openalpp/Sample"
-#include "openalpp/Filestream"
+#include "openalpp/FileStream"
 #include "osg/ref_ptr"
 
 

@@ -38,7 +38,7 @@
 #include "osgAL/SoundState"
 
 #include "openalpp/AudioEnvironment"
-#include "openalpp/Filestream"
+#include "openalpp/FileStream"
 
 
 namespace osgAL 
