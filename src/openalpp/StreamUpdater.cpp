@@ -21,7 +21,7 @@
 // TODO: Need to update this so that frequency and format can be changed after
 // the class has been instantiated (the ogg vorbis format allows this)
 
-#include "openalpp/Streamupdater"
+#include "openalpp/StreamUpdater"
 
 #define ENTER_CRITICAL lock(); 
 

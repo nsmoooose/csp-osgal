@@ -19,7 +19,7 @@
 */
 
 #include "openalpp/Stream"
-#include "openalpp/Netstream"
+#include "openalpp/NetStream"
 
 namespace openalpp {
 
