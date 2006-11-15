@@ -22,7 +22,7 @@
 #define GROUPSOURCE_H_INCLUDED_C427B440
 
 #include "openalpp/Source"
-#include "openalpp/Audioconvert"
+#include "openalpp/AudioConvert"
 #include <vector>
 #include <math.h>
 #include <stdlib.h>
