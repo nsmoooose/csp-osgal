@@ -25,9 +25,15 @@
 #include <cstdlib>
 
 extern "C" {
+#ifdef WIN32
 #include <al.h>
 #include <alut.h>
 #include <alc.h>
+#else // WIN32
+#include <AL/al.h>
+#include <AL/alut.h>
+#include <AL/alc.h>
+#endif // WIN32
 }
 
 #include "openalpp/windowsstuff"
@@ -67,7 +73,11 @@ class OPENALPP_API AudioBase : public osg::Referenced {
    * Pointer to context.
    */
 #ifndef WIN32
+#if OPENAL_VERSION < 2007
   static void *context_;
+#else // OPENAL_VERSION < 2007
+  static ALCcontext *context_;
+#endif // OPENAL_VERSION < 2007
 #else
   static struct ALCcontext_struct *context_;
 #endif
