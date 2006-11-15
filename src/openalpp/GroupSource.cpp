@@ -18,7 +18,7 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 */
 
-#include "openalpp/Groupsource"
+#include "openalpp/GroupSource"
 #include <sstream>
 using namespace openalpp;
 
@@ -354,11 +354,9 @@ ALshort *GroupSource::applyFilters(Source *source,ALshort *buffer,
 
 void GroupSource::mixSources(unsigned int frequency)
   throw (InitError,FileError,FatalError,MemoryError,ValueError) {
-  ALshort *loaddata=NULL,*data=NULL,*bdata=NULL;
-  ALsizei bsize=0,size=0,loadsize=0,bits;
-  ALfloat freq;
+  ALsizei bsize=0,size=0,loadsize=0;
   ALenum format;
-
+  ALboolean success;
   AudioConvert converter(AL_FORMAT_STEREO16,frequency);
 
   if(sources_.size()<1)
@@ -366,31 +364,46 @@ void GroupSource::mixSources(unsigned int frequency)
 
   std::cerr << ((Sample *)sources_[0]->getSound())->getFileName() << "\n";
 
-
-/*
+#if OPENAL_VERSION < 2006
+  ALshort *loaddata=NULL,*data=NULL,*bdata=NULL;
+		ALsizei bits;
+		ALsizei freq;
   success=
     alutLoadWAV(((Sample *)sources_[0]->getSound())->getFileName().c_str(),
 		(ALvoid **)&loaddata,&format,&loadsize,&bits,&freq);
+#else
+#if OPENAL_VERSION < 2007
+  ALshort *loaddata=NULL,*data=NULL,*bdata=NULL;
+		ALsizei bits;
+		ALsizei freq;
+		ALboolean loop;
+    alutLoadWAVFile((ALbyte*)((Sample *)sources_[0]->getSound())->getFileName().c_str(),
+		&format,(ALvoid **)&loaddata,&loadsize,&freq,&loop);
+		if (loaddata)
+			success=AL_TRUE;
+		else 
+			success=AL_FALSE;
+#else
+  ALvoid *loaddata=NULL;
+	ALshort* data=NULL,*bdata=NULL;
+		ALfloat freq;
+    loaddata = alutLoadMemoryFromFile(((Sample *)sources_[0]->getSound())->getFileName().c_str(),
+																			&format,
+																			&loadsize,
+																			&freq);
+		success = AL_FALSE;
+		if (loaddata)
+			success = AL_TRUE;
+#endif
+#endif
   if(success==AL_FALSE || !loaddata)
     throw FileError("Error opening file for mixing");
-*/
-  loaddata = (ALshort *)alutLoadMemoryFromFile (((Sample *)sources_[0]->getSound())->getFileName().c_str(),
-    &format,
-    &loadsize,
-    &freq);
-
-  if(!loaddata) {
-    std::ostringstream str;
-    str << "Error opening file for mixing: " << ((Sample *)sources_[0]->getSound())->getFileName();
-    throw FileError(str.str().c_str());
-  }
 
   bsize=loadsize;
-
-  // Fix to make g++3.4.2 happy
-  unsigned int usize=bsize;
-  bdata=(ALshort *)converter.apply(loaddata,format,
-				   (unsigned int)freq,usize);
+  unsigned int tsize=(unsigned int)bsize;
+  bdata=(ALshort *)converter.apply((void*)loaddata,format,
+				   (unsigned int)freq,tsize);
+  bsize=tsize;
 
   if(!bdata)
     throw FatalError("Error converting data to internal format!");
@@ -399,31 +412,38 @@ void GroupSource::mixSources(unsigned int frequency)
 
   bdata=applyFilters(sources_[0].get(),bdata,bsize,frequency);
 
-
-
-
   for(unsigned int s=1;s<sources_.size();s++) {
-/*    success=
+#if OPENAL_VERSION < 2006
+    success=
       alutLoadWAV(((Sample *)sources_[s]->getSound())->getFileName().c_str(),
 		  (ALvoid **)&loaddata,&format,&loadsize,&bits,&freq);
+#else
+#if OPENAL_VERSION < 2007
+      alutLoadWAVFile((ALbyte*)((Sample *)sources_[s]->getSound())->getFileName().c_str(),
+		  &format,(ALvoid **)&loaddata,&loadsize,&freq,&loop);
+			if (loaddata)
+				success=AL_TRUE;
+			else
+				success=AL_FALSE;
+#else
+    loaddata = alutLoadMemoryFromFile(((Sample *)sources_[s]->getSound())->getFileName().c_str(),
+																			&format,
+																			&loadsize,
+																			&freq);
+		success = AL_FALSE;
+		if (loaddata)
+			success = AL_TRUE;
+#endif
+#endif
     if(success==AL_FALSE || !loaddata)
       throw FileError("Error opening file for mixing");
-*/
-
-    loaddata = (ALshort *)alutLoadMemoryFromFile (((Sample *)sources_[s]->getSound())->getFileName().c_str(),
-      &format,
-      &bits,
-      &freq);
-
-    if (!loaddata) {
-      std::ostringstream str;
-      str << "Error opening file for mixing: " << ((Sample *)sources_[0]->getSound())->getFileName();
-      throw FileError(str.str().c_str());
-}
+    
     size=loadsize;
-    unsigned int usize = size;
+    unsigned int tsize2=(unsigned int)size;
     data=(ALshort *)converter.apply(loaddata,format,
-				    (unsigned int)freq,usize);
+				    (unsigned int)freq,tsize2);
+    size=tsize2;
+
     if(!data)
       throw FatalError("Error converting data to internal format!");
 
@@ -434,13 +454,13 @@ void GroupSource::mixSources(unsigned int frequency)
     if(size>bsize) {
       loaddata=bdata;
       bdata=data;
-      data=loaddata;
+      data=(ALshort*)(loaddata);
       loadsize=bsize;
       bsize=size;
       size=loadsize;
     } 
     ALint amp;
-    for(ALsizei i=0;i<(size/2);i++) {
+    for(unsigned int i=0;i<(size/2);i++) {
       amp=bdata[i]+data[i];
       if(amp>32767)
 	amp=32767;
