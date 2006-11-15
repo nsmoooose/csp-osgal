@@ -25,6 +25,12 @@
 #include <OpenThreads/Mutex>
 #include <OpenThreads/Condition>
 #include "openalpp/Export"
+#ifndef _WIN32
+# include <values.h>
+# ifndef INFINITE
+#  define INFINITE MAXINT
+# endif // INFINITE
+#endif // _WIN32
 
 
 
