@@ -22,7 +22,7 @@
 #define POSITIONEDOBJECT_H_INCLUDED_C4278579
 
 #include "openalpp/Export"
-#include "openalpp/Audiobase"
+#include "openalpp/AudioBase"
 
 namespace openalpp {
 
