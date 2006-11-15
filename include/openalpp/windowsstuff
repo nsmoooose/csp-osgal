@@ -26,6 +26,18 @@
 
 #else // WIN32
 
+/* 
+  Due to a lack of version numbering in OpenAL headers
+  the macro OPENAL_VERSION was introduced to separate between
+  different versions.
+  This will make OpenAL++ compatible with numerous OpenAL versions.
+
+*/
+//#define OPENAL_VERSION 2004
+//#define OPENAL_VERSION 2005
+//#define OPENAL_VERSION 2006
+#define OPENAL_VERSION 2007
+
 //C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
 #pragma warning( disable : 4290 )
 #include "openalpp/Export"

@@ -1,4 +1,10 @@
 NEWS
+* 061115, Loic Dachary
+  - Numerous Unix fixes including fixing build system for linux.
+  - Added OPENAL_VERSION in configure.in to make it possible
+  to use various versions of OpenAL together with OpenAL++
+  - Windows specification of OPENAL_VERSION can be found in openalpp/windowsstuff.h
+  
 * 061008, Anders Backman
   - Fixed numerous bugs in streaming code.
   - Restructured the strange copying of Streams/Samples in constructors of Source class.

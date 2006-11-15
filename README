@@ -26,6 +26,25 @@ open source scenegraph OpenSceneGraph.
 
 By adding a SoundNode to the scene a sound can be made following the transformation of the parents.
 
+Build under linux:
+
+./autogen.sh
+make
+
+Build under windows:
+Due to missing version information in the OpenAL header files,
+a macro named OPENAL_VERSION was introduced.
+Under unix, this is managed automatically from the content of the
+OpenAL header files (in configure.in).
+Unfortunately there is no such mechanism in windows.
+Therefore the OpenAL version has to be determined manually (check configure.in)
+and set in include/openalpp/windowsstuff
+
+Default is OPENAL_VERSION == 2007 (latest).
+
+To build: see howtobuild_vs2003.bat
+
+There are prebuild libraries for ogg-vorbis at http://www.vrlab.umu.se/research/osgAL
 
 Contact:
 Anders Backman, VRlab, andersb@cs.umu.se
