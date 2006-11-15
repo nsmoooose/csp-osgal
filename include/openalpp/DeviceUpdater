@@ -22,7 +22,7 @@
 #define DEVICEUPDATER_H_INCLUDED_C419EA9C
 
 
-#include "openalpp/Streamupdater"
+#include "openalpp/StreamUpdater"
 #include "openalpp/Error"
 #include "openalpp/Export"
 
