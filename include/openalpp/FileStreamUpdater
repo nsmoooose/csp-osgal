@@ -21,7 +21,7 @@
 #ifndef FILESTREAMUPDATER_H_INCLUDED
 #define FILESTREAMUPDATER_H_INCLUDED
 
-#include "openalpp/Streamupdater"
+#include "openalpp/StreamUpdater"
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 #include "openalpp/Export"
