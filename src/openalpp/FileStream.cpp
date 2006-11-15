@@ -18,8 +18,8 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 */
 
-#include "openalpp/Filestreamupdater"
-#include "openalpp/Filestream"
+#include "openalpp/FileStreamUpdater"
+#include "openalpp/FileStream"
 #include "openalpp/Sample"
 #include <vorbis/vorbisfile.h>
 #include <sstream>
