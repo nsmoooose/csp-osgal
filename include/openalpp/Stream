@@ -22,9 +22,9 @@
 #define STREAM_H_INCLUDED_C41983DF
 
 #include "openalpp/Export"
-#include "openalpp/Sounddata"
+#include "openalpp/SoundData"
 #include <osg/ref_ptr>
-#include "openalpp/Streamupdater"
+#include "openalpp/StreamUpdater"
 
 #ifdef WIN32
 // Ignore the dll interface warning using std::vector members

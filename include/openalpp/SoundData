@@ -22,8 +22,8 @@
 #define SOUNDDATA_H_INCLUDED_C4199A75
 
 #include "openalpp/Export"
-#include "openalpp/error"
-#include "openalpp/audiobase"
+#include "openalpp/Error"
+#include "openalpp/AudioBase"
 #include <osg/Referenced>
 #include <osg/ref_ptr>
 

@@ -21,7 +21,7 @@
 #ifndef SOURCEBASE_H_INCLUDED_C419E330
 #define SOURCEBASE_H_INCLUDED_C419E330
 #include "openalpp/Export"
-#include "openalpp/Positionedobject"
+#include "openalpp/PositionedObject"
 #include "openalpp/Error"
 
 namespace openalpp {

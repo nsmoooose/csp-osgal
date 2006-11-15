@@ -24,7 +24,7 @@
 #include "openalpp/Export"
 #include "openalpp/Stream"
 #include "openalpp/FileStream"
-#include "openalpp/Sourcebase"
+#include "openalpp/SourceBase"
 #include "openalpp/Sample"
 
 namespace openalpp {

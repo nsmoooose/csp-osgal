@@ -36,7 +36,7 @@ extern "C" {
 #include "openalpp/Export"
 
 
-#include "openalpp/Audiobase"
+#include "openalpp/AudioBase"
 #include "openalpp/Error"
 #include "openalpp/windowsstuff"
 #include <OpenThreads/Thread>
