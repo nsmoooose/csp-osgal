@@ -17,7 +17,7 @@
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 */
-#include "openalpp/Audioenvironment"
+#include "openalpp/AudioEnvironment"
 
 using namespace openalpp;
 
@@ -143,9 +143,17 @@ void AudioEnvironment::initiateReverb() throw (InitError) {
     return;
  
   alReverbScale=(void (*)(ALuint sid, ALfloat param))
-    alGetProcAddress((ALchar *)"alReverbScale_LOKI");
+#if OPENAL_VERSION < 2005
+    alGetProcAddress((ALubyte *)"alReverbScale_LOKI");
+#else // OPENAL_VERSION < 2005
+    alGetProcAddress("alReverbScale_LOKI");
+#endif // OPENAL_VERSION < 2005
   alReverbDelay=(void (*)(ALuint sid, ALfloat param))
-    alGetProcAddress((ALchar *)"alReverbDelay_LOKI");
+#if OPENAL_VERSION < 2005
+    alGetProcAddress((ALubyte *)"alReverbDelay_LOKI");
+#else // OPENAL_VERSION < 2005
+    alGetProcAddress("alReverbDelay_LOKI");
+#endif // OPENAL_VERSION < 2005
   if(!(alReverbScale && alReverbDelay)) {
     throw InitError("Couldn't initiate reverb");
   } else
