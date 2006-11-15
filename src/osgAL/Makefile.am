@@ -1,17 +1,33 @@
+#
+# Copyright (C) 2004-2006 Anders Backman, VRlab <andersb@cs.umu.se>
+# Copyright (C) 2006 Loic Dachary <loic@gnu.org>
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+MAINTAINERCLEANFILES = Makefile.in
 
-INCLUDES = -I$(top_builddir)/include
+libosgAL_la_SOURCES = \
+	OccludeCallback.cpp \
+	SoundManager.cpp \
+	SoundNode.cpp \
+	SoundRoot.cpp \
+	SoundState.cpp \
+	Version.cpp
 
-basicfiles = \
-    Version.cpp \
-    SoundManager.cpp \
-    SoundRoot.cpp \
-    SoundNode.cpp \
-    SoundState.cpp \
-    OccludeCallback.cpp
+lib_LTLIBRARIES = libosgAL.la
 
-libosgal_la_SOURCES = $(basicfiles)
-
-
-lib_LTLIBRARIES = libosgal.la
-
-
+libosgAL_la_CPPFLAGS = -I$(top_srcdir)/include @OPENAL_CFLAGS@ @FREEALUT_CFLAGS@ @OPENSCENEGRAPH_CFLAGS@
+libosgAL_la_LIBADD = ../openalpp/libopenalpp.la @OPENSCENEGRAPH_LIBS@
+libosgAL_la_LDFLAGS = -version-info 2:0:0

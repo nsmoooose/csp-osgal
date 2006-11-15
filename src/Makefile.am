@@ -18,8 +18,4 @@
 #
 MAINTAINERCLEANFILES = Makefile.in
 
-noinst_PROGRAMS = osgalmultiple
-
-osgalmultiple_SOURCES = osgalmultiple.cpp
-osgalmultiple_CPPFLAGS = -I$(top_srcdir)/include
-osgalmultiple_LDADD = ../../src/osgAL/libosgAL.la
+SUBDIRS = openalpp osgAL osgPlugin

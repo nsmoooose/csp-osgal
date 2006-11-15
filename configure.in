@@ -1,118 +1,100 @@
-# INITIATE AUTOCONF
-AC_INIT([src/Makefile.am])
-
-#BEGIN DEFAULT SETTINGS
-
-
-# General
-
-CXXFLAGS="-Wall -W"
-
-
-#END DEFAULT SETTINGS
-
-
-
-# BEGIN GENERAL AUTOCONF STUFF
-
+#
+# Copyright (C) 2004-2006 Anders Backman, VRlab <andersb@cs.umu.se>
+# Copyright (C) 2006 Loic Dachary <loic@gnu.org>
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+AC_PREREQ(2.59)
+AC_INIT(osgAL,0.5)
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(osgAL,0.5)
+AM_INIT_AUTOMAKE()
+AC_CONFIG_SRCDIR([osgal.pc.in])
 
-dnl C++ style
-AC_LANG_CPLUSPLUS
-#CXX=g++
+AC_PROG_MAKE_SET
+AC_GNU_SOURCE
+AC_LANG(C++)
+AC_PROG_CPP
 AC_PROG_CXX
 AC_PROG_CXXCPP
+AM_PATH_CCACHE
+AC_PROG_LIBTOOL
+
+#
+# G++ specific debug and optimization flags
+#
+AC_ARG_ENABLE(debug,
+    [  --enable-debug          build in debug mode (the default is to build in optimized mode)],
+    [enable_debug=yes])
+
+if test "$GXX" = "yes" -a "$ac_test_CXXFLAGS" != set ; then
+  if test "$enable_debug" = "yes" ; then
+    CFLAGS="-pipe -g -Wall -W"
+    CXXFLAGS="-pipe -g -Wall -Wpointer-arith"
+  else
+    CFLAGS="-pipe -O3 -Wall -W"
+    CXXFLAGS="-pipe -O3 -Wall -Wpointer-arith"
+  fi
+fi
+
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
 AM_PROG_LIBTOOL
 
-dnl Check system type
-#AC_CANONICAL_HOST
-
-dnl create only shared libtool-libraries
 AC_ENABLE_SHARED(yes)
-
-dnl set the following to yes, if you want to create static
-dnl libtool-libraries
 AC_ENABLE_STATIC(no)
 
-# ***** DEBUGGING
-AC_ARG_ENABLE(debug,[  --enable-debug          enable debugging [default=no]])
-if test "$enable_debug" = "yes"; then
-    CXXFLAGS="-g $CXXFLAGS"
-else
-    CXXFLAGS="-O2 $CXXFLAGS"
+PKG_CHECK_MODULES(OPENSCENEGRAPH, openscenegraph >= 0.9.8)
+PKG_CHECK_MODULES(OPENAL, openal >= 0.0.8)
+PKG_CHECK_MODULES(FREEALUT, freealut >= 1.0)
+PKG_CHECK_MODULES(VORBIS, vorbis >= 1.0)
+PKG_CHECK_MODULES(VORBISFILE, vorbisfile >= 1.0)
+
+#
+# Was introduced sometime in 2005, does not show pre-2005
+# #define ALC_STEREO_SOURCES                       0x1011
+# There should really be a version number in the headers.
+#
+AC_COMPILE_IFELSE(
+        [AC_LANG_PROGRAM([[#include <AL/alc.h>]],
+                         [[int a = ALC_STEREO_SOURCES;]])],
+        [OPENAL_VERSION=2005],
+        [OPENAL_VERSION=2004])
+
+  AC_TRY_COMPILE(
+  [#include <AL/alut.h>],
+  [alutLoadMemoryFromFile((const char*)0,(ALenum*)0,(ALsizei*)0,(ALfloat*)0);]
+  , 
+  [OPENAL_VERSION=2007])
+
+if test $OPENAL_VERSION = 2005 ; then
+  #
+  # Was introduced sometime in 2006, does not show pre-2006
+  # #define AL_VERSION_1_1
+  #
+  AC_TRY_COMPILE([#include <AL/al.h>], 
+	       [AL_VERSION_1_1
+               ],
+               [OPENAL_VERSION=2005],
+               [OPENAL_VERSION=2006])
 fi
 
-# ***** PROFILING
-AC_ARG_ENABLE(profiling,[  --enable-profiling  enable profiling [default=no]])
-if test "$enable_profiling" = "yes"; then
-    CXXFLAGS="-pg $CXXFLAGS"
-fi
-CFLAGS="$CPPFLAGS -I/usr/local/include"
+AC_DEFINE_UNQUOTED(OPENAL_VERSION, [$OPENAL_VERSION], [OpenAL CVS version (rough estimate)])
 
-
-
-# ***** Open Scenegraph
-OSG_FOUND="no"
-AC_CHECK_LIB(osg, osgGetVersion, OSG_FOUND="yes",
-	[AC_MSG_ERROR(OpenSceneGraph library not found. See http://www.openscenegraph.org)], -ldl )
-AC_ARG_WITH(osg, [  --with-osg              compile OSG support [default=detect]])
-[case "$with_osg" in
-	yes) ;;
-	no) ;;
-	*) with_osg="$OSG_FOUND" ;;
-esac]
-# BUILD OUTPUT VARIABLES
-AM_CONDITIONAL(WITH_OSG, test x$with_osg = xyes )
-
-if test "$with_osg" = "yes"; then
- OSGAL_LIBS="$OSGAL_LIBS -losgProducer -losgUtil -losgDB -losg "
-fi
-
-
-# ***** OpenAL++
-# BUILD OUTPUT VARIABLES
-OPENALPP_CFLAGS="`pkg-config --cflags openalpp`"
-AC_SUBST(OPENALPP_CFLAGS)
-OPENALPP_LIBS="`pkg-config --libs openalpp`"
-AC_SUBST(OPENALPP_LIBS)
-
-# Ogg Vorbis
-AC_CHECK_LIB(ogg,main,WITH_OGGVORBIS="yes")
-AM_CONDITIONAL(WITH_OGGVORBIS, test "$WITH_OGGVORBIS" = "yes")
-
-# END GENERAL AUTOCONF STUFF
-
-dnl Checks for libraries.
-# OpelAL
-AC_CHECK_LIB(openal,main)
-
-
-
-
-OSGAL_LIBS="$OSGAL_LIBS $OPENALPP_LIBS"
-AC_SUBST(OSGAL_LIBS)
-
-echo "CPPFLAGS=$CPPFLAGS"
-echo "LDFLAGS=$LDFLAGS"
-echo "OSGAL_LIBS=$OSGAL_LIBS"
-echo "GL_CFLAGS=$GL_CFLAGS"
-echo "GL_LIBS=$GL_LIBS"
-
-dnl Checks for header files.
-AC_HEADER_STDC
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-#AC_C_CONST
-
-dnl Checks for library functions.
-
-AC_OUTPUT(Makefile include/Makefile include/openalpp/Makefile src/Makefile tests/Makefile openalpp.pc)
-
-AC_CONFIG_FILES([Makefile 
+AC_CONFIG_FILES([
+        Makefile 
 	include/Makefile 
 	include/osgAL/Makefile 
 	include/openalpp/Makefile 
