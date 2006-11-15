@@ -23,7 +23,7 @@
 
 
 #include "openalpp/Export"
-#include "openalpp/Positionedobject"
+#include "openalpp/PositionedObject"
 
 namespace openalpp {
 
