@@ -24,7 +24,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
-#include "openalpp/export"
+#include "openalpp/Export"
 
 namespace openalpp {
 
