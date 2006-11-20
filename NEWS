@@ -1,4 +1,8 @@
 NEWS
+* 061119, Anders Backman
+  - Defaulting to VisualStudio 8 under Windows. 
+    Older project files are still available but will not be updated from now on.
+
 * 061115, Loic Dachary
   - Numerous Unix fixes including fixing build system for linux.
   - Added OPENAL_VERSION in configure.in to make it possible

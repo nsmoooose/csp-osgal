@@ -1,10 +1,10 @@
-..\bin\osgalocclude.exe house.ac
+..\bin\osgalocclude%1%  house.ac
 pause
-..\bin\osgal.exe
+..\bin\osgal%1%.exe
 pause
-..\bin\osgalmultiple
+..\bin\osgalmultiple%1%
 pause
-..\bin\osgalviewer osgalocclude_scene.osg
+..\bin\osgalviewer%1% osgalocclude_scene.osg
 pause
-..\bin\osgalviewer osgal_scene.osg
+..\bin\osgalviewer%1% osgal_scene.osg
 
