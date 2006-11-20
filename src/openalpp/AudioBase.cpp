@@ -45,7 +45,7 @@ AudioBase::AudioBase(int frequency,int refresh,int synchronous)
     char *initStringList = (char*)alcGetString(NULL, ALC_DEVICE_SPECIFIER);
 		if (initStringList)
 		{
-			std::cout << "sound device " << initStringList << std::endl << "found" << std::endl;
+			//std::cout << "sound device " << initStringList << std::endl << "found" << std::endl;
 			std::string initStringList2(initStringList);
 			std::string deviceAsked = "Generic Hardware";
 			if (initStringList2.find(deviceAsked) == std::string::npos)
@@ -53,12 +53,12 @@ AudioBase::AudioBase(int frequency,int refresh,int synchronous)
 			else
 			{
 				device_ =alcOpenDevice((const ALCchar *)deviceAsked.c_str());
-				std::cout << "device_ =alcOpenDevice((const ALCchar *)initStringList);" << std::endl;
+				//std::cout << "device_ =alcOpenDevice((const ALCchar *)initStringList);" << std::endl;
 			}
 		}
 		else
 		{
-			std::cout << "alcGetString return NULL" << std::endl;
+			std::cout << "alcGetString returned NULL" << std::endl;
 			device_ = 0;
 		}
 
@@ -70,7 +70,7 @@ AudioBase::AudioBase(int frequency,int refresh,int synchronous)
 #endif // OPENAL_VERSION < 2005
 #endif
     if(!device_)
-      throw InitError("Couldn't open device.");
+      throw InitError("OpenAL++: Couldn't open sound device.");
     int attributes[7],i=0;
     attributes[0]=0;
     if(frequency>0) {
