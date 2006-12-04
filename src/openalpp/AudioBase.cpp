@@ -48,10 +48,10 @@ AudioBase::AudioBase(int frequency,int refresh,int synchronous)
 			//std::cout << "sound device " << initStringList << std::endl << "found" << std::endl;
 			std::string initStringList2(initStringList);
 			std::string deviceAsked = "Generic Hardware";
-			if (initStringList2.find(deviceAsked) == std::string::npos)
-				device_ = 0;
-			else
-			{
+			if (initStringList2.find(deviceAsked) == std::string::npos) {
+				std::cerr << "No Generic Hardware in: " << initStringList2 << std::endl;
+				device_ =alcOpenDevice(initStringList);
+			} else {
 				device_ =alcOpenDevice((const ALCchar *)deviceAsked.c_str());
 				//std::cout << "device_ =alcOpenDevice((const ALCchar *)initStringList);" << std::endl;
 			}
