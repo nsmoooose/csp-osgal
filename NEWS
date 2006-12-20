@@ -1,4 +1,9 @@
 NEWS
+* 061220, Anders Backman
+  - Using callbacks when initializing OGG, which seems to work a lot better. In VC8
+  using non-callback version of OGG crasches on most of my computers.
+  play_ogg and multlple_oggStreams now works fine on my computer.
+  
 * 061119, Anders Backman
   - Defaulting to VisualStudio 8 under Windows. 
     Older project files are still available but will not be updated from now on.

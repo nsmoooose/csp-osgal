@@ -32,6 +32,9 @@
 #define DEBUG_NEW new
 #endif
 
+#include <vorbis/vorbisfile.h>
+
+
 struct OggVorbis_File;
 
 namespace openalpp {
@@ -71,6 +74,9 @@ protected:
    * Destructor.
    */
   virtual ~FileStream();
+
+	ov_callbacks	_vorbisCallbacks;	// callbacks used to read the file from mem
+
 
     OggVorbis_File* oggfile_;
 

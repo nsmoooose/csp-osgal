@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="osgdbd.lib osgd.lib openthreadswin32d.lib alut.lib openal32.lib winmm.lib  vorbisfile_d.lib ogg_d.lib"
+				AdditionalDependencies="osgdbd.lib osgd.lib openthreadswin32d.lib alut.lib openal32.lib winmm.lib vorbisfile_d.lib ogg_d.lib"
 				OutputFile="../../bin/$(ProjectName)d.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

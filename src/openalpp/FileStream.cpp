@@ -31,6 +31,73 @@
 
 
 
+
+/************************************************************************************************************************
+The following function are the vorbis callback functions.  As their names suggest, they are expected to work in exactly the
+same way as normal c io functions (fread, fclose etc.).  Its up to us to return the information that the libs need to parse
+the file from memory
+************************************************************************************************************************/
+//---------------------------------------------------------------------------------
+// Function	: VorbisRead
+// Purpose	: Callback for the Vorbis read function
+// Info		: 
+//---------------------------------------------------------------------------------
+size_t VorbisRead(void *ptr			/* ptr to the data that the vorbis files need*/, 
+									size_t byteSize	/* how big a byte is*/, 
+									size_t sizeToRead /* How much we can read*/, 
+									void *datasource	/* this is a pointer to the data we passed into ov_open_callbacks (our SOggFile struct*/)
+{
+	FILE* file = (FILE*)datasource;
+
+	size_t bytes_read = fread(ptr, byteSize, sizeToRead, file);
+
+	return bytes_read; //actualSizeToRead;
+}
+
+//---------------------------------------------------------------------------------
+// Function	: VorbisSeek
+// Purpose	: Callback for the Vorbis seek function
+// Info		: 
+//---------------------------------------------------------------------------------
+int VorbisSeek(void *datasource		/*this is a pointer to the data we passed into ov_open_callbacks (our SOggFile struct*/, 
+							 ogg_int64_t offset	/*offset from the point we wish to seek to*/, 
+							 int whence			/*where we want to seek to*/)
+{
+	FILE* file = (FILE*)datasource;
+
+	return fseek(file, offset, whence );
+}
+
+//---------------------------------------------------------------------------------
+// Function	: VorbisClose
+// Purpose	: Callback for the Vorbis close function
+// Info		: 
+//---------------------------------------------------------------------------------
+int VorbisClose(void *datasource /*this is a pointer to the data we passed into ov_open_callbacks (our SOggFile struct*/)
+{
+	// This file is called when we call ov_close.  If we wanted, we could free our memory here, but
+	FILE* file = (FILE*)datasource;
+
+	return fclose(file);
+}
+
+//---------------------------------------------------------------------------------
+// Function	: VorbisTell
+// Purpose	: Classback for the Vorbis tell function
+// Info		: 
+//---------------------------------------------------------------------------------
+long VorbisTell(void *datasource /*this is a pointer to the data we passed into ov_open_callbacks (our SOggFile struct*/)
+{
+	FILE* file = (FILE*)datasource;
+
+	return ftell(file);
+}
+/************************************************************************************************************************
+End of Vorbis callback functions
+************************************************************************************************************************/
+
+
+
 using namespace openalpp;
 
 FileStream::FileStream(const std::string& filename,const int buffersize)
@@ -49,7 +116,15 @@ FileStream::FileStream(const std::string& filename,const int buffersize)
     // Check for file type, create a FileStreamUpdater if a known type is
     // detected, otherwise throw an error.
 
-    if(ov_open(filehandle, oggfile_, NULL, 0)>=0) 
+		_vorbisCallbacks.read_func = VorbisRead;
+		_vorbisCallbacks.close_func = VorbisClose;
+		_vorbisCallbacks.seek_func = VorbisSeek;
+		_vorbisCallbacks.tell_func = VorbisTell;
+
+
+
+	//	if(ov_open(filehandle, oggfile_, NULL, 0)>=0) 
+		if (ov_open_callbacks(filehandle, oggfile_, NULL, 0, _vorbisCallbacks)>=0)
     {
         vorbis_info *ogginfo=ov_info(oggfile_,-1);
         
