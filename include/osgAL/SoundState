@@ -78,6 +78,25 @@ public:
   /// Destructor, releases any allocated sound sources
   ~SoundState(); 
 
+
+	/*!
+	  Specify if the SoundState should be enabled or not.
+	  If its disabled it will not play no matter what.
+	  It cannot be pushed as a soundEvent to the SoundMgr
+	  If the soundstate has a soundsources allocated it will stop playing.
+	  It not, the setPlay(false) method will be called
+	  All parameters can be changed, but it cant be played.
+	  This will ensure that noone can make a SoundState wich is disabled play, unless they enable it.
+	*/
+	void setEnable(bool flag);
+	
+	
+	/*!
+		Return if the soundstate is enabled or not	
+	*/
+	bool getEnable() const { return m_enabled; }
+	
+	
   /// Copy constructor
   SoundState(const SoundState& state) : Object() 
   {
@@ -313,21 +332,21 @@ private:
 
   bool m_looping, m_ambient, m_relative, m_play, m_pause;
   unsigned m_priority;
+  bool m_enabled;
 
 
 
   /// Return true if SetField f is set since last call to apply() or clear()
-  bool isSet(SetField f) const { return ((m_is_set>>f)&01) != 0; } //m_is_set[f]; }
+  bool isSet(SetField f) const { return ((m_is_set>>f)&01) != 0; } 
   bool isNoneSet() const { return m_is_set==0; }
 
   /// Set the given field to true
-  void set(SetField f) { m_is_set |=  (01 << f); } //[f] = true; }
+  void set(SetField f) { m_is_set |=  (01 << f); } 
 
   // Clear the given field to false
-  void clear(SetField f)  { m_is_set &=  ~(01 << f); }//[f] = false; }
+  void clear(SetField f)  { m_is_set &=  ~(01 << f); }
 
   unsigned m_is_set;
-  //std::vector<bool> m_is_set;
 
 };
 

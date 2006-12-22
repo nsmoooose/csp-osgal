@@ -224,6 +224,10 @@ bool SoundManager::pushSoundEvent(SoundState *state, unsigned int priority)
 
   assert(state && "Invalid null SoundState pointer");
 
+	// Do not push disabled soundevents
+	if (!state->getEnable())
+		return false;
+
   if (state->getLooping())
     throw std::runtime_error("SoundManager::pushSoundEvent: Cannot push a looping sound as a sound event, try to allocate source instead");
 

@@ -116,6 +116,12 @@ bool SoundState_readLocalData(osg::Object &obj, osgDB::Input &fr)
 		fr[1].getFloat(f);
 		ss.setOccludeDampingFactor(f);
 		fr += 2;
+	} else if (fr[0].matchWord("enabled")) {
+		if (fr[1].matchWord("TRUE"))
+			ss.setEnable(true);
+		else if (fr[1].matchWord("FALSE"))
+			ss.setEnable(false);
+		fr += 2;	
 	} else  if (fr.matchSequence("soundCone %f %f %f")) {
 		float f1, f2, f3;
 		fr[1].getFloat(f1); fr[2].getFloat(f2); fr[3].getFloat(f3);
@@ -144,6 +150,10 @@ bool SoundState_writeLocalData(const Object& obj, Output& fw)
 	if (ss.isPlaying()) fw << "TRUE"<< std::endl;
 	else fw << "FALSE"<< std::endl;
 	
+	fw.indent() << "enabled ";
+	if (ss.getEnable()) fw << "TRUE"<< std::endl;
+	else fw << "FALSE"<< std::endl;
+
 	fw.indent() << "gain " << ss.getGain() << std::endl;
 	fw.indent() << "looping ";
 	if (ss.getLooping()) fw << "TRUE"<< std::endl;

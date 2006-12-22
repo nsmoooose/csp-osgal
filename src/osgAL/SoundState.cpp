@@ -32,7 +32,7 @@ m_innerAngle(360), m_outerAngle(360), m_outerGain(0), m_referenceDistance(1), m_
 m_rolloffFactor(1), m_pitch(1), m_occlude_damping_factor(0.5),
 m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
 m_ambient(false), m_relative(false),
-m_play(false), m_pause(false), m_priority(0)
+m_play(false), m_pause(false), m_priority(0), m_is_set(0), m_enabled(true)
 { 
 	//m_is_set.resize(Last, false); 
 }
@@ -75,6 +75,7 @@ SoundState& SoundState::operator=(const SoundState& state)
   m_pause =             state.m_pause;
   m_is_occluded =       state.m_is_occluded;
   m_occlude_damping_factor = state.m_occlude_damping_factor;
+	m_enabled =						state.m_enabled;
 
   if (state.m_source.valid())
     if (!allocateSource(m_priority))
@@ -156,7 +157,7 @@ void SoundState::apply()
     throw std::runtime_error("SoundState::apply(): No sound source allocated.");
 
   if (!m_sample.valid() && !m_stream.valid()) {
-    osg::notify(osg::WARN) << "SoundState::apply(): No sample or stream assigned to SoundState" << std::endl;
+    //osg::notify(osg::WARN) << "SoundState::apply(): No sample or stream assigned to SoundState" << std::endl;
     return;
   }
 
@@ -217,7 +218,7 @@ void SoundState::apply()
     m_source->setRelative(m_relative);
 
   if (isSet(Play)) {
-      if (m_play)
+      if (m_play && m_enabled)
           m_source->play();
       else if (m_pause)
           m_source->pause();
@@ -228,6 +229,14 @@ void SoundState::apply()
   /// all changes has been set.
   setAll(false);
 }
+
+void SoundState::setEnable(bool flag)
+{
+	if (!flag && m_source.valid())
+		m_source->stop();
+	m_enabled = flag;
+}
+
 #ifdef max
 #undef max
 #endif

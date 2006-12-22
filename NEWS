@@ -1,4 +1,7 @@
 NEWS
+* 061221, Anders Backman
+  - Added SoundState::setEnable()/getEnable() to make it possible to stop a SoundState from making any sound at all.
+  
 * 061220, Anders Backman
   - Using callbacks when initializing OGG, which seems to work a lot better. In VC8
   using non-callback version of OGG crasches on most of my computers.
