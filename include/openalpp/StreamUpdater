@@ -42,7 +42,7 @@ extern "C" {
 #include <OpenThreads/Thread>
 #include <OpenThreads/Mutex>
 #include <osg/Referenced>
-#include <osgDB/ReentrantMutex>
+#include <OpenThreads/ReentrantMutex>
 #include <openalpp/Event>
 
 namespace openalpp {
@@ -50,7 +50,7 @@ namespace openalpp {
 /**
  * Base class for (threaded) updating of stream buffers.
  */
-  class OPENALPP_API StreamUpdater : public OpenThreads::Thread, public osgDB::ReentrantMutex, public osg::Referenced {
+  class OPENALPP_API StreamUpdater : public OpenThreads::Thread, public OpenThreads::ReentrantMutex, public osg::Referenced {
 
  public:
   /**

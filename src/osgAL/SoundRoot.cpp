@@ -80,7 +80,7 @@ void SoundRoot::traverse(osg::NodeVisitor &nv)
 
 			osgUtil::CullVisitor *cv = dynamic_cast<osgUtil::CullVisitor *> (&nv);
       
-			osg::Matrix m = cv->getModelViewMatrix();
+			osg::Matrix m = *cv->getModelViewMatrix();
 
 			if(osgAL::SoundManager::instance()->initialized()) {
 		
