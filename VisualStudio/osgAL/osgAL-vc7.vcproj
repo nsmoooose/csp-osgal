@@ -42,7 +42,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="osg.lib osgDB.lib osgutil.lib OpenThreadsWin32.lib"
+				AdditionalDependencies="osg.lib osgDB.lib osgutil.lib openthreads.lib"
 				OutputFile="../../bin/osgAL.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -108,7 +108,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="osgd.lib osgDBd.lib osgutild.lib OpenThreadsWin32d.lib"
+				AdditionalDependencies="osgd.lib osgDBd.lib osgutild.lib openthreadsd.lib"
 				OutputFile="../../bin/osgALd.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

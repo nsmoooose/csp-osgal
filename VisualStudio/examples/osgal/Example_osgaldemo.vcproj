@@ -166,7 +166,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="openthreadswin32.lib osgga.lib  glu32.lib opengl32.lib osg.lib osgproducer.lib osgutil.lib osgAL.lib osgdb.lib"
+				AdditionalDependencies="openthreads.lib osgga.lib  glu32.lib opengl32.lib osg.lib osgproducer.lib osgutil.lib osgAL.lib osgdb.lib"
 				OutputFile="../../../bin/osgAL.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
