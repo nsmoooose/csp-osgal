@@ -44,7 +44,7 @@
 #include <osg/ShapeDrawable>
 
 
-#include <osgProducer/Viewer>
+#include <osgViewer/Viewer>
 #include "osgAL/Version"
 
 
@@ -243,10 +243,10 @@ int main( int argc, char **argv )
     arguments.getApplicationUsage()->addCommandLineOption("-h or --help","Display this information");
 
     // initialize the viewer.
-    osgProducer::Viewer viewer(arguments);
+    osgViewer::Viewer viewer(arguments);
 
     // set up the value with sensible default event handlers.
-    viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
+    //viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
 
     // get details on keyboard and mouse bindings used by the viewer.
     viewer.getUsage(*arguments.getApplicationUsage());
@@ -341,11 +341,11 @@ int main( int argc, char **argv )
     while( !viewer.done() )
     {
       // wait for all cull and draw threads to complete.
-      viewer.sync();
+//      viewer.sync();
   
       // update the scene by traversing it with the the update visitor which will
       // call all node update callbacks and animations.
-      viewer.update();
+  //    viewer.update();
 
       // For every interval seconds, we will remove the current soundstate and create a new one,
       // with the next sample sounds
@@ -389,7 +389,7 @@ int main( int argc, char **argv )
     }
     
   // wait for all cull and draw threads to complete before exit.
-  viewer.sync();
+  //viewer.sync();
 }
   catch (std::exception& e) {
     std::cerr << "Caught: " << e.what() << std::endl;

@@ -68,7 +68,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="osggad.lib  osgd.lib osgproducerd.lib osgutild.lib osgdbd.lib"
+				AdditionalDependencies="osggad.lib  osgd.lib osgviewerd.lib osgutild.lib osgdbd.lib"
 				OutputFile="../../../bin/osgalviewerd.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -156,7 +156,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="osgga.lib  glu32.lib opengl32.lib osg.lib osgproducer.lib osgutil.lib osgAL.lib osgDB.lib"
+				AdditionalDependencies="osgga.lib  glu32.lib opengl32.lib osg.lib osgviewer.lib osgutil.lib osgAL.lib osgDB.lib"
 				OutputFile="../../../bin/osgalviewer.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

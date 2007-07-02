@@ -41,7 +41,7 @@
 #include <osgGA/FlightManipulator>
 #include <osgGA/DriveManipulator>
 
-#include <osgProducer/Viewer>
+#include <osgViewer/Viewer>
 #include "osgAL/Version"
 
 osg::ref_ptr<osgAL::SoundNode> createSound(const std::string& file);
@@ -324,10 +324,10 @@ int main( int argc, char **argv )
     arguments.getApplicationUsage()->addCommandLineOption("-h or --help","Display this information");
 
     // initialize the viewer.
-    osgProducer::Viewer viewer(arguments);
+    osgViewer::Viewer viewer(arguments);
 
     // set up the value with sensible default event handlers.
-    viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
+    //viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
 
     // get details on keyboard and mouse bindings used by the viewer.
     viewer.getUsage(*arguments.getApplicationUsage());
@@ -381,7 +381,7 @@ int main( int argc, char **argv )
     // Add the soundstate to the sound manager, so we can find it later on if we want to
     osgAL::SoundManager::instance()->addSoundState(sound_state.get());
 
-    viewer.getEventHandlerList().push_front(new KeyboardHandler(sound_state.get()));
+    viewer.getEventHandlers().push_front(new KeyboardHandler(sound_state.get()));
 
     // Create ONE (only one, otherwise the transformation of the listener and update for SoundManager will be
     // called several times, which is not catastrophic, but unnecessary) 
@@ -409,18 +409,18 @@ int main( int argc, char **argv )
     while( !viewer.done() )
     {
       // wait for all cull and draw threads to complete.
-      viewer.sync();
+//      viewer.sync();
   
       // update the scene by traversing it with the the update visitor which will
       // call all node update callbacks and animations.
-      viewer.update();
+  //    viewer.update();
          
       // fire off the cull and draw traversals of the scene.
       viewer.frame();
     }
     
   // wait for all cull and draw threads to complete before exit.
-  viewer.sync();
+  //viewer.sync();
 }
   catch (std::exception& e) {
     std::cerr << "Caught: " << e.what() << std::endl;
