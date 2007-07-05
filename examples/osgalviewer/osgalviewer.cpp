@@ -24,6 +24,7 @@
 #include <osgDB/ReadFile>
 #include <osgUtil/Optimizer>
 #include <osgViewer/Viewer>
+#include <osgGA/TrackballManipulator>
 #include <osg/CoordinateSystemNode>
 
 #define OSGAL_DEFAULT_MAX_SOUNDSOURCES_ALLOWED 16
@@ -88,6 +89,7 @@ int main( int argc, char **argv )
 
     // set up the value with sensible default event handlers.
     //viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
+	viewer.setCameraManipulator(new osgGA::TrackballManipulator());
 
     // get details on keyboard and mouse bindings used by the viewer.
     viewer.getUsage(*arguments.getApplicationUsage());
