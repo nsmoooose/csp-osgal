@@ -1,4 +1,4 @@
-// $Id: SoundNode.cpp,v 1.8 2005/05/27 07:21:36 vr-anders Exp $
+/* -*-c++-*- */
 /**
  * OsgAL - OpenSceneGraph Audio Library
  * Copyright (C) 2004 VRlab, Umeå University

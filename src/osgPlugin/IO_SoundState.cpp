@@ -25,6 +25,7 @@
 #include <osgDB/Input>
 #include <osgDB/Output>
 #include <osgDB/FileUtils>
+#include <openalpp/FileStream>
 
 using namespace osgAL;
 using namespace osg;
@@ -55,6 +56,13 @@ bool SoundState_readLocalData(osg::Object &obj, osgDB::Input &fr)
 		else
 			ss.setName(std::string(fr[1].getStr()));
 		fr += 2;
+	} else if (fr.matchSequence("streamFileName %s")) {
+		osg::ref_ptr<openalpp::Stream> s = SoundManager::instance()->getStream(fr[1].getStr());
+		if(s.valid()) {
+			ss.allocateSource();
+			ss.setStream(s.get());
+		}
+		fr += 2;
 	} else if (fr.matchSequence("fileName %s")) {
 		osg::ref_ptr<openalpp::Sample> s = SoundManager::instance()->getSample(fr[1].getStr());
 		if(s.valid()) {
@@ -63,8 +71,9 @@ bool SoundState_readLocalData(osg::Object &obj, osgDB::Input &fr)
 		}
 		fr += 2;
 	} else if (fr[0].matchWord("playing")) {
-		if (fr[1].matchWord("TRUE"))
+		if (fr[1].matchWord("TRUE")) {
 			ss.setPlay(true);
+		}
 		else if (fr[1].matchWord("FALSE"))
 			ss.setPlay(false);
 		fr += 2;
@@ -142,10 +151,18 @@ bool SoundState_writeLocalData(const Object& obj, Output& fw)
 
 	fw.indent() << "name \"" << ss.getName() << "\"" << std::endl;
 
-	// At the moment, there is support only for sources from openAL++ of "sample" kind.
+	// Is there a sample associated with the stateSet?
 	if (ss.getSample() != NULL)
 		fw.indent() << "fileName \"" << ss.getSample()->getFileName() << "\"" << std::endl;
 	
+	// Is there a FileStream associated with the stateSet?
+	if (ss.getStream() != NULL) {
+		const openalpp::FileStream *fs = dynamic_cast<const openalpp::FileStream *> (ss.getStream());
+		if (fs)
+			fw.indent() << "streamFileName \"" << fs->getFileName() << "\"" << std::endl;
+	}
+
+
 	fw.indent() << "playing ";
 	if (ss.isPlaying()) fw << "TRUE"<< std::endl;
 	else fw << "FALSE"<< std::endl;

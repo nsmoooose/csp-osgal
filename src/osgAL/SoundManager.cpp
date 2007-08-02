@@ -1,4 +1,5 @@
-// $Id: SoundManager.cpp,v 1.14 2005/12/08 12:41:16 vr-anders Exp $
+/* -*-c++-*- */
+
 /**
  * OsgAL - OpenSceneGraph Audio Library
  * Copyright (C) 2004 VRlab, Umeå University

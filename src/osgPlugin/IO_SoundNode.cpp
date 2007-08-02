@@ -55,9 +55,9 @@ bool SoundNode_readLocalData(osg::Object &obj, osgDB::Input &fr)
 	 ************************************************************************/
 
 	if(!SoundManager::instance()->initialized()) {
-		std::cerr << "osgdb_osgAL::SoundNode_readLocalData(): WARNING!!! ";
-		std::cerr << "The osgAL plugin is initializing the SoundManager. ";
-		std::cerr << "So surely nobody will shutdown it, and I will exit with a crash!" << std::endl;
+		osg::notify(osg::WARN) << "osgdb_osgAL::SoundNode_readLocalData(): WARNING!!! ";
+		osg::notify(osg::WARN) << "The osgAL plugin is initializing the SoundManager. ";
+		osg::notify(osg::WARN) << "So surely nobody will shutdown it, and I will exit with a crash!" << std::endl;
 		osgAL::SoundManager::instance()->init(16);
 		osgAL::SoundManager::instance()->getEnvironment()->setDistanceModel(openalpp::InverseDistance);
 		osgAL::SoundManager::instance()->getEnvironment()->setDopplerFactor(1);

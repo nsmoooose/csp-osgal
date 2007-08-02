@@ -1,22 +1,22 @@
-// $Id: SoundState.cpp,v 1.9 2005/11/02 22:08:11 vr-anders Exp $
+/* -*-c++-*- */
 /**
- * OsgAL - OpenSceneGraph Audio Library
- * Copyright (C) 2004 VRlab, Umeå University
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
- */
+* OsgAL - OpenSceneGraph Audio Library
+* Copyright (C) 2004 VRlab, Umeå University
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
+*/
 
 
 
@@ -34,7 +34,6 @@ m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
 m_ambient(false), m_relative(false),
 m_play(false), m_pause(false), m_priority(0), m_is_set(0), m_enabled(true)
 { 
-	//m_is_set.resize(Last, false); 
 }
 
 
@@ -44,190 +43,191 @@ m_innerAngle(360), m_outerAngle(360), m_outerGain(0), m_referenceDistance(1), m_
 m_rolloffFactor(1), m_pitch(1), m_occlude_damping_factor(0.5),
 m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
 m_ambient(false), m_relative(false),
-m_play(false), m_pause(false), m_priority(0), m_is_set(0)
+m_play(false), m_pause(false), m_priority(0), m_is_set(0), m_enabled(true)
 { 
-//	m_is_set.resize(Last, false); 
 }
 
-  
+
 SoundState& SoundState::operator=(const SoundState& state)
 {
-  if (this == &state)
-    return *this;
- 
-  m_stream =            state.m_stream;
-  m_sample =            state.m_sample;
-  m_gain =              state.m_gain;
-  m_looping =           state.m_looping;
-  m_ambient =           state.m_ambient;
-  m_relative =          state.m_relative;
-  m_innerAngle =        state.m_innerAngle;
-  m_outerAngle =        state.m_outerAngle;
-  m_outerGain =         state.m_outerGain;
-  m_referenceDistance = state.m_referenceDistance;
-  m_rolloffFactor =     state.m_rolloffFactor;
-  m_pitch =             state.m_pitch;
-  m_position =          state.m_position;
-  m_direction =         state.m_direction;
-  m_velocity =          state.m_velocity;
-  m_priority =          state.m_priority;
-  m_play =              state.m_play;
-  m_pause =             state.m_pause;
-  m_is_occluded =       state.m_is_occluded;
-  m_occlude_damping_factor = state.m_occlude_damping_factor;
+	if (this == &state)
+		return *this;
+
+	m_stream =            state.m_stream;
+	m_sample =            state.m_sample;
+	m_gain =              state.m_gain;
+	m_looping =           state.m_looping;
+	m_ambient =           state.m_ambient;
+	m_relative =          state.m_relative;
+	m_innerAngle =        state.m_innerAngle;
+	m_outerAngle =        state.m_outerAngle;
+	m_outerGain =         state.m_outerGain;
+	m_referenceDistance = state.m_referenceDistance;
+	m_rolloffFactor =     state.m_rolloffFactor;
+	m_pitch =             state.m_pitch;
+	m_position =          state.m_position;
+	m_direction =         state.m_direction;
+	m_velocity =          state.m_velocity;
+	m_priority =          state.m_priority;
+	m_play =              state.m_play;
+	m_pause =             state.m_pause;
+	m_is_occluded =       state.m_is_occluded;
+	m_occlude_damping_factor = state.m_occlude_damping_factor;
 	m_enabled =						state.m_enabled;
+	m_is_set =						state.m_is_set;
 
-  if (state.m_source.valid())
-    if (!allocateSource(m_priority))
-      throw std::runtime_error("SoundState::operator=():  No soundsources available during Assignment");
+	if (state.m_source.valid())
+		if (!allocateSource(m_priority))
+			throw std::runtime_error("SoundState::operator=():  No soundsources available during Assignment");
 
-  // Indicate that all fields has been changed
-  setAll(true);
+	// Indicate that all fields has been changed
+	setAll(true);
 
-  return *this;
+	return *this;
 }
 
 
 
 bool SoundState::allocateSource(unsigned int priority, bool registrate_as_active) 
 { 
-  m_source= SoundManager::instance()->allocateSource(priority, registrate_as_active);
+	m_source= SoundManager::instance()->allocateSource(priority, registrate_as_active);
 
-  if (!m_source.valid()) 
-    return false;
-  
-   m_priority = priority; 
- 
-   if (m_source.valid()) {
-     setAll(true); // Apply all parameters from soundstate to the just recently allocated sound source
-     apply(); 
-   }
-   
-   return true; 
+	if (!m_source.valid()) 
+		return false;
+
+	m_priority = priority; 
+
+	if (m_source.valid()) {
+		setAll(true); // Apply all parameters from soundstate to the just recently allocated sound source
+		apply(); 
+	}
+
+	return true; 
 }
 
 void SoundState::releaseSource()
 { 
 
-  if (m_source.valid()) 
-    SoundManager::instance()->releaseSource(m_source.get()); 
-  m_source = 0; 
+	if (m_source.valid()) 
+		SoundManager::instance()->releaseSource(m_source.get()); 
+	m_source = 0; 
 }
 
 
 bool SoundState::isActive() 
 { 
-  bool f; 
-  if (!m_source.valid()) 
-    f= false; 
-  else 
-    f= (m_source->getState() == openalpp::Playing); 
-  
-  //info("isActive") << "Active: " << f << std::endl; 
-  return f;
+	bool f; 
+	if (!m_source.valid()) 
+		f= false; 
+	else 
+		f= (m_source->getState() == openalpp::Playing); 
+
+	//info("isActive") << "Active: " << f << std::endl; 
+	return f;
 }
 
 
 SoundState::~SoundState() 
 { 
-  releaseSource(); 
+	releaseSource(); 
 }
 
 
 void SoundState::setSource(openalpp::Source *source)
 { 
-  assert((m_sample.valid() || m_stream.valid()) && "setSource: No stream or sample associated to the soundstate"); 
+	assert((m_sample.valid() || m_stream.valid()) && "setSource: No stream or sample associated to the soundstate"); 
 
-  if (m_source.valid()) 
-    releaseSource(); 
-  m_source = source; 
-  if (m_sample.valid())
-    m_source->setSound(m_sample.get()); 
-  else if (m_stream.valid())
-    m_source->setSound(m_stream.get()); 
+	if (m_source.valid()) 
+		releaseSource(); 
+	m_source = source; 
+	if (m_sample.valid())
+		m_source->setSound(m_sample.get()); 
+	else if (m_stream.valid())
+		m_source->setSound(m_stream.get()); 
 }
 
 ///
 void SoundState::apply()
 {
-  if (isNoneSet())
-    return;
+	if (isNoneSet())
+		return;
 
-  if (!m_source.valid())
-    throw std::runtime_error("SoundState::apply(): No sound source allocated.");
+	if (!m_source.valid())
+		throw std::runtime_error("SoundState::apply(): No sound source allocated.");
 
-  if (!m_sample.valid() && !m_stream.valid()) {
-    //osg::notify(osg::WARN) << "SoundState::apply(): No sample or stream assigned to SoundState" << std::endl;
-    return;
-  }
+	if (!m_sample.valid() && !m_stream.valid()) {
+		//osg::notify(osg::WARN) << "SoundState::apply(): No sample or stream assigned to SoundState" << std::endl;
+		return;
+	}
 
-  if (isSet(Stream) && m_stream.valid())
-    m_source->setSound(m_stream.get());
+	if (isSet(Stream) && m_stream.valid())
+		m_source->setSound(m_stream.get());
 
-  if (isSet(Sample) && m_sample.valid())
-    m_source->setSound(m_sample.get());
+	if (isSet(Sample) && m_sample.valid())
+		m_source->setSound(m_sample.get());
 
-  if (isSet(Position))
-    m_source->setPosition(m_position[0], m_position[1], m_position[2]); 
+	if (isSet(Position))
+		m_source->setPosition(m_position[0], m_position[1], m_position[2]); 
 
-  if (isSet(Direction))
-    m_source->setDirection(m_direction[0], m_direction[1], m_direction[2]); 
+	if (isSet(Direction))
+		m_source->setDirection(m_direction[0], m_direction[1], m_direction[2]); 
 
-  if (isSet(Gain))
-    m_source->setGain(m_gain);
- 
-  if (isSet(Occluded)) {
-    if (m_is_occluded)  {
-      float g = m_gain*( 1 + (m_occlude_scale-1)*m_occlude_damping_factor);
-      //std::cerr << "Gain: " << g << std::endl;
-      m_source->setGain(g);
-    }
-    else {
-      m_occlude_scale = 1.0f;
-      m_source->setGain(m_gain);
-    }
+	if (isSet(Gain))
+		m_source->setGain(m_gain);
 
-  }
+	if (isSet(Occluded)) {
+		if (m_is_occluded)  {
+			float g = m_gain*( 1 + (m_occlude_scale-1)*m_occlude_damping_factor);
+			m_source->setGain(g);
+		}
+		else {
+			m_occlude_scale = 1.0f;
+			m_source->setGain(m_gain);
+		}
 
-  if (isSet(Looping))
-    m_source->setLooping(m_looping);
+	}
+
+	if (isSet(Looping))
+		m_source->setLooping(m_looping);
 
 
-  if (isSet(SoundCone))
-    m_source->setSoundCone(m_innerAngle, m_outerAngle, m_outerGain);
+	if (isSet(SoundCone))
+		m_source->setSoundCone(m_innerAngle, m_outerAngle, m_outerGain);
 
-  if (isSet(ReferenceDistance))    
-    m_source->setReferenceDistance(m_referenceDistance);
+	if (isSet(ReferenceDistance))    
+		m_source->setReferenceDistance(m_referenceDistance);
 
-  if (isSet(MaxDistance))
-    m_source->setMaxDistance(m_maxDistance);
+	if (isSet(MaxDistance))
+		m_source->setMaxDistance(m_maxDistance);
 
-  if (isSet(RolloffFactor))
-    m_source->setRolloffFactor(m_rolloffFactor);
+	if (isSet(RolloffFactor))
+		m_source->setRolloffFactor(m_rolloffFactor);
 
-  if (isSet(Pitch))
-    m_source->setPitch(m_pitch);
+	if (isSet(Pitch))
+		m_source->setPitch(m_pitch);
 
-  if (isSet(Velocity))
-    m_source->setVelocity(m_velocity[0], m_velocity[1], m_velocity[2]);
+	if (isSet(Velocity))
+		m_source->setVelocity(m_velocity[0], m_velocity[1], m_velocity[2]);
 
-  if (isSet(Ambient))    
-    m_source->setAmbient(m_ambient);
+	if (isSet(Ambient))    
+		m_source->setAmbient(m_ambient);
 
-  if (isSet(Relative))    
-    m_source->setRelative(m_relative);
+	if (isSet(Relative))    
+		m_source->setRelative(m_relative);
 
-  if (isSet(Play)) {
-      if (m_play && m_enabled)
-          m_source->play();
-      else if (m_pause)
-          m_source->pause();
-      else
-          m_source->stop();
-  }
+	int i = (m_is_set>>Play)&01;
 
-  /// all changes has been set.
-  setAll(false);
+	if (isSet(Play)) {
+		if (m_play && m_enabled) 
+			m_source->play();
+		else if (m_pause)
+			m_source->pause();
+		else
+			m_source->stop();
+	}
+
+	/// all changes has been set.
+	setAll(false);
 }
 
 void SoundState::setEnable(bool flag)
@@ -242,9 +242,9 @@ void SoundState::setEnable(bool flag)
 #endif
 void SoundState::setAll(bool flag) 
 { 
-  if (flag) 
-    m_is_set = std::numeric_limits<unsigned int>::max();
-  else m_is_set = 0; 
+	if (flag) 
+		m_is_set = std::numeric_limits<unsigned int>::max();
+	else m_is_set = 0; 
 } //for(unsigned int i=0; i < m_is_set.size(); i++) m_is_set[i]=flag; }
 
 /*------------------------------------------
@@ -258,9 +258,9 @@ void SoundState::setAll(bool flag)
 
 * Description:
 
-	Author: Anders Backman
-  VRlab, Umeå University, 2002
- 
+Author: Anders Backman
+VRlab, Umeå University, 2002
+
 * $Log: SoundState.cpp,v $
 * Revision 1.9  2005/11/02 22:08:11  vr-anders
 * Fixed bug in SoundState::allocateSource(), added call to apply() so that all fields are updated.

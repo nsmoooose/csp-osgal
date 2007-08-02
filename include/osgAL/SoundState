@@ -346,7 +346,7 @@ private:
   // Clear the given field to false
   void clear(SetField f)  { m_is_set &=  ~(01 << f); }
 
-  unsigned m_is_set;
+  unsigned long m_is_set;
 
 };
 

@@ -68,6 +68,8 @@ class OPENALPP_API  FileStream : public Stream {
    * @param loop is true if the stream should loop, false otherwise.
    */
   void setLooping(bool loop = true);
+  
+  std::string getFileName() const { return filename_; }
 
 protected:
     /**
@@ -75,7 +77,9 @@ protected:
    */
   virtual ~FileStream();
 
-	ov_callbacks	_vorbisCallbacks;	// callbacks used to read the file from mem
+	ov_callbacks	_vorbisCallbacks;	// callbacks used to read the file from memory
+	
+	std::string filename_;
 
 
     OggVorbis_File* oggfile_;

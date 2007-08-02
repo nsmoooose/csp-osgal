@@ -103,7 +103,7 @@ void Source::setSound(Stream *stream) {
   if (sounddata_.valid())
   {
     std::cerr << "Source::setSound(Stream *stream) resetting stream not supported, create new source" << std::endl;
-    return;
+		throw FatalError("Source::setSound(Stream *stream) resetting stream not supported, create new source");
   }
 
   sounddata_= stream;

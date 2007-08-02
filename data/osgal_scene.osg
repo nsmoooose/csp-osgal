@@ -1568,7 +1568,11 @@ MatrixTransform {
             osgAL::SoundState {
               DataVariance DYNAMIC
               name "glider"
-              fileName "bee.wav"
+              
+              // Switch between a .wav file and a .ogg stream
+              //fileName "bee.wav"
+							streamFileName "44100_1chan.ogg"
+							
               playing TRUE
               gain 0.9
               looping TRUE

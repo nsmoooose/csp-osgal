@@ -1,4 +1,19 @@
 NEWS
+* 070802, Anders Backman, Daniel Sjölie
+  - Updating to support the new osg 2.0 release.
+  - Removed dependency of Producer, now using core osg::Viewer
+  - New policy for deleting Ref counted objects require a call to:
+		
+		if (osg::Referenced::getDeleteHandler()) {
+			osg::Referenced::getDeleteHandler()->setNumFramesToRetainObjects(0);
+			osg::Referenced::getDeleteHandler()->flushAll();
+		}
+		
+  	before calling SoundManager::Shutdown(), otherwise objects are not deleted within the scope of main() which can
+  	cause problems during shutdown of OpenAL.
+  - Fixed bug causing sound not playing when reading from .osg file.
+  - Added key "streamFileName" to make it possible to play .ogg files specified from a .osg file.
+
 * 061221, Anders Backman
   - Added SoundState::setEnable()/getEnable() to make it possible to stop a SoundState from making any sound at all.
   

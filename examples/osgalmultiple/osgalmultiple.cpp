@@ -1,4 +1,4 @@
-/* -*-c++-*- $Id: osgalmultiple.cpp,v 1.2 2005/05/27 07:21:34 vr-anders Exp $ */
+/* -*-c++-*- $Id: osgalmultiple.cpp */
 /**
  * OsgAL - OpenSceneGraph Audio Library
  * Copyright (C) 2004 VRlab, Umeå University
@@ -32,6 +32,9 @@
 #include <osg/Geometry>
 #include <osg/Geode>
 
+#include <osg/DeleteHandler>
+
+
 #include <osgUtil/Optimizer>
 
 #include <osgDB/Registry>
@@ -40,6 +43,8 @@
 #include <osgGA/TrackballManipulator>
 #include <osgGA/FlightManipulator>
 #include <osgGA/DriveManipulator>
+#include <osgViewer/ViewerEventHandlers>
+#include <osgGA/KeySwitchMatrixManipulator>
 
 #include <osg/ShapeDrawable>
 
@@ -227,10 +232,10 @@ osg::Node* createModel()
 int main( int argc, char **argv )
 {
   
-  std::cerr << "\n\n" << osgAL::getLibraryName() << " demo" << std::endl;
-  std::cerr << "Version: " << osgAL::getVersion() << "\n\n" << std::endl;
+  osg::notify(osg::WARN) << "\n\n" << osgAL::getLibraryName() << " demo" << std::endl;
+  osg::notify(osg::WARN) << "Version: " << osgAL::getVersion() << "\n\n" << std::endl;
 
-  std::cerr << "Demonstrates how to create and destroy soundsources on the fly" << std::endl;
+  osg::notify(osg::WARN) << "Demonstrates how to create and destroy soundsources on the fly" << std::endl;
 
 
   try {
@@ -245,8 +250,19 @@ int main( int argc, char **argv )
     // initialize the viewer.
     osgViewer::Viewer viewer(arguments);
 
-    // set up the value with sensible default event handlers.
-    //viewer.setUpViewer(osgProducer::Viewer::STANDARD_SETTINGS);
+		osg::ref_ptr<osgGA::KeySwitchMatrixManipulator> keyswitchManipulator = new osgGA::KeySwitchMatrixManipulator;
+		keyswitchManipulator->addMatrixManipulator( '1', "Trackball", new osgGA::TrackballManipulator() );
+		viewer.setCameraManipulator( keyswitchManipulator.get() );
+
+
+		// add the window size toggle handler
+		viewer.addEventHandler(new osgViewer::WindowSizeHandler);
+
+		// add the stats handler
+		viewer.addEventHandler(new osgViewer::StatsHandler);
+
+		// add the help handler
+		viewer.addEventHandler(new osgViewer::HelpHandler(arguments.getApplicationUsage()));
 
     // get details on keyboard and mouse bindings used by the viewer.
     viewer.getUsage(*arguments.getApplicationUsage());
@@ -363,7 +379,7 @@ int main( int argc, char **argv )
         file = wave_vector[n%wave_vector.size()];
         bool add_to_cache = true;
         osg::ref_ptr<openalpp::Sample> sample = osgAL::SoundManager::instance()->getSample(file.c_str(), add_to_cache);
-        std::cerr << "Loading sample: " << file << std::endl;
+        osg::notify(osg::WARN) << "Loading sample: " << file << std::endl;
 
         // Create a new soundstate, give it the name of the file we loaded.
         osg::ref_ptr<osgAL::SoundState> sound_state = new osgAL::SoundState(file);
@@ -387,17 +403,19 @@ int main( int argc, char **argv )
       // fire off the cull and draw traversals of the scene.
       viewer.frame();
     }
-    
-  // wait for all cull and draw threads to complete before exit.
-  //viewer.sync();
 }
   catch (std::exception& e) {
-    std::cerr << "Caught: " << e.what() << std::endl;
+    osg::notify(osg::WARN) << "Caught: " << e.what() << std::endl;
   }
   // Very important to call this before end of main.
   // Otherwise OpenAL will do all sorts of strange things after end of main
   // in the destructor of soundmanager.
-  osgAL::SoundManager::instance()->shutdown();
+	if (osg::Referenced::getDeleteHandler()) {
+		osg::Referenced::getDeleteHandler()->setNumFramesToRetainObjects(0);
+		osg::Referenced::getDeleteHandler()->flushAll();
+	}
+
+	osgAL::SoundManager::instance()->shutdown();
   return 0;
 
 }
