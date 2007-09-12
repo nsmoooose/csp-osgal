@@ -18,6 +18,12 @@
 #
 MAINTAINERCLEANFILES = Makefile.in
 
+EXTRA_DIST = \
+	NoInputDevice.cpp \
+	NoStreaming.cpp \
+	NoFileStream.cpp \
+	InputDevice.cpp
+
 libopenalpp_la_SOURCES = \
 	AudioBase.cpp \
 	AudioConvert.cpp \

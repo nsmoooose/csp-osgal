@@ -18,7 +18,11 @@
 #
 MAINTAINERCLEANFILES = Makefile.in
 
-INCLUDES = -I$(top_builddir)/include
+EXTRA_DIST = \
+	a.wav bee.wav high-e.wav low-e.wav \
+	teststream.cpp testmic.cpp testsend.cpp
+
+INCLUDES = -I$(top_srcdir)/include
 
 LDADD = ../../src/openalpp/libopenalpp.la 
 

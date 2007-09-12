@@ -17,7 +17,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 AC_PREREQ(2.59)
-AC_INIT(osgAL,0.5)
+AC_INIT(osgAL,0.6.0)
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE()
 AC_CONFIG_SRCDIR([osgal.pc.in])

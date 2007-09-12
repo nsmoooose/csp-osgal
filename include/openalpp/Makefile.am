@@ -18,6 +18,9 @@
 #
 MAINTAINERCLEANFILES = Makefile.in
 
+EXTRA_DIST = InputDevice
+
+pkgincludedir=${includedir}/openalpp
 pkginclude_HEADERS = \
 	AudioBase \
 	AudioConvert \

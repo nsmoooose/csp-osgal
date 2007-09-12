@@ -18,6 +18,7 @@
 #
 MAINTAINERCLEANFILES = Makefile.in
 
+pkgincludedir=${includedir}/osgAL
 pkginclude_HEADERS = \
 	Export \
 	Math \
