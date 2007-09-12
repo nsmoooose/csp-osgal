@@ -5,7 +5,6 @@ includedir=@includedir@
 
 Name: OpenSceneGraph Audio Library
 Description: 3D SoundLibrary for OpenSceneGraph library.
-Requires: openalpp
 Version: @VERSION@
-Libs: -L${libdir} -lopenal -lopenalpp  -lOpenThreads -losgal
-Cflags: -I${includedir} 
+Libs: -L${libdir} -lopenal -lOpenThreads -losgAL
+Cflags: -I${includedir} -DOSGAL_VERSION=0X000600
