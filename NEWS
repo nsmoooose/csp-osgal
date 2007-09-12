@@ -1,4 +1,6 @@
 NEWS
+* 070912, Loic Dachary
+  - Update autotools files and pkgconfig files
 * 070802, Anders Backman, Daniel Sjölie
   - Updating to support the new osg 2.0 release.
   - Removed dependency of Producer, now using core osg::Viewer
