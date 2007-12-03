@@ -27,7 +27,17 @@
 using namespace osgAL;
 
 SoundState::SoundState( const std::string& name ) : 
-m_name(name), m_gain(1), 
+m_name(name), m_sound_manager(SoundManager::instance()), m_gain(1), 
+m_innerAngle(360), m_outerAngle(360), m_outerGain(0), m_referenceDistance(1), m_maxDistance(100),
+m_rolloffFactor(1), m_pitch(1), m_occlude_damping_factor(0.5),
+m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
+m_ambient(false), m_relative(false),
+m_play(false), m_pause(false), m_priority(0), m_is_set(0), m_enabled(true)
+{ 
+}
+
+SoundState::SoundState( const std::string& name, SoundManager *sound_manager ) : 
+m_name(name), m_sound_manager(sound_manager), m_gain(1), 
 m_innerAngle(360), m_outerAngle(360), m_outerGain(0), m_referenceDistance(1), m_maxDistance(100),
 m_rolloffFactor(1), m_pitch(1), m_occlude_damping_factor(0.5),
 m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
@@ -90,7 +100,7 @@ SoundState& SoundState::operator=(const SoundState& state)
 
 bool SoundState::allocateSource(unsigned int priority, bool registrate_as_active) 
 { 
-	m_source= SoundManager::instance()->allocateSource(priority, registrate_as_active);
+	m_source= m_sound_manager->allocateSource(priority, registrate_as_active);
 
 	if (!m_source.valid()) 
 		return false;
@@ -109,7 +119,7 @@ void SoundState::releaseSource()
 { 
 
 	if (m_source.valid()) 
-		SoundManager::instance()->releaseSource(m_source.get()); 
+		m_sound_manager->releaseSource(m_source.get()); 
 	m_source = 0; 
 }
 

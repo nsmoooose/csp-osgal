@@ -31,13 +31,24 @@ using namespace osgAL;
 
 SoundNode::SoundNode()
   :    osg::Node(), m_last_time(0), m_first_run(true), 
+       m_sound_manager(SoundManager::instance()),
        m_last_traversal_number(0)
 {
     setCullingActive(false);
 }
 
-SoundNode::SoundNode(SoundState *sound_state) : osg::Node(),
-m_sound_state(sound_state), m_last_time(0), m_first_run(true)
+SoundNode::SoundNode(SoundState *sound_state) 
+  :    osg::Node(), m_sound_state(sound_state),
+       m_sound_manager(SoundManager::instance()),
+       m_last_time(0), m_first_run(true)
+{
+    setCullingActive(false);
+}
+
+SoundNode::SoundNode(SoundState *sound_state, SoundManager *sound_manager) 
+  :    osg::Node(), m_sound_state(sound_state),
+       m_sound_manager(sound_manager),
+       m_last_time(0), m_first_run(true)
 {
     setCullingActive(false);
 }
@@ -48,6 +59,7 @@ SoundNode & SoundNode::operator=(const SoundNode &node)
   if (this == &node) return *this; 
 
   m_sound_state = node.m_sound_state;
+  m_sound_manager = node.m_sound_manager;
   m_last_time = node.m_last_time;
   m_first_run = node.m_first_run;
   return *this;
@@ -84,7 +96,7 @@ void SoundNode::traverse(osg::NodeVisitor &nv)
 		  double t = nv.getFrameStamp()->getReferenceTime();
       double time = t - m_last_time;
 
-		  if(time >= SoundManager::instance()->getUpdateFrequency()) {
+		  if(time >= m_sound_manager->getUpdateFrequency()) {
 
 			  osg::Matrix m;
 			  m = osg::computeLocalToWorld(nv.getNodePath());
@@ -108,8 +120,8 @@ void SoundNode::traverse(osg::NodeVisitor &nv)
 				  velocity /= time;
 			  }
 
-			  if(SoundManager::instance()->getClampVelocity()) {
-				  float max_vel = SoundManager::instance()->getMaxVelocity();
+			  if(m_sound_manager->getClampVelocity()) {
+				  float max_vel = m_sound_manager->getMaxVelocity();
 				  float len = velocity.length();
 				  if ( len > max_vel) {
 				  velocity.normalize();
@@ -128,7 +140,7 @@ void SoundNode::traverse(osg::NodeVisitor &nv)
 
 			  //Only do occlusion calculations if the sound is playing
 			  if (m_sound_state->getPlay() && m_occlude_callback.valid())
-				  m_occlude_callback->apply(SoundManager::instance()->getListenerMatrix(), pos, this);
+				  m_occlude_callback->apply(m_sound_manager->getListenerMatrix(), pos, this);
 		  } // if
     }
   } // if cullvisitor

@@ -43,6 +43,7 @@
 
 
 namespace osgAL {
+  class SoundManager;
 
 /// Class that encapsulate the settings valid for a soundsource 
 /*!
@@ -73,6 +74,13 @@ public:
     \param name - The identifier of the SoundState
   */
   SoundState( const std::string& name );
+  
+  /*! 
+    Constructor
+    \param name - The identifier of the SoundState
+    \param sound_manager - Pointer to the SoundManager singleton
+  */
+  SoundState( const std::string& name, SoundManager *sound_manager );
   
 
   /// Destructor, releases any allocated sound sources
@@ -311,7 +319,7 @@ public:
   void apply(); 
 
 private:
-
+  SoundManager *m_sound_manager;
   
   /// Clear all the flags indicating a value has been set
   void setAll(bool flag);
@@ -352,4 +360,5 @@ private:
 
 } // Namespace osgAL
 #endif // 
+
 

@@ -38,6 +38,7 @@
 
 namespace osgAL
 {
+    class SoundManager;
   
   /// A placeholder for a soundstate. The transformation is updated automatically during update traversal.
   /**
@@ -55,6 +56,13 @@ namespace osgAL
       Constructor that also associates a sound state to this node.
     */
     SoundNode(SoundState *sound_state);
+    
+    /*!
+      Constructor that also associates a sound state and sound manager to this node.
+      Useful on windows when working with multiple apps so that multiple instances are
+      not created with the singleton use of SoundManager.
+    */
+    SoundNode(SoundState *sound_state, SoundManager *sound_manager);
     
     /// Copy constructor
     SoundNode(const SoundNode &copy, const osg::CopyOp &copyop = osg::CopyOp::SHALLOW_COPY);
@@ -95,6 +103,7 @@ namespace osgAL
     osg::observer_ptr<SoundState> m_sound_state;
 
   private:
+    SoundManager *m_sound_manager;
   
     osg::ref_ptr<OccludeCallback> m_occlude_callback;
     double m_last_time;
