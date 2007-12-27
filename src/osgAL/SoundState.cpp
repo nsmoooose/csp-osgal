@@ -27,34 +27,43 @@
 using namespace osgAL;
 
 SoundState::SoundState( const std::string& name ) : 
-m_name(name), m_sound_manager(SoundManager::instance()), m_gain(1), 
+m_sound_manager(SoundManager::instance()), m_gain(1), 
 m_innerAngle(360), m_outerAngle(360), m_outerGain(0), m_referenceDistance(1), m_maxDistance(100),
 m_rolloffFactor(1), m_pitch(1), m_occlude_damping_factor(0.5),
 m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
 m_ambient(false), m_relative(false),
 m_play(false), m_pause(false), m_priority(0), m_is_set(0), m_enabled(true)
-{ 
+{
+	setName(name);
 }
 
 SoundState::SoundState( const std::string& name, SoundManager *sound_manager ) : 
-m_name(name), m_sound_manager(sound_manager), m_gain(1), 
+m_sound_manager(sound_manager), m_gain(1), 
 m_innerAngle(360), m_outerAngle(360), m_outerGain(0), m_referenceDistance(1), m_maxDistance(100),
 m_rolloffFactor(1), m_pitch(1), m_occlude_damping_factor(0.5),
 m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
 m_ambient(false), m_relative(false),
 m_play(false), m_pause(false), m_priority(0), m_is_set(0), m_enabled(true)
-{ 
+{
+	setName(name);
 }
 
 
 SoundState::SoundState() : 
-m_gain(1), 
+m_sound_manager(SoundManager::instance()), m_gain(1), 
 m_innerAngle(360), m_outerAngle(360), m_outerGain(0), m_referenceDistance(1), m_maxDistance(100),
 m_rolloffFactor(1), m_pitch(1), m_occlude_damping_factor(0.5),
 m_occlude_scale(1.0f),  m_is_occluded(false), m_looping(false),
 m_ambient(false), m_relative(false),
 m_play(false), m_pause(false), m_priority(0), m_is_set(0), m_enabled(true)
 { 
+}
+
+
+SoundState::SoundState(const SoundState& state, const osg::CopyOp& copyop) : osg::Object(state, copyop) 
+{
+	m_sound_manager = state.m_sound_manager;
+	*this = state;
 }
 
 
@@ -73,6 +82,7 @@ SoundState& SoundState::operator=(const SoundState& state)
 	m_outerAngle =        state.m_outerAngle;
 	m_outerGain =         state.m_outerGain;
 	m_referenceDistance = state.m_referenceDistance;
+	m_maxDistance =       state.m_maxDistance;
 	m_rolloffFactor =     state.m_rolloffFactor;
 	m_pitch =             state.m_pitch;
 	m_position =          state.m_position;
@@ -82,6 +92,7 @@ SoundState& SoundState::operator=(const SoundState& state)
 	m_play =              state.m_play;
 	m_pause =             state.m_pause;
 	m_is_occluded =       state.m_is_occluded;
+	m_occlude_scale =     state.m_occlude_scale;
 	m_occlude_damping_factor = state.m_occlude_damping_factor;
 	m_enabled =						state.m_enabled;
 	m_is_set =						state.m_is_set;

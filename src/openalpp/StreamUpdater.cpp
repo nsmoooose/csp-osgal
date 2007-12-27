@@ -154,7 +154,7 @@ void StreamUpdater::processAddedSources()
               break;
           }
         }
-        if (!duplicateSource)
+        if (!duplicateSource && newsources_.size())
         {
           sources_.push_back(newsources_.back());
           alSourceStop(newsources_.back());

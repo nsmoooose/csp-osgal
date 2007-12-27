@@ -50,13 +50,7 @@ bool SoundState_readLocalData(osg::Object &obj, osgDB::Input &fr)
 
 	SoundState &ss = static_cast<SoundState&>(obj);
 
-	if (fr.matchSequence("name %s")) {
-		if(fr[1].getStr() == NULL)
-			std::cerr << "osgAL::SoundState_readLocalData: WARNING!!! A SoundState needs a non-empty name! " << std::endl;
-		else
-			ss.setName(std::string(fr[1].getStr()));
-		fr += 2;
-	} else if (fr.matchSequence("streamFileName %s")) {
+	if (fr.matchSequence("streamFileName %s")) {
 		osg::ref_ptr<openalpp::Stream> s = SoundManager::instance()->getStream(fr[1].getStr());
 		if(s.valid()) {
 			ss.allocateSource();
@@ -148,8 +142,6 @@ bool SoundState_readLocalData(osg::Object &obj, osgDB::Input &fr)
 bool SoundState_writeLocalData(const Object& obj, Output& fw)
 {
 	const SoundState &ss = static_cast<const SoundState&>(obj);
-
-	fw.indent() << "name \"" << ss.getName() << "\"" << std::endl;
 
 	// Is there a sample associated with the stateSet?
 	if (ss.getSample() != NULL)

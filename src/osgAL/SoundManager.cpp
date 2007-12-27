@@ -250,13 +250,10 @@ SoundManager *SoundManager::instance()
 bool SoundManager::removeSoundState(osgAL::SoundState *state)
 {
   bool found = false;
-  SoundStateMap::iterator it = m_sound_states.begin();
-  for(; it != m_sound_states.end(); it++) {
-    if (it->second == state) {
-      // Remove it from the map
-      m_sound_states.erase(it);
-      found = true;
-    }
+  SoundStateSet::iterator it = m_sound_states.find(state);
+  if (it != m_sound_states.end()) {
+    m_sound_states.erase(it);
+    found = true;
   }
   {
     SoundStateVector::iterator it = m_active_sound_states.begin();
@@ -275,15 +272,17 @@ bool SoundManager::removeSoundState(osgAL::SoundState *state)
 
 bool SoundManager::removeSoundState(const std::string& id)
 {
-
-
-  SoundStateMap::iterator sim = m_sound_states.find(id);
-  if (sim == m_sound_states.end())
-    return false;
-
-  // Remove it from the map
-  m_sound_states.erase(sim);
-  return true;
+  for (SoundStateSet::iterator it = m_sound_states.begin();
+      it != m_sound_states.end();
+      ++it)
+  {
+    if ((*it)->getName() == id)
+    {
+      m_sound_states.erase(it);
+      return true;
+    };
+  }
+  return false;
 }
 
 void SoundManager::releaseSource(openalpp::Source *source)
@@ -457,15 +456,15 @@ openalpp::Stream* SoundManager::getStream( const std::string& path, bool add_to_
 
 SoundState *SoundManager::findSoundState(const std::string& id)
 {
-  SoundState *state=0;
+  for (SoundStateSet::iterator it = m_sound_states.begin();
+      it != m_sound_states.end();
+      ++it)
+  {
+    if ((*it)->getName() == id)
+      return it->get();
+  }
 
-  SoundStateMap::iterator sim = m_sound_states.find(id);
-  if (sim == m_sound_states.end())
-    return 0L;
-
-  state = (sim->second).get();
-
-  return state;
+  return 0;
 }
 
 

@@ -239,10 +239,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\openalpp\Event.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\openalpp\FileStream.cpp"
 				>
 			</File>
@@ -324,10 +320,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\openalpp\Error"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\openalpp\Event"
 				>
 			</File>
 			<File

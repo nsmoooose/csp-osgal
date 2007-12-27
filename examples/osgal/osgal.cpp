@@ -21,11 +21,11 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA.
 */
 
-#include "osgAL/SoundNode"
-#include "osgAL/SoundRoot"
-#include "osgAL/SoundManager"
-#include "osgAL/SoundState"
-
+#include <osgAL/SoundNode>
+#include <osgAL/SoundRoot>
+#include <osgAL/SoundManager>
+#include <osgAL/SoundState>
+#include <openalpp/FileStream>
 #include <osg/DeleteHandler>
 
 
@@ -45,6 +45,9 @@
 
 #include <osgViewer/Viewer>
 #include "osgAL/Version"
+
+using namespace osgAL;
+
 
 osg::ref_ptr<osgAL::SoundNode> createSound(const std::string& file);
 
@@ -78,6 +81,39 @@ public:
 				osgAL::SoundManager::instance()->pushSoundEvent(m_sound_state.get(), priority);
 				return true;
 			}
+      else if (ea.getKey() == 'm') {
+
+        // Toggle looping ambient music
+
+        // Try to find a soundstate named "music"
+        SoundState *musicSoundState = osgAL::SoundManager::instance()->findSoundState("music");
+        if (!musicSoundState)
+        {
+          // If not found, create a new one
+          musicSoundState = new SoundState("music");
+          // ALlocate a hw source so we can loop it
+          musicSoundState->allocateSource( 10 );
+         
+          // Create a new filestream that streams samples from a ogg-file.
+          openalpp::FileStream *musicStream = new openalpp::FileStream("44100_2chan.ogg");
+
+          // Associate the stream with the sound state
+          musicSoundState->setStream( musicStream );
+          // Make it an ambient (heard everywhere) sound
+          musicSoundState->setAmbient( true );
+          // Loop the sound forever
+          musicSoundState->setLooping( true );
+          // Start playing the music!
+          //musicSoundState->setPlay( true );
+
+          // Add the soundstate to the sound manager so we can find it later on.
+          SoundManager::instance()->addSoundState( musicSoundState );
+        }
+        
+        musicSoundState->setPlay( !musicSoundState->isPlaying() );
+
+        return true;
+      }
 		}
 
 		return false;
@@ -378,10 +414,9 @@ int main( int argc, char **argv )
 		rootnode->setMatrix(osg::Matrix::rotate(osg::inDegrees(30.0f),1.0f,0.0f,0.0f));
 		rootnode->addChild(model);
 
-
 		// Create a sample, load a .wav file.
-		openalpp::Sample *sample = new openalpp::Sample("bee.wav");
-		osg::ref_ptr<osgAL::SoundState> sound_state = new osgAL::SoundState("bee_play");
+		openalpp::Sample *sample = new openalpp::Sample("high-e.wav");
+		osg::ref_ptr<osgAL::SoundState> sound_state = new osgAL::SoundState("glider");
 		sound_state->setSample(sample);
 		sound_state->setGain(0.7f);
 		sound_state->setReferenceDistance(10);
@@ -392,6 +427,7 @@ int main( int argc, char **argv )
 		osgAL::SoundManager::instance()->addSoundState(sound_state.get());
 
 		viewer.getEventHandlers().push_front(new KeyboardHandler(sound_state.get()));
+
 
 		// Create ONE (only one, otherwise the transformation of the listener and update for SoundManager will be
 		// called several times, which is not catastrophic, but unnecessary) 
@@ -415,6 +451,13 @@ int main( int argc, char **argv )
 
 		// create the windows and run the threads.
 		viewer.realize();
+
+
+    osgViewer::Viewer::Windows windows;
+    viewer.getWindows(windows);
+    windows[0]->setWindowRectangle( 10, 10, 1024, 768 );
+    windows[0]->setWindowDecoration( true );
+
 
 		viewer.run();
 	}

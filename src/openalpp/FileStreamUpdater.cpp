@@ -37,7 +37,7 @@ const char *getOggVorbisErrorMessage(int e)
       return "Invalid stream section supplied to libvorbisfile, or the requested link is corrupt.";
     default:
       return "Invalid error code specified";
-    }
+  }
   return "";
 }
 
@@ -54,136 +54,138 @@ FileStreamUpdater::FileStreamUpdater(
                                      seekTime_(0)
 {
 
-    setCancelModeAsynchronous();
+  setCancelModeAsynchronous();
 
-    buffer_ = new ALshort[buffersize_/sizeof(ALshort)];
+  buffer_ = new ALshort[buffersize_/sizeof(ALshort)];
 }
 
 FileStreamUpdater::~FileStreamUpdater() 
 {
-    // call update to do any remaining buffer deallocation
-    StreamUpdater::update(buffer_, 0); 
+  // call update to do any remaining buffer deallocation
+  StreamUpdater::update(buffer_, 0); 
 
-    if (oggfile_)
-    {
-        ov_clear(oggfile_);
-        delete oggfile_;
-    }
-    delete buffer_;
-    buffer_=0L;
+  if (oggfile_)
+  {
+    ov_clear(oggfile_);
+    delete oggfile_;
+  }
+  delete buffer_;
+  buffer_=0L;
 }
 
 void FileStreamUpdater::run() 
 {
 
-    runmutex_.lock();
-    bool eofReached = false;
+  bool eofReached = false;
 
-    while(!shouldStop())
+  runmutex_.lock();
+  while(!shouldStop())
+  {
+
+    unsigned int count=0;
+    int stream=0;
+
+    while (count < buffersize_)
     {
-        runmutex_.unlock();
+      long amt;
 
-        unsigned int count=0;
-        int stream;
+      if (seekPending_)
+      {
+        seekNow(seekTime_);
+        seekPending_ = false;
+        count = 0;
+        continue;
 
-        while (count < buffersize_)
+      }
+
+      if (!eofReached)
+      {
+        amt = ov_read(oggfile_,&((char *)buffer_)[count],
+          buffersize_-count,
+          0,2,1,&stream);
+      }
+      else
+      {
+        amt = 0;
+      }
+
+
+      // We must break if:
+      // * An error occurred
+      // * We hit EOF and the file was not looping 
+      // * We hit EOF and the file was looping, but we couldn't loop...
+      if (amt > 0)
+      {
+        eofReached = false;
+      }
+      else if (amt == 0) 
+      {
+        //if (!eofReached) fprintf(stdout, "EOF reached\n");
+        eofReached = true;
+        if (looping_)
         {
-          long amt;
+          if(!ov_seekable(oggfile_))
+            break;
+          if(seekNow(0.0)) 
+            eofReached = false;
+          else
+            break;
 
-            if (seekPending_)
-            {
-                seekNow(seekTime_);
-                seekPending_ = false;
-                count = 0;
-                continue;
-
-            }
-
-            if (!eofReached)
-            {
-                amt = ov_read(oggfile_,&((char *)buffer_)[count],
-                    buffersize_-count,
-                    0,2,1,&stream);
-            }
-            else
-            {
-                amt = 0;
-            }
-
-
-            // We must break if:
-            // * An error occurred
-            // * We hit EOF and the file was not looping 
-            // * We hit EOF and the file was looping, but we couldn't loop...
-            if (amt > 0)
-            {
-                eofReached = false;
-            }
-            else if (amt == 0) 
-            {
-                //if (!eofReached) fprintf(stdout, "EOF reached\n");
-                eofReached = true;
-                if (looping_)
-                {
-                    if(!ov_seekable(oggfile_))
-                        break;
-                    if(seekNow(0.0)) 
-                      eofReached = false;
-                    else
-                      break;
-
-                }
-            }
-            else
-            {
-              std::cerr << "FileStreamUpdater::run() - ov_read error" << std::endl;
-              break;
-            }
-
-
-            if (amt > 0)
-            {
-                count += amt;
-            }
-
-           
         }
-        
+      }
+      else
+      {
+        std::cerr << "FileStreamUpdater::run() - ov_read error" << std::endl;
+        break;
+      }
 
-        update(buffer_, count);
-        //setSleepTime(10*1000);
-        //sleep();
 
-        //std::cerr << "FileStreamUpdater" << std::endl;
-        
-        runmutex_.lock();
+      if (amt > 0)
+      {
+        count += amt;
+      }
+
+
     }
 
+
+    update(buffer_, count);
+    //setSleepTime(10*1000);
+    //sleep();
+
+    //std::cerr << "FileStreamUpdater" << std::endl;
+
     runmutex_.unlock();
+  }
+
+  runmutex_.unlock();
 }
 
 
 void FileStreamUpdater::seek(float time_s)
 {
-    seekTime_ = time_s;
-    seekPending_ = true;
+  OpenThreads::ScopedLock<OpenThreads::Mutex> lock(runmutex_);
+
+  seekTime_ = time_s;
+  seekPending_ = true;
 }
 
 bool FileStreamUpdater::seekNow(float time_s)
 {
-    if ((oggfile_) && ov_seekable(oggfile_))
-    {
-     int s = ov_time_seek(oggfile_, time_s);
-     if (s) {
-       const char *str = getOggVorbisErrorMessage(s);
-       std::cerr << "Error seeking oggstream: " << str << std::endl;
-       return false;
-     }
-     return true;
+  if ((oggfile_) && ov_seekable(oggfile_))
+  {
+    int s = ov_time_seek(oggfile_, time_s);
+    if (s) {
+      const char *str = getOggVorbisErrorMessage(s);
+      std::cerr << "Error seeking oggstream: " << str << std::endl;
+      return false;
     }
-    return false;
+    return true;
+  }
+  return false;
 }
 
 void FileStreamUpdater::setLooping(bool loop) {
-    looping_=loop;
+  OpenThreads::ScopedLock<OpenThreads::Mutex> lock(runmutex_);
+  looping_=loop;
 }

@@ -106,28 +106,18 @@ public:
 	
 	
   /// Copy constructor
-  SoundState(const SoundState& state) : Object() 
-  {
-    if (this == &state)
-      return;
-  }
-  
+  SoundState(const SoundState& state, const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY);
+
   // Implementation of virtual functions of osg::Object
   virtual osg::Object* cloneType() const { return new SoundState(); }
   virtual osg::Object* clone(const osg::CopyOp& copyop) const {
-	return new SoundState(*this); 
+	return new SoundState(*this, copyop); 
   }
   virtual const char* libraryName() const { return "osgAL"; }
   virtual const char* className() const { return "SoundState"; }
 
-  /// Change the name of the SoundState to name
-  void setName(const std::string& name) { m_name = name; }
-
   /// Assignment operator
   SoundState& operator=(const SoundState& state);
-
-  /// Return the name of this soundstate
-  std::string getName() const { return m_name; }
 
 
   /// Returns true if the SoundState has allocated a soundsource
@@ -328,7 +318,6 @@ private:
   osg::ref_ptr<openalpp::Sample> m_sample;
   osg::ref_ptr<openalpp::Source> m_source;
 
-  std::string m_name;
   osg::Vec3 m_position;
   osg::Vec3 m_direction;
   osg::Vec3 m_velocity;

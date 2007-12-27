@@ -43,7 +43,7 @@ extern "C" {
 #include <OpenThreads/Mutex>
 #include <osg/Referenced>
 #include <OpenThreads/ReentrantMutex>
-#include <openalpp/Event>
+#include <OpenThreads/Block>
 
 namespace openalpp {
 
@@ -90,7 +90,7 @@ namespace openalpp {
   /**
    * Release this thread.
    */
-  void release() { m_playEvent.signal(); }
+  void release() { m_playEvent.release(); }
 
   /**
    * Update the stream.
@@ -143,7 +143,7 @@ namespace openalpp {
   /**
    *  Wait for someone to call release. This indicates that we should start playing a stream
    */
-  void waitForPlay() { m_playEvent.wait(); }
+  void waitForPlay() { m_playEvent.block(); }
    
    /**
    * Names of the buffers to update.
@@ -174,7 +174,7 @@ namespace openalpp {
   /**
    * Mutex for stoprunning_.
    */
-  OpenThreads::Mutex runmutex_;
+  OpenThreads::ReentrantMutex runmutex_;
 
   /**
    * Time to sleep in run method, i.e. sleeptime to reduce CPU usage
@@ -183,10 +183,10 @@ namespace openalpp {
    void sleep() { OpenThreads::Thread::microSleep(sleepTime_); }
       
 
-  /** Event signalling that source is playing
+  /** Event signaling that source is playing
    *
    */
-  Event m_playEvent;
+  OpenThreads::Block m_playEvent;
 };
 
 }

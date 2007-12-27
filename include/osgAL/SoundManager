@@ -28,6 +28,7 @@
 #include <queue>
 #include <functional>
 #include <stack>
+#include <set>
 
 #include <osg/ref_ptr>
 
@@ -163,7 +164,7 @@ public:
   /*!
     Add a SoundState to the list of existing sound states
   */
-  void addSoundState(osgAL::SoundState *state) { m_sound_states[state->getName()] = state; }
+  void addSoundState(osgAL::SoundState *state) { m_sound_states.insert(state); }
   
   /// Removes the sound state from the list of existing soundstates
   bool removeSoundState(const std::string& id);
@@ -305,8 +306,8 @@ private:
   
   SourceVector m_available_soundsources; 
   
-  typedef std::map<std::string, osg::ref_ptr<SoundState> > SoundStateMap;
-  SoundStateMap m_sound_states;
+  typedef std::set<osg::ref_ptr<SoundState> > SoundStateSet;
+  SoundStateSet m_sound_states;
 
   class SoundStateQueueItem {
   public:

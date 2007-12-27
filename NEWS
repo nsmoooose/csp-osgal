@@ -1,4 +1,9 @@
 NEWS
+* 071227, Anders Backman
+  - Added ambient music example to osgal.cpp key 'm' toggles music play.
+  - Removed Event class (Block in OpenThreads replaces it).
+  - Minor thread changes. Should be refactored really.
+  
 * 070912, Loic Dachary
   - Update autotools files and pkgconfig files
 * 070802, Anders Backman, Daniel Sjölie
