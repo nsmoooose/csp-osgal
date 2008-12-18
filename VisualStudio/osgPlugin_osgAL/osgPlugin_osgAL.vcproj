@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="osgPlugin_osgAL"
 	ProjectGUID="{E45D0B60-5273-4ADE-92DF-BFE36535C6DA}"
+	RootNamespace="osgPlugin_osgAL"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -62,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="osgd.lib osgDBd.lib"
+				AdditionalDependencies="osgd.lib osgDBd.lib openthreadsd.lib"
 				OutputFile="$(OutDir)/osgdb_osgALd.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -145,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="osg.lib osgDB.lib"
+				AdditionalDependencies="osg.lib osgDB.lib openthreads.lib"
 				OutputFile="$(OutDir)/osgdb_osgAL.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
