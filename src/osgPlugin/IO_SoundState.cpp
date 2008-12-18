@@ -132,7 +132,7 @@ bool SoundState_readLocalData(osg::Object &obj, osgDB::Input &fr)
 		fr += 2;
 	} else 
 		return false;
-	
+
 	if(ss.hasSource())
 		ss.apply();
 
@@ -146,7 +146,7 @@ bool SoundState_writeLocalData(const Object& obj, Output& fw)
 	// Is there a sample associated with the stateSet?
 	if (ss.getSample() != NULL)
 		fw.indent() << "fileName \"" << ss.getSample()->getFileName() << "\"" << std::endl;
-	
+
 	// Is there a FileStream associated with the stateSet?
 	if (ss.getStream() != NULL) {
 		const openalpp::FileStream *fs = dynamic_cast<const openalpp::FileStream *> (ss.getStream());
@@ -158,7 +158,7 @@ bool SoundState_writeLocalData(const Object& obj, Output& fw)
 	fw.indent() << "playing ";
 	if (ss.isPlaying()) fw << "TRUE"<< std::endl;
 	else fw << "FALSE"<< std::endl;
-	
+
 	fw.indent() << "enabled ";
 	if (ss.getEnable()) fw << "TRUE"<< std::endl;
 	else fw << "FALSE"<< std::endl;
@@ -184,7 +184,7 @@ bool SoundState_writeLocalData(const Object& obj, Output& fw)
 	// nothing about directional is written
 	if (ss.getInnerAngle()<360 && ss.getOuterAngle()<360) {
 		fw.indent() << "soundCone " << ss.getInnerAngle() << 
-		" " << ss.getOuterAngle() << " " << ss.getOuterGain() << std::endl;
+			" " << ss.getOuterAngle() << " " << ss.getOuterGain() << std::endl;
 	}
 
 	return true;

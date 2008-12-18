@@ -30,21 +30,21 @@ using namespace osgAL;
 
 
 SoundRoot::SoundRoot()
-  :    m_last_time(0), m_first_run(true), 
-       m_last_traversal_number(0),
-	     m_update_enabled(true)
+:    m_last_time(0), m_first_run(true), 
+m_last_traversal_number(0),
+m_update_enabled(true)
 {
-  setCullingActive(false);
+	setCullingActive(false);
 }
 
 
 SoundRoot & SoundRoot::operator=(const SoundRoot &node)
 { 
-  if (this == &node) return *this; 
+	if (this == &node) return *this; 
 
-  m_last_time = node.m_last_time;
-  m_first_run = node.m_first_run;
-  return *this;
+	m_last_time = node.m_last_time;
+	m_first_run = node.m_first_run;
+	return *this;
 }
 
 
@@ -53,48 +53,48 @@ SoundRoot::SoundRoot(const SoundRoot &copy, const osg::CopyOp &copyop)
 :    osg::Node(copy, copyop)
 {
 
-  *this = copy;
+	*this = copy;
 }
 
 void SoundRoot::traverse(osg::NodeVisitor &nv)
 {
-    // continue only if the visitor actually is a cull visitor
-    if (nv.getVisitorType() == osg::NodeVisitor::CULL_VISITOR) {
+	// continue only if the visitor actually is a cull visitor
+	if (nv.getVisitorType() == osg::NodeVisitor::CULL_VISITOR) {
 
-      // Make sure we only execute this once during this frame.
-      // could be two or more for stereo/multipipe...
-      if ( nv.getTraversalNumber() != m_last_traversal_number && nv.getFrameStamp())
-      {
+		// Make sure we only execute this once during this frame.
+		// could be two or more for stereo/multipipe...
+		if ( nv.getTraversalNumber() != m_last_traversal_number && nv.getFrameStamp())
+		{
 
-		m_last_traversal_number = nv.getTraversalNumber();
+			m_last_traversal_number = nv.getTraversalNumber();
 
-		bool time_to_update = false;
-		double curr_time = nv.getFrameStamp()->getReferenceTime();
+			bool time_to_update = false;
+			double curr_time = nv.getFrameStamp()->getReferenceTime();
 
-		if (curr_time - m_last_time >= SoundManager::instance()->getUpdateFrequency()) {
-			time_to_update = true;
-		}
+			if (curr_time - m_last_time >= SoundManager::instance()->getUpdateFrequency()) {
+				time_to_update = true;
+			}
 
-		if (time_to_update && m_update_enabled) {
-			m_last_time = curr_time;
+			if (time_to_update && m_update_enabled) {
+				m_last_time = curr_time;
 
-			osgUtil::CullVisitor *cv = dynamic_cast<osgUtil::CullVisitor *> (&nv);
-      
-			osg::Matrix m = *cv->getModelViewMatrix();
+				osgUtil::CullVisitor *cv = dynamic_cast<osgUtil::CullVisitor *> (&nv);
 
-			if(osgAL::SoundManager::instance()->initialized()) {
-		
-				// Update the soundmanager (process queued sound states)
-				osgAL::SoundManager::instance()->update();
+				osg::Matrix m = *cv->getModelViewMatrix();
 
-				// Set the position/orientation of the listener
-				osgAL::SoundManager::instance()->setListenerMatrix(m);
+				if(osgAL::SoundManager::instance()->initialized()) {
+
+					// Update the soundmanager (process queued sound states)
+					osgAL::SoundManager::instance()->update();
+
+					// Set the position/orientation of the listener
+					osgAL::SoundManager::instance()->setListenerMatrix(m);
+				}
 			}
 		}
-      }
 
-    } 
+	} 
 
-  // call the inherited method
-  Node::traverse(nv);
+	// call the inherited method
+	Node::traverse(nv);
 }

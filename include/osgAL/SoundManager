@@ -46,318 +46,318 @@ namespace osgAL
 {
 
 
-/// A SoundManager handles the sound system.
-/*!
-  This class initialises the Sound system. It also keeps track of loaded sound samples.
-  It is based on the Singleton Design pattern.
-  To manage a limited resource of Sound sources (which is usually around 32)
-  a schema has to be set up.
+	/// A SoundManager handles the sound system.
+	/*!
+	This class initialises the Sound system. It also keeps track of loaded sound samples.
+	It is based on the Singleton Design pattern.
+	To manage a limited resource of Sound sources (which is usually around 32)
+	a schema has to be set up.
 
-  This class initially initializes sound sources and places them into a pool of available sources.
-  Whenever someone calls allocateSource() the sound manager tries to free a source
-  and return a pointer to it. If there are no sources available it goes through the 
-  active sources and tries to find one with a lower priority. If it still fails, an exception is
-  thrown.
-  Otherwise the found source is returned.
+	This class initially initializes sound sources and places them into a pool of available sources.
+	Whenever someone calls allocateSource() the sound manager tries to free a source
+	and return a pointer to it. If there are no sources available it goes through the 
+	active sources and tries to find one with a lower priority. If it still fails, an exception is
+	thrown.
+	Otherwise the found source is returned.
 
-  The allocateSource() has an argument indicating that if the source should be placed in the
-  list of active sources. If this argument is false, the caller is responsible to
-  call releaseSource() when finished using the source.
+	The allocateSource() has an argument indicating that if the source should be placed in the
+	list of active sources. If this argument is false, the caller is responsible to
+	call releaseSource() when finished using the source.
 
-  SoundManager also handles SoundStates.
-  Whenever pushSoundEvent() is called, a FlyWeight set of SoundStates is inquired for a free SoundState.
-  The argument of pushSoundEvent() is copied to the free SoundState and that SoundState
-  is then pushed to the queue of waiting SoundStates.
-  
-    When SoundManager::update() is called, the queue of waiting SoundStates is inquired and for each
-    SoundState a Source is allocated.
-    When the SoundManager realizes that a SoundState is not playing anymore, it is removed from
-    the list of active SoundStates and put back in to the FlyWeight set of available SoundStates.
-    
-  This makes the pushSoundEvent method suitable for playing soundeffects.
-*/
-class OSGAL_EXPORT SoundManager : public osg::Referenced
-{
-public:
+	SoundManager also handles SoundStates.
+	Whenever pushSoundEvent() is called, a FlyWeight set of SoundStates is inquired for a free SoundState.
+	The argument of pushSoundEvent() is copied to the free SoundState and that SoundState
+	is then pushed to the queue of waiting SoundStates.
 
-   
-  /// Return a pointer to the singleton object
-  static SoundManager* instance( void );
+	When SoundManager::update() is called, the queue of waiting SoundStates is inquired and for each
+	SoundState a Source is allocated.
+	When the SoundManager realizes that a SoundState is not playing anymore, it is removed from
+	the list of active SoundStates and put back in to the FlyWeight set of available SoundStates.
 
-  /*! Deallocates any allocated memory, this method have to be called prior to the end of main()
-      OpenAL doesnt like destruction of sources outside the main() function.
-  */
-  virtual void shutdown();
+	This makes the pushSoundEvent method suitable for playing soundeffects.
+	*/
+	class OSGAL_EXPORT SoundManager : public osg::Referenced
+	{
+	public:
 
 
-  /// Returns true if the SoundManager is initalized
-  bool initialized() { return m_initialized; }
+		/// Return a pointer to the singleton object
+		static SoundManager* instance( void );
 
-  
-  /*!
-    Push a SoundState to the queue of waiting SoundStates
-    When the update method later on is called, this queue is inquired and each
-    waiting SoundEvent will be put in the active state and put to a list of active 
-    SoundStates with a Source allocated.
-    \param state - The state that will be pushed to the waiting queue
-    \param priority - The priority of the state, 0 lowest
-  */
-  bool pushSoundEvent(SoundState *state, unsigned int priority=0);
-
-  /*! 
-    Return a pointer to a Sample.
-    Each Sample will be stored in a cache with its associated path (if add_to_cache is true)
-    Each call to getSample will first look in the cache and try to find the
-    path there. If it can be found, it will return to that Sample.
-    Otherwise it will be loaded from disk.
-  */
-  openalpp::Sample* getSample( const std::string& path, bool add_to_cache=true );
-
-  /*! 
-    Clear the sample cache with all loaded samples.
-  */
-  void clearSampleCache(void) {  m_sample_cache.clear(); }
+		/*! Deallocates any allocated memory, this method have to be called prior to the end of main()
+		OpenAL doesnt like destruction of sources outside the main() function.
+		*/
+		virtual void shutdown();
 
 
-  /*! 
-    Return a pointer to a Stream
-    Each Stream will be stored in a cache with its associated path.
-    Each call to getStream will first look in the cache and try to find the
-    path there. If it can be found, it will return to that Stream.
-    Otherwise it will be loaded from disk.
-  */
-  openalpp::Stream* getStream( const std::string& path, bool add_to_cache=true );
-
-  /*! 
-    Clear the Stream cache with all loaded streams.
-  */
-  void clearStreamCache(void) {  m_stream_cache.clear(); }
+		/// Returns true if the SoundManager is initalized
+		bool initialized() { return m_initialized; }
 
 
-  /*!
-    Return a pointer to the SoundState with the name id.
-    \return Null if no matching SoundState can be found.
-  */
-  SoundState *findSoundState(const std::string& id);
- 
-  /*!
-    Puts the source into the list of available sound sources
-  */
-  void releaseSource(openalpp::Source *source);
+		/*!
+		Push a SoundState to the queue of waiting SoundStates
+		When the update method later on is called, this queue is inquired and each
+		waiting SoundEvent will be put in the active state and put to a list of active 
+		SoundStates with a Source allocated.
+		\param state - The state that will be pushed to the waiting queue
+		\param priority - The priority of the state, 0 lowest
+		*/
+		bool pushSoundEvent(SoundState *state, unsigned int priority=0);
 
-  /// Initializes the SoundManager
-  void init(unsigned int num_soundsources, float sound_velocity=343);
+		/*! 
+		Return a pointer to a Sample.
+		Each Sample will be stored in a cache with its associated path (if add_to_cache is true)
+		Each call to getSample will first look in the cache and try to find the
+		path there. If it can be found, it will return to that Sample.
+		Otherwise it will be loaded from disk.
+		*/
+		openalpp::Sample* getSample( const std::string& path, bool add_to_cache=true );
 
-  /*!
-  */
-  void update();
-  
-  /// For each soundstate in queue, allocate a soundsource and play it.
-  void processQueuedSoundStates();
-
-  /// Return a pointer to the listener
-  openalpp::Listener *getListener();
-
-  /// Return a pointer to the Sound environment
-  openalpp::AudioEnvironment *getEnvironment();
-
-  /*!
-    Add a SoundState to the list of existing sound states
-  */
-  void addSoundState(osgAL::SoundState *state) { m_sound_states.insert(state); }
-  
-  /// Removes the sound state from the list of existing soundstates
-  bool removeSoundState(const std::string& id);
-
-  /*!
-    Removes the sound state from the list of existing soundstates
-  */
-  bool removeSoundState(osgAL::SoundState *state);
+		/*! 
+		Clear the sample cache with all loaded samples.
+		*/
+		void clearSampleCache(void) {  m_sample_cache.clear(); }
 
 
-  /*!
-    To make it possible to flip left and right ear for the listner this vector specified
-    will be multiplied with the up vector everytime the orientation of the listener is calculated
-    The default value is (1, 1, 1). Make sure not to set anyone to zero, this will be caught
-    and an exception will be thrown.
-  */
-  void setListenerDirection(const osg::Vec3& dir); 
+		/*! 
+		Return a pointer to a Stream
+		Each Stream will be stored in a cache with its associated path.
+		Each call to getStream will first look in the cache and try to find the
+		path there. If it can be found, it will return to that Stream.
+		Otherwise it will be loaded from disk.
+		*/
+		openalpp::Stream* getStream( const std::string& path, bool add_to_cache=true );
 
-  const osg::Vec3& getListenerDirection() const { return m_listener_direction; }
-  
-  /// Set the transformation matrix for the listener
-  void setListenerMatrix( const osg::Matrix& matrix);
-
-  /// Return the current listener matrix
-  const osg::Matrix &getListenerMatrix( ) const { return m_listener_matrix; }
-  
-  /*!
-    Tries to find an available sound Source
-    \param if mutual_use then the source is registrated in the soundmanager as a source that can be
-    reused by a call to getSource with higher priority.
-    If on the other hand mutual_use is false, then it is allocated 
-    \return Pointer to an available sound Source
-  */
-  openalpp::Source *allocateSource(unsigned int priority, bool mutual_use=true) { return getSource(priority, mutual_use); }
+		/*! 
+		Clear the Stream cache with all loaded streams.
+		*/
+		void clearStreamCache(void) {  m_stream_cache.clear(); }
 
 
-  /// Set the maximum velocity used in doppler calculation
-  void setMaxVelocity(float vel) { m_max_velocity = (float)fabs(vel); }
+		/*!
+		Return a pointer to the SoundState with the name id.
+		\return Null if no matching SoundState can be found.
+		*/
+		SoundState *findSoundState(const std::string& id);
 
-  /// Returns the maximum velocity used in doppler calculation
-  float getMaxVelocity() const { return m_max_velocity; }
-  
-  /*!
-    Returns the number of free and available SoundSoures for allocation.
-    Should be between 0 .. getNumSources()
-  */
-  unsigned int getNumAvailableSources() { return m_available_soundsources.size(); }
-  
-  /*!
-    Returns the number of initialized SoundSources.
-    Should be between 0..
-  */
-  unsigned int getNumSources() { return m_soundsources.size(); }
-  
-  /*!
-    Stop playing on all initialized SoundSources immediately.
-  */
-  void stopAllSources();
-  
-  /*!
-    Returns the number of SoundSources currently in use.
-    Should be between 0..getNumSources()
-  */
-  unsigned int getNumActiveSources() { return m_active_soundsources.size(); }
-  
-  /// Set if the velocity is clamped (using the MaxVelocity attribute)
-  void setClampVelocity(bool c) { m_clamp_velocity = c; }
+		/*!
+		Puts the source into the list of available sound sources
+		*/
+		void releaseSource(openalpp::Source *source);
 
-  /// Get true if the velocity is clamped (using the MaxVelocity attribute)
-  bool getClampVelocity() { return m_clamp_velocity; }
+		/// Initializes the SoundManager
+		void init(unsigned int num_soundsources, float sound_velocity=343);
 
-  /// Get const true if the velocity is clamped (using the MaxVelocity attribute)
-  const bool getClampVelocity() const { return m_clamp_velocity; }
- 
-  /// Set the update frequency for both sources and listener, to update pos, dir and occlusions
-  void setUpdateFrequency( float frequency ) { 
-	if(frequency < 0) m_update_frequency = 1/100.0;
-	else m_update_frequency = frequency;
-  }
- 
-  /// Get the update frequency for both sources and listener, to update pos, dir and occlusions
-  float getUpdateFrequency() { return m_update_frequency; }
+		/*!
+		*/
+		void update();
 
-  /// Get const the update frequency for both sources and listener, to update pos, dir and occlusions
-  const float getUpdateFrequency() const { return m_update_frequency; }  
+		/// For each soundstate in queue, allocate a soundsource and play it.
+		void processQueuedSoundStates();
 
-private:
-  openalpp::Source *getSource(unsigned int priority, bool registrate_as_active=true, int depth=0);
+		/// Return a pointer to the listener
+		openalpp::Listener *getListener();
 
-  /// Destructor
-	virtual ~SoundManager();
+		/// Return a pointer to the Sound environment
+		openalpp::AudioEnvironment *getEnvironment();
 
-  /// Default Constructor
-  SoundManager( void );
+		/*!
+		Add a SoundState to the list of existing sound states
+		*/
+		void addSoundState(osgAL::SoundState *state) { m_sound_states.insert(state); }
+
+		/// Removes the sound state from the list of existing soundstates
+		bool removeSoundState(const std::string& id);
+
+		/*!
+		Removes the sound state from the list of existing soundstates
+		*/
+		bool removeSoundState(osgAL::SoundState *state);
 
 
-  /// Class that handles all the soundstates. See FlyWeight Design pattern
-  class SoundStateFlyWeight : public osg::Referenced {
-  public:
-    SoundStateFlyWeight(unsigned int no_states);
-    virtual ~SoundStateFlyWeight();
+		/*!
+		To make it possible to flip left and right ear for the listner this vector specified
+		will be multiplied with the up vector everytime the orientation of the listener is calculated
+		The default value is (1, 1, 1). Make sure not to set anyone to zero, this will be caught
+		and an exception will be thrown.
+		*/
+		void setListenerDirection(const osg::Vec3& dir); 
 
-    SoundState *getSoundState(SoundState *state);
-    void releaseSoundState(SoundState *state);
-	  void clean() { m_sound_states.resize(0); }
-  private:
+		const osg::Vec3& getListenerDirection() const { return m_listener_direction; }
 
-    std::vector< osg::ref_ptr<SoundState> > m_sound_states;
-    std::stack< SoundState *> m_available_states;
-  };
+		/// Set the transformation matrix for the listener
+		void setListenerMatrix( const osg::Matrix& matrix);
 
-  osg::ref_ptr<SoundStateFlyWeight> m_sound_state_FlyWeight;
+		/// Return the current listener matrix
+		const osg::Matrix &getListenerMatrix( ) const { return m_listener_matrix; }
 
-  void resetSource(openalpp::Source *source);
-
-  typedef std::map<std::string, osg::ref_ptr<openalpp::Sample> > SampleMap;
-  typedef SampleMap::iterator SampleMapIterator;
-  typedef SampleMap::value_type SampleMapValType;
-
-  SampleMap m_sample_cache;
-
-  typedef std::map<std::string, osg::ref_ptr<openalpp::FileStream> > StreamMap;
-  typedef StreamMap::iterator StreamMapIterator;
-  typedef StreamMap::value_type StreamMapValType;
-
-  StreamMap m_stream_cache;
-
-  osg::ref_ptr<openalpp::Listener> m_listener;
-  osg::ref_ptr<openalpp::AudioEnvironment> m_sound_environment;
+		/*!
+		Tries to find an available sound Source
+		\param if mutual_use then the source is registrated in the soundmanager as a source that can be
+		reused by a call to getSource with higher priority.
+		If on the other hand mutual_use is false, then it is allocated 
+		\return Pointer to an available sound Source
+		*/
+		openalpp::Source *allocateSource(unsigned int priority, bool mutual_use=true) { return getSource(priority, mutual_use); }
 
 
-  typedef std::vector<osg::ref_ptr<openalpp::Source> > SourceVector;
-  typedef std::vector<std::pair< unsigned int, osg::ref_ptr<openalpp::Source> > > ActiveSourceVector;
-  ActiveSourceVector m_active_soundsources; 
-  SourceVector m_soundsources; 
+		/// Set the maximum velocity used in doppler calculation
+		void setMaxVelocity(float vel) { m_max_velocity = (float)fabs(vel); }
 
-  // A matrix containing the position and orientation of the listener
-  osg::Matrix m_listener_matrix;  
-  
-  SourceVector m_available_soundsources; 
-  
-  typedef std::set<osg::ref_ptr<SoundState> > SoundStateSet;
-  SoundStateSet m_sound_states;
+		/// Returns the maximum velocity used in doppler calculation
+		float getMaxVelocity() const { return m_max_velocity; }
 
-  class SoundStateQueueItem {
-  public:
-    SoundStateQueueItem(unsigned int prio, SoundState *state) : m_prio(prio), m_state(state) {}
-    bool operator <(const SoundStateQueueItem& item) const { return  m_prio <  item.m_prio; }
-    bool operator ==(const SoundStateQueueItem& item) { return  m_prio == item.m_prio; }
-    SoundState *getState() const { return m_state; }
-    unsigned int getPriority() { return m_prio; }
-  private:
-    unsigned int m_prio;
-    SoundState *m_state;
-  };
-  
-  typedef std::priority_queue<SoundStateQueueItem> SoundStateQueue;
-  SoundStateQueue m_sound_state_queue;
- 
-  typedef std::vector<osg::ref_ptr<SoundState> > SoundStateVector;
-  SoundStateVector m_active_sound_states;
+		/*!
+		Returns the number of free and available SoundSoures for allocation.
+		Should be between 0 .. getNumSources()
+		*/
+		unsigned int getNumAvailableSources() { return m_available_soundsources.size(); }
 
-  bool m_initialized;
+		/*!
+		Returns the number of initialized SoundSources.
+		Should be between 0..
+		*/
+		unsigned int getNumSources() { return m_soundsources.size(); }
 
-  osg::Vec3 m_last_pos;
-  float m_max_velocity;
-  osg::Timer m_timer;
-  osg::Timer_t m_last_tick;
-  bool m_first_run;
-  bool m_clamp_velocity;
-  float m_update_frequency;
-  osg::Vec3 m_listener_direction;
+		/*!
+		Stop playing on all initialized SoundSources immediately.
+		*/
+		void stopAllSources();
 
-};
+		/*!
+		Returns the number of SoundSources currently in use.
+		Should be between 0..getNumSources()
+		*/
+		unsigned int getNumActiveSources() { return m_active_soundsources.size(); }
+
+		/// Set if the velocity is clamped (using the MaxVelocity attribute)
+		void setClampVelocity(bool c) { m_clamp_velocity = c; }
+
+		/// Get true if the velocity is clamped (using the MaxVelocity attribute)
+		bool getClampVelocity() { return m_clamp_velocity; }
+
+		/// Get const true if the velocity is clamped (using the MaxVelocity attribute)
+		const bool getClampVelocity() const { return m_clamp_velocity; }
+
+		/// Set the update frequency for both sources and listener, to update pos, dir and occlusions
+		void setUpdateFrequency( float frequency ) { 
+			if(frequency < 0) m_update_frequency = 1/100.0;
+			else m_update_frequency = frequency;
+		}
+
+		/// Get the update frequency for both sources and listener, to update pos, dir and occlusions
+		float getUpdateFrequency() { return m_update_frequency; }
+
+		/// Get const the update frequency for both sources and listener, to update pos, dir and occlusions
+		const float getUpdateFrequency() const { return m_update_frequency; }  
+
+	private:
+		openalpp::Source *getSource(unsigned int priority, bool registrate_as_active=true, int depth=0);
+
+		/// Destructor
+		virtual ~SoundManager();
+
+		/// Default Constructor
+		SoundManager( void );
 
 
-inline openalpp::Listener *SoundManager::getListener()
-{ 
-  if (!m_initialized) {
-    throw std::runtime_error("SoundManager::getListener(): No sound system inialized");
-    return 0L;
-  }
-    return m_listener.get(); 
-}
+		/// Class that handles all the soundstates. See FlyWeight Design pattern
+		class SoundStateFlyWeight : public osg::Referenced {
+		public:
+			SoundStateFlyWeight(unsigned int no_states);
+			virtual ~SoundStateFlyWeight();
 
-inline openalpp::AudioEnvironment *SoundManager::getEnvironment() 
-{ 
-  if (!m_initialized) {
-    throw std::runtime_error("SoundManager::getEnvironment(): Soundsystem is not inialized");
-    return 0L;
-  }
-  return m_sound_environment.get(); 
-}
+			SoundState *getSoundState(SoundState *state);
+			void releaseSoundState(SoundState *state);
+			void clean() { m_sound_states.resize(0); }
+		private:
+
+			std::vector< osg::ref_ptr<SoundState> > m_sound_states;
+			std::stack< SoundState *> m_available_states;
+		};
+
+		osg::ref_ptr<SoundStateFlyWeight> m_sound_state_FlyWeight;
+
+		void resetSource(openalpp::Source *source);
+
+		typedef std::map<std::string, osg::ref_ptr<openalpp::Sample> > SampleMap;
+		typedef SampleMap::iterator SampleMapIterator;
+		typedef SampleMap::value_type SampleMapValType;
+
+		SampleMap m_sample_cache;
+
+		typedef std::map<std::string, osg::ref_ptr<openalpp::FileStream> > StreamMap;
+		typedef StreamMap::iterator StreamMapIterator;
+		typedef StreamMap::value_type StreamMapValType;
+
+		StreamMap m_stream_cache;
+
+		osg::ref_ptr<openalpp::Listener> m_listener;
+		osg::ref_ptr<openalpp::AudioEnvironment> m_sound_environment;
+
+
+		typedef std::vector<osg::ref_ptr<openalpp::Source> > SourceVector;
+		typedef std::vector<std::pair< unsigned int, osg::ref_ptr<openalpp::Source> > > ActiveSourceVector;
+		ActiveSourceVector m_active_soundsources; 
+		SourceVector m_soundsources; 
+
+		// A matrix containing the position and orientation of the listener
+		osg::Matrix m_listener_matrix;  
+
+		SourceVector m_available_soundsources; 
+
+		typedef std::set<osg::ref_ptr<SoundState> > SoundStateSet;
+		SoundStateSet m_sound_states;
+
+		class SoundStateQueueItem {
+		public:
+			SoundStateQueueItem(unsigned int prio, SoundState *state) : m_prio(prio), m_state(state) {}
+			bool operator <(const SoundStateQueueItem& item) const { return  m_prio <  item.m_prio; }
+			bool operator ==(const SoundStateQueueItem& item) { return  m_prio == item.m_prio; }
+			SoundState *getState() const { return m_state; }
+			unsigned int getPriority() { return m_prio; }
+		private:
+			unsigned int m_prio;
+			SoundState *m_state;
+		};
+
+		typedef std::priority_queue<SoundStateQueueItem> SoundStateQueue;
+		SoundStateQueue m_sound_state_queue;
+
+		typedef std::vector<osg::ref_ptr<SoundState> > SoundStateVector;
+		SoundStateVector m_active_sound_states;
+
+		bool m_initialized;
+
+		osg::Vec3 m_last_pos;
+		float m_max_velocity;
+		osg::Timer m_timer;
+		osg::Timer_t m_last_tick;
+		bool m_first_run;
+		bool m_clamp_velocity;
+		float m_update_frequency;
+		osg::Vec3 m_listener_direction;
+
+	};
+
+
+	inline openalpp::Listener *SoundManager::getListener()
+	{ 
+		if (!m_initialized) {
+			throw std::runtime_error("SoundManager::getListener(): No sound system inialized");
+			return 0L;
+		}
+		return m_listener.get(); 
+	}
+
+	inline openalpp::AudioEnvironment *SoundManager::getEnvironment() 
+	{ 
+		if (!m_initialized) {
+			throw std::runtime_error("SoundManager::getEnvironment(): Soundsystem is not inialized");
+			return 0L;
+		}
+		return m_sound_environment.get(); 
+	}
 
 } // namespace osgAL
 

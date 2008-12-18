@@ -30,100 +30,100 @@
 
 namespace osgAL {
 
-class SoundNode;
-class SoundState;
+	class SoundNode;
+	class SoundState;
 
 
-/// Class to calculate occlusion between the listener and the soundsource
-/*!
-  OccludeCallback is executed from a SoundNode during traversal of the scene containing the soundnode.
-  By analyzing if the sight is free by shooting a ray from the listener towards the soundnode, 
-  a damping factor is applied to the gain of the soundstate for the current sound node.
-  
-  Currently only one ray is shot from the center of the listener to the center of the soundsource, instead
-  of one per ear.
-  
-  The operator() method is executed both when the source is occluded as well as it is not.
-  operator() implements the actually occlusion functionality.
-  
-  The default one, interpolates the damping over a short timeperiod trying to avoid clicks...
-  
-*/
-class OSGAL_EXPORT OccludeCallback : public osg::Object {
-public:
+	/// Class to calculate occlusion between the listener and the soundsource
+	/*!
+	OccludeCallback is executed from a SoundNode during traversal of the scene containing the soundnode.
+	By analyzing if the sight is free by shooting a ray from the listener towards the soundnode, 
+	a damping factor is applied to the gain of the soundstate for the current sound node.
 
-  /*!
-	Constructor.
-	\param root - The intersection ray will be shot at root:s all childrens.
-  */
-  OccludeCallback(osg::Node *root);
+	Currently only one ray is shot from the center of the listener to the center of the soundsource, instead
+	of one per ear.
 
-  /*!
-	Constructor without args.
-  */
-  OccludeCallback();
-  
-  // Implementation of virtual functions of osg::Object
-  virtual osg::Object* cloneType() const { return new OccludeCallback(); }
-  virtual osg::Object* clone(const osg::CopyOp& copyop) const {
-	  return new OccludeCallback(*this); 
-  }
-  virtual const char* libraryName() const { return "osgAL"; }
-  virtual const char* className() const { return "OccludeCallback"; }
-    
-  /// Returns the specified distance between the ears
-  float getEarDistance() const { return m_ear_distance; }
-  
-  /// If the ray hit an object outstide this distance from the sound node, it is culled
-  void setNearThreshold(float t) { m_near_threshold = t; }
-  
-  ///
-  float getNearThreshold() const { return m_near_threshold; }
-  
-  /// Set the node that will occlude the sound
-  void setOccludingNode(osg::Node *root) {
-	  m_root = root;
-  }
-  
-  /// Get the node that will occlude the sound
-  osg::Node * getOccludingNode() {
-	  return m_root.get();
-  }
+	The operator() method is executed both when the source is occluded as well as it is not.
+	operator() implements the actually occlusion functionality.
 
-  /// Get in const the node that will occlude the sound
-  const osg::Node * getOccludingNode() const {
-	  return m_root.get();
-  }     
-  
-protected:
-	virtual void operator()(double distance, osg::Node *occluder, bool left_occluded, bool right_occluded);
+	The default one, interpolates the damping over a short timeperiod trying to avoid clicks...
 
-  SoundNode *getSoundNode() { return m_sound_node; }
-    
-private:
-	friend class SoundNode;
-	
-	/*! Executed from SoundNode::traverse.
-	\param listener_matrix - contains the transformation matrix for the listener.
-	\param sound_pos - Position of the current sound node
-	\param node - The current sound node.
 	*/
-	void apply(const osg::Matrix& listener_matrix, const osg::Vec3& sound_pos, osgAL::SoundNode *node);
-  
-	// The node from which the intersect is performed
-	osg::ref_ptr<osg::Node> m_root;
-	SoundNode *m_sound_node;
-	float m_ear_distance;
-	float m_near_threshold;
-	
-	//was the sound node occluded last frame?
-	bool m_was_occluded;
-	const double m_delay;	
+	class OSGAL_EXPORT OccludeCallback : public osg::Object {
+	public:
 
-	osg::Timer_t m_start_tick;
+		/*!
+		Constructor.
+		\param root - The intersection ray will be shot at root:s all childrens.
+		*/
+		OccludeCallback(osg::Node *root);
+
+		/*!
+		Constructor without args.
+		*/
+		OccludeCallback();
+
+		// Implementation of virtual functions of osg::Object
+		virtual osg::Object* cloneType() const { return new OccludeCallback(); }
+		virtual osg::Object* clone(const osg::CopyOp& copyop) const {
+			return new OccludeCallback(*this); 
+		}
+		virtual const char* libraryName() const { return "osgAL"; }
+		virtual const char* className() const { return "OccludeCallback"; }
+
+		/// Returns the specified distance between the ears
+		float getEarDistance() const { return m_ear_distance; }
+
+		/// If the ray hit an object outstide this distance from the sound node, it is culled
+		void setNearThreshold(float t) { m_near_threshold = t; }
+
+		///
+		float getNearThreshold() const { return m_near_threshold; }
+
+		/// Set the node that will occlude the sound
+		void setOccludingNode(osg::Node *root) {
+			m_root = root;
+		}
+
+		/// Get the node that will occlude the sound
+		osg::Node * getOccludingNode() {
+			return m_root.get();
+		}
+
+		/// Get in const the node that will occlude the sound
+		const osg::Node * getOccludingNode() const {
+			return m_root.get();
+		}     
+
+	protected:
+		virtual void operator()(double distance, osg::Node *occluder, bool left_occluded, bool right_occluded);
+
+		SoundNode *getSoundNode() { return m_sound_node; }
+
+	private:
+		friend class SoundNode;
+
+		/*! Executed from SoundNode::traverse.
+		\param listener_matrix - contains the transformation matrix for the listener.
+		\param sound_pos - Position of the current sound node
+		\param node - The current sound node.
+		*/
+		void apply(const osg::Matrix& listener_matrix, const osg::Vec3& sound_pos, osgAL::SoundNode *node);
+
+		// The node from which the intersect is performed
+		osg::ref_ptr<osg::Node> m_root;
+		SoundNode *m_sound_node;
+		float m_ear_distance;
+		float m_near_threshold;
+
+		//was the sound node occluded last frame?
+		bool m_was_occluded;
+		const double m_delay;	
+
+		osg::Timer_t m_start_tick;
 
 
-};
+	};
 
 } // Namespace osgAL
 

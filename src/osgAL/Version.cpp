@@ -23,11 +23,11 @@
 
 std::string osgAL::getVersion()
 {
-  return "0.6";
+	return "0.6";
 }
 
 
 std::string osgAL::getLibraryName()
 {
-    return "OpenSceneGraph Audio Library (osgAL)";
+	return "OpenSceneGraph Audio Library (osgAL)";
 }

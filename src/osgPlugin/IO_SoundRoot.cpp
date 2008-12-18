@@ -57,7 +57,7 @@ bool SoundRoot_readLocalData(osg::Object &obj, osgDB::Input &fr)
 		fr += 2;
 	} else
 		return false;
-	
+
 	return true;
 }
 

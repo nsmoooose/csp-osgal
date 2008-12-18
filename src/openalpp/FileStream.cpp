@@ -43,9 +43,9 @@ the file from memory
 // Info		: 
 //---------------------------------------------------------------------------------
 size_t VorbisRead(void *ptr			/* ptr to the data that the vorbis files need*/, 
-									size_t byteSize	/* how big a byte is*/, 
-									size_t sizeToRead /* How much we can read*/, 
-									void *datasource	/* this is a pointer to the data we passed into ov_open_callbacks (our SOggFile struct*/)
+				  size_t byteSize	/* how big a byte is*/, 
+				  size_t sizeToRead /* How much we can read*/, 
+				  void *datasource	/* this is a pointer to the data we passed into ov_open_callbacks (our SOggFile struct*/)
 {
 	FILE* file = (FILE*)datasource;
 
@@ -60,8 +60,8 @@ size_t VorbisRead(void *ptr			/* ptr to the data that the vorbis files need*/,
 // Info		: 
 //---------------------------------------------------------------------------------
 int VorbisSeek(void *datasource		/*this is a pointer to the data we passed into ov_open_callbacks (our SOggFile struct*/, 
-							 ogg_int64_t offset	/*offset from the point we wish to seek to*/, 
-							 int whence			/*where we want to seek to*/)
+			   ogg_int64_t offset	/*offset from the point we wish to seek to*/, 
+			   int whence			/*where we want to seek to*/)
 {
 	FILE* file = (FILE*)datasource;
 
@@ -101,95 +101,94 @@ End of Vorbis callback functions
 using namespace openalpp;
 
 FileStream::FileStream(const std::string& filename,const int buffersize)
-    throw (NameError,InitError,FileError) : Stream() , filename_(filename)
+throw (NameError,InitError,FileError) : Stream() , filename_(filename)
 {
-    FILE *filehandle=fopen(filename.c_str(),"rb");
-    if(!filehandle)
-        throw FileError("FileStream: Couldn't open file: ");
+	FILE *filehandle=fopen(filename.c_str(),"rb");
+	if(!filehandle)
+		throw FileError("FileStream: Couldn't open file: ");
 
-    unsigned long	ulFrequency = 0;
-    unsigned long	ulFormat = 0;
-    unsigned long	ulBufferSize;
-    unsigned long	ulChannels=0;
+	unsigned long	ulFrequency = 0;
+	unsigned long	ulFormat = 0;
+	unsigned long	ulBufferSize;
+	unsigned long	ulChannels=0;
 
-    oggfile_ = new OggVorbis_File;
-    // Check for file type, create a FileStreamUpdater if a known type is
-    // detected, otherwise throw an error.
+	oggfile_ = new OggVorbis_File;
+	// Check for file type, create a FileStreamUpdater if a known type is
+	// detected, otherwise throw an error.
 
-		_vorbisCallbacks.read_func = VorbisRead;
-		_vorbisCallbacks.close_func = VorbisClose;
-		_vorbisCallbacks.seek_func = VorbisSeek;
-		_vorbisCallbacks.tell_func = VorbisTell;
+	_vorbisCallbacks.read_func = VorbisRead;
+	_vorbisCallbacks.close_func = VorbisClose;
+	_vorbisCallbacks.seek_func = VorbisSeek;
+	_vorbisCallbacks.tell_func = VorbisTell;
 
 
 
 	//	if(ov_open(filehandle, oggfile_, NULL, 0)>=0) 
-		if (ov_open_callbacks(filehandle, oggfile_, NULL, 0, _vorbisCallbacks)>=0)
-    {
-        vorbis_info *ogginfo=ov_info(oggfile_,-1);
-        
-        ulFrequency = ogginfo->rate;
-        ulChannels = ogginfo->channels;
+	if (ov_open_callbacks(filehandle, oggfile_, NULL, 0, _vorbisCallbacks)>=0)
+	{
+		vorbis_info *ogginfo=ov_info(oggfile_,-1);
 
-        if (ulChannels==1) {// We'll request 16 bit later...
-          ulFormat=AL_FORMAT_MONO16;
-          // Set BufferSize to 250ms (Frequency * 2 (16bit) divided by 4 (quarter of a second))
-          ulBufferSize = ulFrequency >> 1;
-          // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
-          ulBufferSize -= (ulBufferSize % 2);
-          ulBufferSize = ulBufferSize*2;              
-        }
-        else if (ulChannels==2) {
-          ulFormat=AL_FORMAT_STEREO16;
-          // Set BufferSize to 250ms (Frequency * 4 (16bit stereo) divided by 4 (quarter of a second))
-          ulBufferSize = ulFrequency;
-          // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
-          ulBufferSize -= (ulBufferSize % 4);
-          ulBufferSize = ulBufferSize*2;              
-        }
-        else if (ulChannels==4) {
-          ulFormat = alGetEnumValue("AL_FORMAT_QUAD16");
-          if (!ulFormat) 
-            throw FatalError("QUAD16 format was requested but is not supported by OpenAL device");
-          // Set BufferSize to 250ms (Frequency * 8 (16bit 4-channel) divided by 4 (quarter of a second))
-          ulBufferSize = ulFrequency * 2;
-          // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
-          ulBufferSize -= (ulBufferSize % 8);
-        }
-        else if (ulChannels == 6)
-        {
-          ulFormat = alGetEnumValue("AL_FORMAT_51CHN16");
-          if (!ulFormat)
-            throw FatalError("51CHN16 format was requested but is not supported by OpenAL device");
+		ulFrequency = ogginfo->rate;
+		ulChannels = ogginfo->channels;
 
-          // Set BufferSize to 250ms (Frequency * 12 (16bit 6-channel) divided by 4 (quarter of a second))
-          ulBufferSize = ulFrequency * 3;
-          // IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
-          ulBufferSize -= (ulBufferSize % 12);
-        }
-        else {
-          fclose(filehandle);
-          std::ostringstream str;
-          str << "FileStream: File " << filename << " contains " << ulChannels << " which is not recognized" << std::endl;
-          throw FileError(str.str().c_str());
-        }
+		if (ulChannels==1) {// We'll request 16 bit later...
+			ulFormat=AL_FORMAT_MONO16;
+			// Set BufferSize to 250ms (Frequency * 2 (16bit) divided by 4 (quarter of a second))
+			ulBufferSize = ulFrequency >> 1;
+			// IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+			ulBufferSize -= (ulBufferSize % 2);
+			ulBufferSize = ulBufferSize*2;              
+		}
+		else if (ulChannels==2) {
+			ulFormat=AL_FORMAT_STEREO16;
+			// Set BufferSize to 250ms (Frequency * 4 (16bit stereo) divided by 4 (quarter of a second))
+			ulBufferSize = ulFrequency;
+			// IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+			ulBufferSize -= (ulBufferSize % 4);
+			ulBufferSize = ulBufferSize*2;              
+		}
+		else if (ulChannels==4) {
+			ulFormat = alGetEnumValue("AL_FORMAT_QUAD16");
+			if (!ulFormat) 
+				throw FatalError("QUAD16 format was requested but is not supported by OpenAL device");
+			// Set BufferSize to 250ms (Frequency * 8 (16bit 4-channel) divided by 4 (quarter of a second))
+			ulBufferSize = ulFrequency * 2;
+			// IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+			ulBufferSize -= (ulBufferSize % 8);
+		}
+		else if (ulChannels == 6)
+		{
+			ulFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+			if (!ulFormat)
+				throw FatalError("51CHN16 format was requested but is not supported by OpenAL device");
 
-        updater_=new FileStreamUpdater(oggfile_,
-            buffer_->getName(),buffer2_->getAlBuffer(),
-            ulFormat,ulFrequency,
-            ulBufferSize); 
+			// Set BufferSize to 250ms (Frequency * 12 (16bit 6-channel) divided by 4 (quarter of a second))
+			ulBufferSize = ulFrequency * 3;
+			// IMPORTANT : The Buffer Size must be an exact multiple of the BlockAlignment ...
+			ulBufferSize -= (ulBufferSize % 12);
+		}
+		else {
+			fclose(filehandle);
+			std::ostringstream str;
+			str << "FileStream: File " << filename << " contains " << ulChannels << " which is not recognized" << std::endl;
+			throw FileError(str.str().c_str());
+		}
 
-    } 
-    else 
-    {
-        fclose(filehandle);
-        throw FileError("FileStream: File of unknown type");
-    }
+		updater_=new FileStreamUpdater(oggfile_,
+			buffer_->getName(),buffer2_->getAlBuffer(),
+			ulFormat,ulFrequency,
+			ulBufferSize); 
+
+	} 
+	else 
+	{
+		fclose(filehandle);
+		throw FileError("FileStream: File of unknown type");
+	}
 }
 
 FileStream::FileStream(const FileStream &stream)
-:   Stream((const Stream &)stream),
-    oggfile_(stream.oggfile_)
+: Stream((const Stream &)stream), oggfile_(stream.oggfile_)
 {
 }
 
@@ -198,15 +197,15 @@ FileStream::~FileStream()
 }
 
 FileStream &FileStream::operator=(const FileStream &stream) {
-    if(&stream!=this) 
-    {
-        Stream::operator=((const Stream &)stream);
-        oggfile_ = stream.oggfile_;
-    }
-    return *this;
+	if(&stream!=this) 
+	{
+		Stream::operator=((const Stream &)stream);
+		oggfile_ = stream.oggfile_;
+	}
+	return *this;
 }
 
 void FileStream::setLooping(bool loop) {
-    ((FileStreamUpdater *)updater_.get())->setLooping(loop);
+	((FileStreamUpdater *)updater_.get())->setLooping(loop);
 }
 

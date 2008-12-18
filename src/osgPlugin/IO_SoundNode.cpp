@@ -50,9 +50,9 @@ bool SoundNode_readLocalData(osg::Object &obj, osgDB::Input &fr)
 	SoundNode &sn = static_cast<SoundNode&>(obj);
 
 	/************************************************************************
-	 * Using this code, apps like osgviewer could use this kind of nodes ans works,
-	 * but they will exit with crash !
-	 ************************************************************************/
+	* Using this code, apps like osgviewer could use this kind of nodes ans works,
+	* but they will exit with crash !
+	************************************************************************/
 
 	if(!SoundManager::instance()->initialized()) {
 		osg::notify(osg::WARN) << "osgdb_osgAL::SoundNode_readLocalData(): WARNING!!! ";
@@ -64,13 +64,13 @@ bool SoundNode_readLocalData(osg::Object &obj, osgDB::Input &fr)
 	}
 
 	bool itAdvanced = false;
-	
+
 	SoundState *ss = dynamic_cast<SoundState*>(fr.readObject());
 	if(ss != NULL) {
 		sn.setSoundState(ss);
 		itAdvanced = true;
 	}
-	
+
 	OccludeCallback *oc = dynamic_cast<OccludeCallback*>(fr.readObject());
 	if(oc != NULL) {
 		sn.setOccludeCallback(oc);
@@ -89,7 +89,7 @@ bool SoundNode_writeLocalData(const Object& obj, Output& fw)
 		fw.writeObject( *sn.getSoundState() );
 		itAdvanced = true;
 	}
-	
+
 	if(sn.getOccludeCallback() != NULL) {
 		fw.writeObject( *sn.getOccludeCallback() );
 		itAdvanced = true;

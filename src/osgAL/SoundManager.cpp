@@ -1,5 +1,4 @@
 /* -*-c++-*- */
-
 /**
  * OsgAL - OpenSceneGraph Audio Library
  * Copyright (C) 2004 VRlab, Umeå University
@@ -29,509 +28,509 @@ using namespace osgAL;
 
 SoundManager::SoundStateFlyWeight::SoundStateFlyWeight(unsigned no_states)
 {
-  SoundState *state = 0L;
+	SoundState *state = 0L;
 
-  for(unsigned int i=0; i < no_states; i++) {
-    state = new SoundState("");    
-    m_sound_states.push_back(state);
-    m_available_states.push(state);
-  }
+	for(unsigned int i=0; i < no_states; i++) {
+		state = new SoundState("");    
+		m_sound_states.push_back(state);
+		m_available_states.push(state);
+	}
 }
 
 SoundState *SoundManager::SoundStateFlyWeight::getSoundState(SoundState *state)
 {
-  if (!m_available_states.size())
-    return 0L;
+	if (!m_available_states.size())
+		return 0L;
 
-  SoundState *copy_state=m_available_states.top();
-  m_available_states.pop();
+	SoundState *copy_state=m_available_states.top();
+	m_available_states.pop();
 
-  // Make it a copy of the given state
-  *copy_state = *state;
+	// Make it a copy of the given state
+	*copy_state = *state;
 
-  return copy_state;
+	return copy_state;
 }
 
 void SoundManager:: SoundStateFlyWeight::releaseSoundState(SoundState *state)
 {
-  m_available_states.push(state);
+	m_available_states.push(state);
 }
 
 
 SoundManager::SoundStateFlyWeight::~SoundStateFlyWeight()
 {
-  m_sound_states.clear();
+	m_sound_states.clear();
 }
 
 
 SoundManager::SoundManager() : Referenced(), 
-			       m_sound_state_FlyWeight(0L),
-			       m_listener(0), 
-			       m_sound_environment(0),  
-			       m_initialized(false), 
-			       m_max_velocity(2),
-			       m_last_tick(0),
-			       m_first_run(true),
+m_sound_state_FlyWeight(0L),
+m_listener(0), 
+m_sound_environment(0),  
+m_initialized(false), 
+m_max_velocity(2),
+m_last_tick(0),
+m_first_run(true),
 #ifdef WIN32
-				   m_clamp_velocity(false),
+m_clamp_velocity(false),
 #else
-				   m_clamp_velocity(true),
+m_clamp_velocity(true),
 #endif				   
-				   m_update_frequency(1/100.0)
+m_update_frequency(1/100.0)
 {
-  m_listener_direction = osg::Vec3(1,1,1);
+	m_listener_direction = osg::Vec3(1,1,1);
 }
 
 void SoundManager::init(unsigned int num_soundsources, float sound_velocity)
 {
 
-  if (!m_sound_environment)
-    m_sound_environment = new openalpp::AudioEnvironment();
+	if (!m_sound_environment)
+		m_sound_environment = new openalpp::AudioEnvironment();
 
-  if (!m_listener) {
-    m_listener = new openalpp::Listener;
-    m_listener->select();
-  }
+	if (!m_listener) {
+		m_listener = new openalpp::Listener;
+		m_listener->select();
+	}
 
-  if (!m_soundsources.size()) {
-    try {
-      while(m_soundsources.size() < num_soundsources) {//for(unsigned int i=0; i < num_soundsources; i++)
-        openalpp::Source *source = new openalpp::Source();
-        m_soundsources.push_back(source);
-        m_available_soundsources.push_back(source);
-      }
-    }
-    catch(openalpp::NameError) {
-    }
-  }
-  if (!m_soundsources.size())
-   throw std::runtime_error("SoundManager::init(): Unable to create sufficient soundsources");
+	if (!m_soundsources.size()) {
+		try {
+			while(m_soundsources.size() < num_soundsources) {//for(unsigned int i=0; i < num_soundsources; i++)
+				openalpp::Source *source = new openalpp::Source();
+				m_soundsources.push_back(source);
+				m_available_soundsources.push_back(source);
+			}
+		}
+		catch(openalpp::NameError) {
+		}
+	}
+	if (!m_soundsources.size())
+		throw std::runtime_error("SoundManager::init(): Unable to create sufficient soundsources");
 
-  m_sound_state_FlyWeight = new SoundStateFlyWeight(100);
+	m_sound_state_FlyWeight = new SoundStateFlyWeight(100);
 
-  // Set the sound velocity
-  m_sound_environment->setSoundVelocity(sound_velocity);
+	// Set the sound velocity
+	m_sound_environment->setSoundVelocity(sound_velocity);
 
-  m_initialized=true;
+	m_initialized=true;
 }
 
 void SoundManager::shutdown()
 {
-  if (!m_initialized)
-    return;
+	if (!m_initialized)
+		return;
 
-  SoundStateVector::iterator ssv;
+	SoundStateVector::iterator ssv;
 
-  // Cleanup any leftover active soundstates before cleaningup the rest
-  for(ssv = m_active_sound_states.begin(); ssv != m_active_sound_states.end(); ssv++) {
-    (*ssv)->releaseSource();
-    m_sound_state_FlyWeight->releaseSoundState((*ssv).get());    
-  }
-    
-  m_sound_states.clear();
-  m_active_sound_states.clear();
-  
-  while(!m_sound_state_queue.empty())
-    m_sound_state_queue.pop();
-  
-  m_soundsources.clear();
-  m_available_soundsources.clear();
-  m_active_soundsources.clear();
+	// Cleanup any leftover active soundstates before cleaningup the rest
+	for(ssv = m_active_sound_states.begin(); ssv != m_active_sound_states.end(); ssv++) {
+		(*ssv)->releaseSource();
+		m_sound_state_FlyWeight->releaseSoundState((*ssv).get());    
+	}
 
-  
-  m_sample_cache.clear();
-  m_stream_cache.clear();
-  m_listener=0L;
-  m_sound_environment=0L;
+	m_sound_states.clear();
+	m_active_sound_states.clear();
 
-  m_sound_state_FlyWeight=0;
-  m_listener =0L;
+	while(!m_sound_state_queue.empty())
+		m_sound_state_queue.pop();
+
+	m_soundsources.clear();
+	m_available_soundsources.clear();
+	m_active_soundsources.clear();
 
 
-  m_sound_environment = 0;
+	m_sample_cache.clear();
+	m_stream_cache.clear();
+	m_listener=0L;
+	m_sound_environment=0L;
 
-  m_initialized=false;
+	m_sound_state_FlyWeight=0;
+	m_listener =0L;
+
+
+	m_sound_environment = 0;
+
+	m_initialized=false;
 
 }
 
 SoundManager::~SoundManager()
 {
 
-  // If we are still initalized, then someone have forgotten to call
-  // shutdown() before we get here.
-  // This is because we cant shut down openal outside main() (it crashes in windows).
-  // This deconstructor is called outside main due to that it is a singleton.
-  if (initialized()) {
-    std::string msg;
-    msg = "SoundManager::shutdown() should be called for the SoundManager before the deconstructor is called";
-	  osg::notify(osg::WARN) << "SoundManager::~SoundManager(): " << msg << std::endl;
-    //throw std::runtime_error("SoundManager::~SoundManager(): " + msg);
-  }
+	// If we are still initalized, then someone have forgotten to call
+	// shutdown() before we get here.
+	// This is because we cant shut down openal outside main() (it crashes in windows).
+	// This deconstructor is called outside main due to that it is a singleton.
+	if (initialized()) {
+		std::string msg;
+		msg = "SoundManager::shutdown() should be called for the SoundManager before the deconstructor is called";
+		osg::notify(osg::WARN) << "SoundManager::~SoundManager(): " << msg << std::endl;
+		//throw std::runtime_error("SoundManager::~SoundManager(): " + msg);
+	}
 }
 
 openalpp::Source *SoundManager::getSource(unsigned int priority, bool registrate_as_active, int depth)
 {
 
-  // Check for eternal recursion
-  if (depth > 1)
-    throw std::runtime_error("SoundManager::getSource(): Internal error, I can´t seem to get a free SoundSource, no matter how I try");
+	// Check for eternal recursion
+	if (depth > 1)
+		throw std::runtime_error("SoundManager::getSource(): Internal error, I can´t seem to get a free SoundSource, no matter how I try");
 
-  // Is there a soundsource available?
-  if (m_available_soundsources.size()) {
-    SourceVector::iterator smi;
-    
-    //warning("getSource") << "Avail soundsources: " << m_available_soundsources.size() << std::endl;
+	// Is there a soundsource available?
+	if (m_available_soundsources.size()) {
+		SourceVector::iterator smi;
 
-    // Get the last soundsource (try to work at the end of the vector always
-    smi = m_available_soundsources.end();
-    smi--;
-    openalpp::Source *source = (*smi).get();
-    m_available_soundsources.pop_back();
+		//warning("getSource") << "Avail soundsources: " << m_available_soundsources.size() << std::endl;
 
-    //warning("getSource") << "After get: Avail soundsources: " << m_available_soundsources.size() << std::endl;
+		// Get the last soundsource (try to work at the end of the vector always
+		smi = m_available_soundsources.end();
+		smi--;
+		openalpp::Source *source = (*smi).get();
+		m_available_soundsources.pop_back();
 
-    // Should we registrate this as an active soundsource (which can be reallocated by someone requesting it with higher priority)
-    if (registrate_as_active)
-      m_active_soundsources.push_back( std::make_pair(priority, source) );
+		//warning("getSource") << "After get: Avail soundsources: " << m_available_soundsources.size() << std::endl;
 
-    //warning("getSource") << "Active sound sources: " << m_active_soundsources.size() << std::endl;
-    //warning("getSource") << "Source: " << source << std::endl;
-    return source;
-  }
+		// Should we registrate this as an active soundsource (which can be reallocated by someone requesting it with higher priority)
+		if (registrate_as_active)
+			m_active_soundsources.push_back( std::make_pair(priority, source) );
 
-  // No soundsources available. Is there a non-looping soundsource with lower priority
-  ActiveSourceVector::iterator smi;
+		//warning("getSource") << "Active sound sources: " << m_active_soundsources.size() << std::endl;
+		//warning("getSource") << "Source: " << source << std::endl;
+		return source;
+	}
 
-  for(smi=m_active_soundsources.begin(); smi != m_active_soundsources.end(); smi++) {
-    if (smi->first < priority && !(smi->second)->isLooping()) {
-      
-      // Stop the Source
-      smi->second->stop();
-      
-      // Go through all the active SoundStates and remove all with stopped Sources (this one goes...)
-      update();
+	// No soundsources available. Is there a non-looping soundsource with lower priority
+	ActiveSourceVector::iterator smi;
 
-      //warning("getSource") << "No source avail got one, Active sound sources: " << m_active_soundsources.size() << std::endl;     
-      // Now as there shold be one source available, lets get that one by doing a recursive call to this method
-      return getSource(priority, registrate_as_active, depth++);
+	for(smi=m_active_soundsources.begin(); smi != m_active_soundsources.end(); smi++) {
+		if (smi->first < priority && !(smi->second)->isLooping()) {
 
-    }
-  }
-  return 0L;
+			// Stop the Source
+			smi->second->stop();
+
+			// Go through all the active SoundStates and remove all with stopped Sources (this one goes...)
+			update();
+
+			//warning("getSource") << "No source avail got one, Active sound sources: " << m_active_soundsources.size() << std::endl;     
+			// Now as there shold be one source available, lets get that one by doing a recursive call to this method
+			return getSource(priority, registrate_as_active, depth++);
+
+		}
+	}
+	return 0L;
 }
 
 bool SoundManager::pushSoundEvent(SoundState *state, unsigned int priority)
 {
 
-  assert(state && "Invalid null SoundState pointer");
+	assert(state && "Invalid null SoundState pointer");
 
 	// Do not push disabled soundevents
 	if (!state->getEnable())
 		return false;
 
-  if (state->getLooping())
-    throw std::runtime_error("SoundManager::pushSoundEvent: Cannot push a looping sound as a sound event, try to allocate source instead");
+	if (state->getLooping())
+		throw std::runtime_error("SoundManager::pushSoundEvent: Cannot push a looping sound as a sound event, try to allocate source instead");
 
-  SoundState *copy_state = m_sound_state_FlyWeight->getSoundState(state);
-  if (copy_state) {
-    m_sound_state_queue.push(SoundStateQueue::value_type(priority, copy_state));
-    return true;
-  }
-  return false;
+	SoundState *copy_state = m_sound_state_FlyWeight->getSoundState(state);
+	if (copy_state) {
+		m_sound_state_queue.push(SoundStateQueue::value_type(priority, copy_state));
+		return true;
+	}
+	return false;
 }
 
 SoundManager *SoundManager::instance()
 {
-  static osg::ref_ptr< SoundManager > s_SoundManager = new SoundManager;
-  return s_SoundManager.get();
+	static osg::ref_ptr< SoundManager > s_SoundManager = new SoundManager;
+	return s_SoundManager.get();
 }
 
 
 bool SoundManager::removeSoundState(osgAL::SoundState *state)
 {
-  bool found = false;
-  SoundStateSet::iterator it = m_sound_states.find(state);
-  if (it != m_sound_states.end()) {
-    m_sound_states.erase(it);
-    found = true;
-  }
-  {
-    SoundStateVector::iterator it = m_active_sound_states.begin();
-    for(; it != m_active_sound_states.end(); it++) {
-      if ((*it).get() == state) {
-        // Remove it from the map
-        m_active_sound_states.erase(it);
-        found = true;
-      }
-    }
-  }
+	bool found = false;
+	SoundStateSet::iterator it = m_sound_states.find(state);
+	if (it != m_sound_states.end()) {
+		m_sound_states.erase(it);
+		found = true;
+	}
+	{
+		SoundStateVector::iterator it = m_active_sound_states.begin();
+		for(; it != m_active_sound_states.end(); it++) {
+			if ((*it).get() == state) {
+				// Remove it from the map
+				m_active_sound_states.erase(it);
+				found = true;
+			}
+		}
+	}
 
 
-  return found;
+	return found;
 }
 
 bool SoundManager::removeSoundState(const std::string& id)
 {
-  for (SoundStateSet::iterator it = m_sound_states.begin();
-      it != m_sound_states.end();
-      ++it)
-  {
-    if ((*it)->getName() == id)
-    {
-      m_sound_states.erase(it);
-      return true;
-    };
-  }
-  return false;
+	for (SoundStateSet::iterator it = m_sound_states.begin();
+		it != m_sound_states.end();
+		++it)
+	{
+		if ((*it)->getName() == id)
+		{
+			m_sound_states.erase(it);
+			return true;
+		};
+	}
+	return false;
 }
 
 void SoundManager::releaseSource(openalpp::Source *source)
 {
-  if (!m_initialized)
-    return;
+	if (!m_initialized)
+		return;
 
-  assert(source && "Invalid null pointer for Source");
+	assert(source && "Invalid null pointer for Source");
 
-  // Stop the source if its playing
-  source->stop();
+	// Stop the source if its playing
+	source->stop();
 
-  // Check if this source is one of the active sources, then remove it from the list
-  // if active sources
-  ActiveSourceVector::iterator smi;
-  for(smi=m_active_soundsources.begin(); smi != m_active_soundsources.end(); smi++)
-    if (smi->second == source) {
-//      resetSource(smi->second);
-      //std::cerr << "releaseSource" << "m_active_soundsources.size() Before erase: " << m_active_soundsources.size() << std::endl;
-      m_active_soundsources.erase(smi);
-      //std::cerr << "releaseSource" << "m_active_soundsources.size() After erase: " << m_active_soundsources.size() << std::endl;
-      break;
-    }
+	// Check if this source is one of the active sources, then remove it from the list
+	// if active sources
+	ActiveSourceVector::iterator smi;
+	for(smi=m_active_soundsources.begin(); smi != m_active_soundsources.end(); smi++)
+		if (smi->second == source) {
+			//      resetSource(smi->second);
+			//std::cerr << "releaseSource" << "m_active_soundsources.size() Before erase: " << m_active_soundsources.size() << std::endl;
+			m_active_soundsources.erase(smi);
+			//std::cerr << "releaseSource" << "m_active_soundsources.size() After erase: " << m_active_soundsources.size() << std::endl;
+			break;
+		}
 
-  // Return it back to the pool of available sources
-  // I should probably loop over to make sure were not adding it twice
-  m_available_soundsources.push_back(source);
-  //warning("releaseSource") << "Avail sources:  " << m_available_soundsources.size() << std::endl;
+		// Return it back to the pool of available sources
+		// I should probably loop over to make sure were not adding it twice
+		m_available_soundsources.push_back(source);
+		//warning("releaseSource") << "Avail sources:  " << m_available_soundsources.size() << std::endl;
 }
 
 
-  // Move any non playing soundsources to the list of available soundsources
+// Move any non playing soundsources to the list of available soundsources
 void SoundManager::update()
 {
-  // Loop over list of all active SoundStates, if the associated source for the SoundState is 
-  // finished playing, then move the SoundState back to theSoundStateFlyWeight.
-  SoundStateVector::iterator ssv;
+	// Loop over list of all active SoundStates, if the associated source for the SoundState is 
+	// finished playing, then move the SoundState back to theSoundStateFlyWeight.
+	SoundStateVector::iterator ssv;
 
-  for(ssv = m_active_sound_states.begin(); ssv != m_active_sound_states.end(); ssv++) {
-    if (!(*ssv)->isActive()) {
-      (*ssv)->releaseSource();
-      m_sound_state_FlyWeight->releaseSoundState((*ssv).get());    
-      ssv = m_active_sound_states.erase(ssv);
-	  //std::cerr << "Removing m_active_sound_states size: " << m_active_sound_states.size() << std::endl;
-	  if (ssv == m_active_sound_states.end())
-        break;
-    }
-  }
+	for(ssv = m_active_sound_states.begin(); ssv != m_active_sound_states.end(); ssv++) {
+		if (!(*ssv)->isActive()) {
+			(*ssv)->releaseSource();
+			m_sound_state_FlyWeight->releaseSoundState((*ssv).get());    
+			ssv = m_active_sound_states.erase(ssv);
+			//std::cerr << "Removing m_active_sound_states size: " << m_active_sound_states.size() << std::endl;
+			if (ssv == m_active_sound_states.end())
+				break;
+		}
+	}
 
-  processQueuedSoundStates();
-  
+	processQueuedSoundStates();
+
 }
 
 void SoundManager::stopAllSources()
 {
-  SourceVector::iterator it=m_soundsources.begin(); 
-  for(;it != m_soundsources.end(); it++) {
-    (*it)->stop();
-  }
+	SourceVector::iterator it=m_soundsources.begin(); 
+	for(;it != m_soundsources.end(); it++) {
+		(*it)->stop();
+	}
 }
 
 void SoundManager::processQueuedSoundStates()
 {
-  // Go through the queue until there are either no events left or no more soundsources.
-  // for each SoundEvent, allocate a source and call apply for it with its soundsource
-  // also, when getting it from the queue, add it to a list of active SoundStates.
-  SoundState *state=0L;
+	// Go through the queue until there are either no events left or no more soundsources.
+	// for each SoundEvent, allocate a source and call apply for it with its soundsource
+	// also, when getting it from the queue, add it to a list of active SoundStates.
+	SoundState *state=0L;
 
-  while(m_available_soundsources.size() && m_sound_state_queue.size()) {
-    state = m_sound_state_queue.top().getState();
-    m_sound_state_queue.pop();
-    openalpp::Source *source = getSource(state->getPriority());
-    state->setSource(source);
-    state->apply();
-    m_active_sound_states.push_back(state);
-   //std::cerr << "Adding m_active_sound_states size: " << m_active_sound_states.size() << std::endl;
+	while(m_available_soundsources.size() && m_sound_state_queue.size()) {
+		state = m_sound_state_queue.top().getState();
+		m_sound_state_queue.pop();
+		openalpp::Source *source = getSource(state->getPriority());
+		state->setSource(source);
+		state->apply();
+		m_active_sound_states.push_back(state);
+		//std::cerr << "Adding m_active_sound_states size: " << m_active_sound_states.size() << std::endl;
 
-  }
+	}
 }
 
 void SoundManager::resetSource(openalpp::Source *source)
 {
-  source->setPitch();
-  source->setGain(1);
-  source->setMinMaxGain();
-  source->setReferenceDistance();
-  source->setRolloffFactor();
-  source->setVelocity(0,0,0);
-  source->stop();
-  source->rewind();
+	source->setPitch();
+	source->setGain(1);
+	source->setMinMaxGain();
+	source->setReferenceDistance();
+	source->setRolloffFactor();
+	source->setVelocity(0,0,0);
+	source->stop();
+	source->rewind();
 }
 
 openalpp::Sample* SoundManager::getSample( const std::string& path, bool add_to_cache )
 {
 
-  openalpp::Sample *sample=0L;
-  SampleMap::iterator smi;
-  smi = m_sample_cache.find(path);
-  bool found=false;
-  if (smi != m_sample_cache.end()) {
-    found = true;
-    osg::notify(osg::INFO) << "SoundManager::getSample(): Found " << path << " in cache" << std::endl;
-    sample = new openalpp::Sample(*(smi->second));
+	openalpp::Sample *sample=0L;
+	SampleMap::iterator smi;
+	smi = m_sample_cache.find(path);
+	bool found=false;
+	if (smi != m_sample_cache.end()) {
+		found = true;
+		osg::notify(osg::INFO) << "SoundManager::getSample(): Found " << path << " in cache" << std::endl;
+		sample = new openalpp::Sample(*(smi->second));
 
-  }
-  else {
-    osg::notify(osg::INFO) << "SoundManager::getSample(): Cache miss for " << path << ". Loading from file..." << std::endl;
+	}
+	else {
+		osg::notify(osg::INFO) << "SoundManager::getSample(): Cache miss for " << path << ". Loading from file..." << std::endl;
 
-    try {
-      // Cache miss, load the file:
-		std::string new_path = osgDB::findDataFile(path);
-      if (new_path.empty()) {
-        osg::notify(osg::INFO) << "SoundManager::getSample(): Unable to find requested file: " << path << std::endl;
-        return 0;
-      }
+		try {
+			// Cache miss, load the file:
+			std::string new_path = osgDB::findDataFile(path);
+			if (new_path.empty()) {
+				osg::notify(osg::INFO) << "SoundManager::getSample(): Unable to find requested file: " << path << std::endl;
+				return 0;
+			}
 
-      sample = new openalpp::Sample(new_path.c_str());
-    }
-    catch(openalpp::FileError) {
-      // We cannot call delete sample directly
-      osg::ref_ptr<openalpp::Sample> s = sample;
-      sample = 0;
-    }
-    // if the loading of the model was successful, store the sample in the cache
-    // except if the shutdownuser have indicated that it shouldnt be added to the cache
-    if (sample && add_to_cache) {
-      m_sample_cache.insert(SampleMapValType(path, sample));
-    }
-  }
+			sample = new openalpp::Sample(new_path.c_str());
+		}
+		catch(openalpp::FileError) {
+			// We cannot call delete sample directly
+			osg::ref_ptr<openalpp::Sample> s = sample;
+			sample = 0;
+		}
+		// if the loading of the model was successful, store the sample in the cache
+		// except if the shutdownuser have indicated that it shouldnt be added to the cache
+		if (sample && add_to_cache) {
+			m_sample_cache.insert(SampleMapValType(path, sample));
+		}
+	}
 
-  return sample;
+	return sample;
 }
 
 
 openalpp::Stream* SoundManager::getStream( const std::string& path, bool add_to_cache )
 {
-  openalpp::FileStream *stream=0L;
-  StreamMap::iterator smi;
-  smi = m_stream_cache.find(path);
-  bool found=false;
-  if (smi != m_stream_cache.end()) {
-    found = true;
-    osg::notify(osg::INFO) << path << " in cache" << std::endl;
-    stream = new openalpp::FileStream(*(smi->second));
-  }
-  else {
-    
-    osg::notify(osg::INFO) << "SoundManager::getStream: Cache miss for " << path << ". Loading from file..." << std::endl;
+	openalpp::FileStream *stream=0L;
+	StreamMap::iterator smi;
+	smi = m_stream_cache.find(path);
+	bool found=false;
+	if (smi != m_stream_cache.end()) {
+		found = true;
+		osg::notify(osg::INFO) << path << " in cache" << std::endl;
+		stream = new openalpp::FileStream(*(smi->second));
+	}
+	else {
 
-    try {
-      // Cache miss, load the file:
-		std::string new_path = osgDB::findDataFile(path);
-      if (new_path.empty()) {
-        osg::notify(osg::WARN) << "SoundManager::getStream(): Unable to find requested file: " << path << std::endl;
+		osg::notify(osg::INFO) << "SoundManager::getStream: Cache miss for " << path << ". Loading from file..." << std::endl;
 
-        return 0;
-      }
-      stream = new openalpp::FileStream(new_path.c_str());
-    }
-    catch(openalpp::FileError) {
-      osg::ref_ptr<openalpp::FileStream> s = stream;
-    }
-    // if the loading of the model was successful, store the model in the cache
-    if (stream && add_to_cache) {
-      m_stream_cache.insert(StreamMapValType(path, stream));
-    }
-  }
+		try {
+			// Cache miss, load the file:
+			std::string new_path = osgDB::findDataFile(path);
+			if (new_path.empty()) {
+				osg::notify(osg::WARN) << "SoundManager::getStream(): Unable to find requested file: " << path << std::endl;
 
-  return stream;
+				return 0;
+			}
+			stream = new openalpp::FileStream(new_path.c_str());
+		}
+		catch(openalpp::FileError) {
+			osg::ref_ptr<openalpp::FileStream> s = stream;
+		}
+		// if the loading of the model was successful, store the model in the cache
+		if (stream && add_to_cache) {
+			m_stream_cache.insert(StreamMapValType(path, stream));
+		}
+	}
+
+	return stream;
 }
 
 SoundState *SoundManager::findSoundState(const std::string& id)
 {
-  for (SoundStateSet::iterator it = m_sound_states.begin();
-      it != m_sound_states.end();
-      ++it)
-  {
-    if ((*it)->getName() == id)
-      return it->get();
-  }
+	for (SoundStateSet::iterator it = m_sound_states.begin();
+		it != m_sound_states.end();
+		++it)
+	{
+		if ((*it)->getName() == id)
+			return it->get();
+	}
 
-  return 0;
+	return 0;
 }
 
 
 void SoundManager::setListenerDirection(const osg::Vec3& dir)
 { 
-  if (fabs(dir[0])- 0.01 < 0.01 ||
-    fabs(dir[1])- 0.01 < 0.01 ||
-    fabs(dir[2])- 0.01 < 0.01)
-    throw std::runtime_error("SoundManager::setListenerDirection(): A value of zero (0) is set in one of the elements of the listenerDirection which is not valid");
-    
-  m_listener_direction = dir; 
+	if (fabs(dir[0])- 0.01 < 0.01 ||
+		fabs(dir[1])- 0.01 < 0.01 ||
+		fabs(dir[2])- 0.01 < 0.01)
+		throw std::runtime_error("SoundManager::setListenerDirection(): A value of zero (0) is set in one of the elements of the listenerDirection which is not valid");
+
+	m_listener_direction = dir; 
 }
 
 void SoundManager::setListenerMatrix( const osg::Matrixd& matrix)
 {
 
-  m_listener_matrix = matrix;
+	m_listener_matrix = matrix;
 
-  osg::Vec3 eye_pos, up_vector, look_vector, center;
+	osg::Vec3 eye_pos, up_vector, look_vector, center;
 
-  osg::Matrixd m(matrix); // Just until the getLookAt is const declarated
-  m.getLookAt(eye_pos, center, up_vector);
-  
-  look_vector = center - eye_pos;
+	osg::Matrixd m(matrix); // Just until the getLookAt is const declarated
+	m.getLookAt(eye_pos, center, up_vector);
 
-  // Calculate velocity
-  osg::Vec3 velocity(0,0,0);
+	look_vector = center - eye_pos;
 
-  if (m_first_run) {
-    m_first_run = false;
-    m_last_tick = m_timer.tick();
-    m_last_pos = eye_pos;
-  }
-  else {
-    osg::Timer_t curr_tick = m_timer.tick();
+	// Calculate velocity
+	osg::Vec3 velocity(0,0,0);
 
-    velocity = eye_pos - m_last_pos;
-    m_last_pos = eye_pos;
-
-    double time = m_timer.delta_s(m_last_tick, curr_tick);
-    m_last_tick = curr_tick;
-    velocity /= time;
-  }
-
-  const osg::Vec3& listener_direction = getListenerDirection();
-
-
-  openalpp::Listener *listener = getListener();
-  listener->setPosition(eye_pos[0], eye_pos[1], eye_pos[2]);
-  listener->setOrientation(
-    look_vector[0], 
-    look_vector[1], 
-    look_vector[2], 
-    up_vector[0]*listener_direction[0],   
-    up_vector[1]*listener_direction[1],   
-    up_vector[2]*listener_direction[2]);
-  
-  if(getClampVelocity()) {
-    float max_vel = getMaxVelocity();
-	float len = velocity.length();
-	if ( len > max_vel) {
-		velocity.normalize();
-	    velocity *= max_vel;
+	if (m_first_run) {
+		m_first_run = false;
+		m_last_tick = m_timer.tick();
+		m_last_pos = eye_pos;
 	}
-  }
-  
-  listener->setVelocity(velocity[0], velocity[1], velocity[2] );
+	else {
+		osg::Timer_t curr_tick = m_timer.tick();
+
+		velocity = eye_pos - m_last_pos;
+		m_last_pos = eye_pos;
+
+		double time = m_timer.delta_s(m_last_tick, curr_tick);
+		m_last_tick = curr_tick;
+		velocity /= time;
+	}
+
+	const osg::Vec3& listener_direction = getListenerDirection();
+
+
+	openalpp::Listener *listener = getListener();
+	listener->setPosition(eye_pos[0], eye_pos[1], eye_pos[2]);
+	listener->setOrientation(
+		look_vector[0], 
+		look_vector[1], 
+		look_vector[2], 
+		up_vector[0]*listener_direction[0],   
+		up_vector[1]*listener_direction[1],   
+		up_vector[2]*listener_direction[2]);
+
+	if(getClampVelocity()) {
+		float max_vel = getMaxVelocity();
+		float len = velocity.length();
+		if ( len > max_vel) {
+			velocity.normalize();
+			velocity *= max_vel;
+		}
+	}
+
+	listener->setVelocity(velocity[0], velocity[1], velocity[2] );
 }
 
 
@@ -545,9 +544,9 @@ void SoundManager::setListenerMatrix( const osg::Matrixd& matrix)
 
 * 
 
-  Author: Anders Backman
-  VRlab, Umeå University, 2004
- 
+Author: Anders Backman
+VRlab, Umeå University, 2004
+
 * $Log: SoundManager.cpp,v $
 * Revision 1.14  2005/12/08 12:41:16  vr-anders
 * Added stopAllSources() method
