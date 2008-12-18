@@ -460,7 +460,7 @@ void GroupSource::mixSources(unsigned int frequency)
       size=loadsize;
     } 
     ALint amp;
-    for(unsigned int i=0;i<(size/2);i++) {
+    for(ALsizei i=0;i<(size/2);i++) {
       amp=bdata[i]+data[i];
       if(amp>32767)
 	amp=32767;

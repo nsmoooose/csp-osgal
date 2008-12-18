@@ -160,7 +160,7 @@ FileStream::FileStream(const std::string& filename,const int buffersize)
         {
           ulFormat = alGetEnumValue("AL_FORMAT_51CHN16");
           if (!ulFormat)
-            throw FatalError("QUAD16 format was requested but is not supported by OpenAL device");
+            throw FatalError("51CHN16 format was requested but is not supported by OpenAL device");
 
           // Set BufferSize to 250ms (Frequency * 12 (16bit 6-channel) divided by 4 (quarter of a second))
           ulBufferSize = ulFrequency * 3;

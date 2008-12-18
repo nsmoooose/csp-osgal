@@ -20,11 +20,7 @@
 
 #include "openalpp/Sample"
 #include <sstream>
-#ifdef _WIN32
-#include <alut.h>
-#else // _WIN32
 #include <AL/alut.h>
-#endif // _WIN32
 
 using namespace openalpp;
 

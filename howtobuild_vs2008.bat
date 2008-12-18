@@ -4,7 +4,7 @@
 
 :: call the vsvars32.bat that comes with VisualStudio
 :: Change the variable used for other MSVC versions (VS90COMNTOOLS for instance)
-call "%VS71COMNTOOLS%\vsvars32.bat"
+call "%VS90COMNTOOLS%\vsvars32.bat"
 ::call "%VCINSTALLDIR%\bin\vcvars32.bat"
 
 :: Path to openscenegraph
@@ -55,6 +55,12 @@ set LIB=%LIB%;%OSG_LIB%;%OPENAL_LIB%;%ALUT_LIB%;%OGG_LIB%;%VORBIS_LIB%
 ::set PATH=%PATH%;%OSG_PATH%\bin;%VORBIS_PATH%\bin;%OGG_PATH%\bin
 
 :: Now we can start visual studio with the following command
+if not exist "%DevEnvDir%\devenv.exe" goto express
 devenv /useenv visualstudio\osgal\osgal.sln
+goto end
+
+:express
+:: Express version has to be lauched since non-express has not been found
+VCExpress.exe /useenv visualstudio\osgal\osgal.sln
 
 :end

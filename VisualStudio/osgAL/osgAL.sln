@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+# Visual C++ Express 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core osgAL", "osgAL.vcproj", "{526A68DC-A645-4686-8E7C-CC35DE2D1C7D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3} = {2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3}
@@ -71,8 +71,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oalpp Example playOgg", "..
 	ProjectSection(ProjectDependencies) = postProject
 		{2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3} = {2BA79A95-C0A7-4F13-9D84-7912AEA4A8B3}
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9000E402-5FB9-4733-8390-E9B6EE6176E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
