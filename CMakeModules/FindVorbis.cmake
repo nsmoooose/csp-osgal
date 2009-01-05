@@ -16,7 +16,7 @@ FIND_PATH(VORBIS_INCLUDE_DIR
 	HINTS
 	$ENV{VORBISDIR}
 	$ENV{VORBIS_PATH}
-	PATH_SUFFIXES include/vorbis
+	PATH_SUFFIXES include
 	PATHS
 	~/Library/Frameworks
 	/Library/Frameworks
