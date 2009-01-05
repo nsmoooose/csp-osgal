@@ -12,7 +12,7 @@
 # TODO Add hints for linux and Mac
 
 FIND_PATH(VORBIS_INCLUDE_DIR
-	codec.h
+	vorbis/codec.h
 	HINTS
 	$ENV{VORBISDIR}
 	$ENV{VORBIS_PATH}

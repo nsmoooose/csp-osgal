@@ -12,11 +12,11 @@
 # TODO Add hints for linux and Mac
 
 FIND_PATH(VORBISFILE_INCLUDE_DIR
-	vorbisfile.h
+	vorbis/vorbisfile.h
 	HINTS
 	$ENV{VORBISDIR}
 	$ENV{VORBIS_PATH}
-	PATH_SUFFIXES include/vorbis
+	PATH_SUFFIXES include
 	PATHS
 	~/Library/Frameworks
 	/Library/Frameworks
