@@ -28,11 +28,11 @@ FIND_PATH(OGG_INCLUDE_DIR
 )
 
 FIND_LIBRARY(OGG_LIBRARY 
-	OGG
+	ogg
 	HINTS
 	$ENV{OGGDIR}
 	$ENV{OGG_PATH}
-	PATH_SUFFIXES win32/Dynamic_Release
+	PATH_SUFFIXES win32/Dynamic_Release lib
 	PATHS
 	~/Library/Frameworks
 	/Library/Frameworks
@@ -45,11 +45,11 @@ FIND_LIBRARY(OGG_LIBRARY
 )
 
 FIND_LIBRARY(OGG_LIBRARY_DEBUG 
-	OGG_d
+	ogg_d
 	HINTS
 	$ENV{OGGDIR}
 	$ENV{OGG_PATH}
-	PATH_SUFFIXES win32/Dynamic_Debug
+	PATH_SUFFIXES win32/Dynamic_Debug lib
 	PATHS
 	~/Library/Frameworks
 	/Library/Frameworks
