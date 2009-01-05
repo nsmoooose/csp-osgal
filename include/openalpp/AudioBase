@@ -24,11 +24,11 @@
 #include "openalpp/Export"
 #include <cstdlib>
 
-extern "C" {
-#include <AL/al.h>
-#include <AL/alut.h>
-#include <AL/alc.h>
-}
+//extern "C" {
+#include <al.h>
+#include <alut.h>
+#include <alc.h>
+//}
 
 #include "openalpp/windowsstuff"
 #include "openalpp/Error"

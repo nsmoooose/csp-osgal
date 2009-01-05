@@ -29,9 +29,9 @@
 #pragma warning(disable : 4251)
 #endif
 
-extern "C" {
-#include <AL/al.h>
-}
+//extern "C" {
+#include <al.h>
+//}
 
 #include "openalpp/Export"
 

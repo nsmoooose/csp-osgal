@@ -22,7 +22,7 @@
 #define AUDIOCONVERT_H_INCLUDED
 
 #include "openalpp/Export"
-#include <AL/al.h>
+#include <al.h>
 #include <stdlib.h>
 #include <string.h>
 #include "openalpp/Error"

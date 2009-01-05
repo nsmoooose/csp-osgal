@@ -1,6 +1,6 @@
 pushd data
-osgal
-osgalmultiple
-osgalocclude house.ac
-osgalviewer osgalocclude_scene.osg
+example_osgal
+example_osgalmultiple
+example_osgalocclude house.ac
+example_osgalviewer osgalocclude_scene.osg
 popd 

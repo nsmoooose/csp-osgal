@@ -20,7 +20,7 @@
 
 #include "openalpp/Sample"
 #include <sstream>
-#include <AL/alut.h>
+#include <alut.h>
 
 using namespace openalpp;
 
