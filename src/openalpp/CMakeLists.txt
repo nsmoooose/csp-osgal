@@ -57,7 +57,7 @@ add_definitions(
 	#-D_USRDLL
 )
 
-LINK_WITH_VARIABLES( ${LIB_NAME} OPENAL ALUT OPENTHREADS OSG OSGDB VORBIS VORBISFILE OGG )
+LINK_WITH_VARIABLES( ${LIB_NAME} OPENAL ALUT OPENTHREADS OSG OSGDB OGG VORBIS VORBISFILE )
 #winmm
 
 # Ugly workaround to remove the "/debug" or "/release" in each output

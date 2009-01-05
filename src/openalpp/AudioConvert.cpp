@@ -34,7 +34,7 @@
 using namespace openalpp;
 
 void *acLoadWAV(void *data, ALuint *size, void **udata, 
-				ALushort *fmt, ALushort *chan, ALushort *freq);
+				ALushort *fmt, ALubyte *chan, ALushort *freq);
 ALenum _al_AC2ALFMT( ALuint acformat, ALuint channels );
 ALushort _al_AL2ACFMT( ALenum alformat );
 int acBuildAudioCVT(acAudioCVT *cvt,
@@ -86,25 +86,26 @@ AudioConvert::AudioConvert(ALenum format,unsigned int frequency)
 }
 
 void *AudioConvert::apply(void *data,ALenum format,
-						  unsigned int frequency,unsigned int &size) {
-							  if(format==format_ && frequency==frequency_) {
-								  void *ret=malloc(size);
-								  if(!ret)
-									  throw MemoryError("Out of memory");
-								  memcpy(ret,data,size);
-								  return ret;
-							  }
+						  unsigned int frequency,unsigned int &size)
+{
+	if(format==format_ && frequency==frequency_) {
+		void *ret=malloc(size);
+		if(!ret)
+			throw MemoryError("Out of memory");
+		memcpy(ret,data,size);
+		return ret;
+	}
 
-							  ALvoid *compressed = NULL;
-							  ALvoid *retval = NULL;
-							  acAudioCVT s16le;
+	ALvoid *compressed = NULL;
+	ALvoid *retval = NULL;
+	acAudioCVT s16le;
 
-							  if(!IsRaw(format)) {    // Take care of compressed formats..
-								  ALushort acfmt;
-								  ALushort achan;
-								  ALushort acfreq;
+	if(!IsRaw(format)) {    // Take care of compressed formats..
+		ALushort acfmt;
+		ALubyte achan;
+		ALushort acfreq;
 
-								  switch(format) {
+		switch(format) {
 	  case AL_FORMAT_IMA_ADPCM_MONO16_EXT:
 	  case AL_FORMAT_IMA_ADPCM_STEREO16_EXT:
 	  case AL_FORMAT_WAVE_EXT:
@@ -115,48 +116,48 @@ void *AudioConvert::apply(void *data,ALenum format,
 		  break;
 	  default:
 		  break;
-								  }
+		}
 
-								  compressed = data = retval;
-							  }
+		compressed = data = retval;
+	}
 
-							  //unsigned int insize=size;  
-							  //unsigned short inbits=Bits(format),inchannels=Channels(format);
+	//unsigned int insize=size;  
+	//unsigned short inbits=Bits(format),inchannels=Channels(format);
 
-							  if(acBuildAudioCVT(&s16le,
-								  /* from */
-								  _al_AL2ACFMT(format),
-								  _al_ALCHANNELS(format),
-								  frequency,
+	if(acBuildAudioCVT(&s16le,
+		/* from */
+		_al_AL2ACFMT(format),
+		_al_ALCHANNELS(format),
+		frequency,
 
-								  /* to */
-								  _al_AL2ACFMT(format_),
-								  _al_ALCHANNELS(format_),
-								  frequency_) < 0) {
-									  free(compressed);
-									  throw FatalError("Couldn't build audio conversion data structure.");
-							  }
+		/* to */
+		_al_AL2ACFMT(format_),
+		_al_ALCHANNELS(format_),
+		frequency_) < 0) {
+			free(compressed);
+			throw FatalError("Couldn't build audio conversion data structure.");
+	}
 
-							  s16le.buf=retval=malloc(size * s16le.len_mult);
-							  if(retval==NULL) {
-								  free(compressed);
-								  throw MemoryError("Out of memory");
-							  }
-							  memcpy(retval,data,size);
+	s16le.buf=retval=malloc(size * s16le.len_mult);
+	if(retval==NULL) {
+		free(compressed);
+		throw MemoryError("Out of memory");
+	}
+	memcpy(retval,data,size);
 
-							  s16le.len =size;
+	s16le.len =size;
 
-							  if(acConvertAudio(&s16le)<0) {
-								  free(compressed);
-								  return NULL;
-							  }
+	if(acConvertAudio(&s16le)<0) {
+		free(compressed);
+		return NULL;
+	}
 
-							  size=s16le.len_cvt;
+	size=s16le.len_cvt;
 
-							  if(s16le.buf!=compressed)
-								  free(compressed);
+	if(s16le.buf!=compressed)
+		free(compressed);
 
-							  return s16le.buf;
+	return s16le.buf;
 }
 
 static struct MS_ADPCM_decoder_FULL {
@@ -594,29 +595,30 @@ void acConvert8(acAudioCVT *cvt, ALushort format) {
 
 int acBuildAudioCVT(acAudioCVT *cvt,
 					ALushort src_format, ALubyte src_channels, ALuint src_rate,
-					ALushort dst_format, ALubyte dst_channels, ALuint dst_rate) {
+					ALushort dst_format, ALubyte dst_channels, ALuint dst_rate)
+{
 
-						std::cerr << "acBuildAudioCVT\n";
+	std::cerr << "acBuildAudioCVT\n";
 
-						/* Start off with no conversion necessary */
-						cvt->needed       = 0;
-						cvt->filter_index = 0;
-						cvt->filters[0]   = NULL;
-						cvt->len_mult     = 1;
-						cvt->len_ratio    = 1.0;
+	/* Start off with no conversion necessary */
+	cvt->needed       = 0;
+	cvt->filter_index = 0;
+	cvt->filters[0]   = NULL;
+	cvt->len_mult     = 1;
+	cvt->len_ratio    = 1.0;
 
-						/* First filter:  Endian conversion from src to dst */
-						if((( src_format & 0x1000) != (dst_format & 0x1000)) &&
-							(( src_format & 0xff) != 8))
-							cvt->filters[cvt->filter_index++] = acConvertEndian;
+	/* First filter:  Endian conversion from src to dst */
+	if((( src_format & 0x1000) != (dst_format & 0x1000)) &&
+		(( src_format & 0xff) != 8))
+		cvt->filters[cvt->filter_index++] = acConvertEndian;
 
-						/* Third filter: Sign conversion -- signed/unsigned */
-						if((src_format & 0x8000) != (dst_format & 0x8000))
-							cvt->filters[cvt->filter_index++] = acConvertSign;
+	/* Third filter: Sign conversion -- signed/unsigned */
+	if((src_format & 0x8000) != (dst_format & 0x8000))
+		cvt->filters[cvt->filter_index++] = acConvertSign;
 
-						/* Second filter:  Convert 16 bit <--> 8 bit PCM */
-						if((src_format & 0xFF) != (dst_format & 0xFF))
-							switch(dst_format & 0x10FF) {
+	/* Second filter:  Convert 16 bit <--> 8 bit PCM */
+	if((src_format & 0xFF) != (dst_format & 0xFF))
+		switch(dst_format & 0x10FF) {
 	  case AUDIO_U8:
 		  cvt->filters[cvt->filter_index++] =
 			  acConvert8;
@@ -636,96 +638,96 @@ int acBuildAudioCVT(acAudioCVT *cvt,
 		  break;
 	  default:
 		  break;
-						}
+	}
 
-						/* Last filter:  Mono/Stereo conversion */
-						if(src_channels != dst_channels) {
-							while((src_channels * 2) <= dst_channels) {
-								cvt->filters[cvt->filter_index++] = 
-									acConvertStereo;
-								src_channels   *= 2;
-								cvt->len_mult  *= 2;
-								cvt->len_ratio *= 2;
-							}
+	/* Last filter:  Mono/Stereo conversion */
+	if(src_channels != dst_channels) {
+		while((src_channels * 2) <= dst_channels) {
+			cvt->filters[cvt->filter_index++] = 
+				acConvertStereo;
+			src_channels   *= 2;
+			cvt->len_mult  *= 2;
+			cvt->len_ratio *= 2;
+		}
 
-							/*
-							* This assumes that 4 channel audio is in the format:
-							* Left {front/back} + Right {front/back}
-							* so converting to L/R stereo works properly.
-							*/
-							while(((src_channels%2) == 0) &&
-								((src_channels/2) >= dst_channels)) {
-									cvt->filters[cvt->filter_index++] =
-										acConvertMono;
-									src_channels   /= 2;
-									cvt->len_ratio /= 2;
-							}
-							if ( src_channels != dst_channels ) {
-								/* Uh oh.. */;
-							}
-						}
+		/*
+		* This assumes that 4 channel audio is in the format:
+		* Left {front/back} + Right {front/back}
+		* so converting to L/R stereo works properly.
+		*/
+		while(((src_channels%2) == 0) &&
+			((src_channels/2) >= dst_channels)) {
+				cvt->filters[cvt->filter_index++] =
+					acConvertMono;
+				src_channels   /= 2;
+				cvt->len_ratio /= 2;
+		}
+		if ( src_channels != dst_channels ) {
+			/* Uh oh.. */;
+		}
+	}
 
-						/* Do rate conversion */
-						cvt->rate_incr = 0.0;
-						if((src_rate / 100) != (dst_rate / 100)) {
-							ALuint hi_rate, lo_rate;
-							int len_mult;
-							double len_ratio;
-							void (*rate_cvt)(acAudioCVT *, ALushort );
+	/* Do rate conversion */
+	cvt->rate_incr = 0.0;
+	if((src_rate / 100) != (dst_rate / 100)) {
+		ALuint hi_rate, lo_rate;
+		int len_mult;
+		double len_ratio;
+		void (*rate_cvt)(acAudioCVT *, ALushort );
 
-							if ( src_rate > dst_rate ) {
-								hi_rate   = src_rate;
-								lo_rate   = dst_rate;
-								rate_cvt  = acFreqDIV2;
-								len_mult  = 1;
-								len_ratio = 0.5;
-							} else {
-								hi_rate   = dst_rate;
-								lo_rate   = src_rate;
-								rate_cvt  = acFreqMUL2;
-								len_mult  = 2;
-								len_ratio = 2.0;
-							}
-							/* If hi_rate = lo_rate*2^x then conversion is easy */
-							while(((lo_rate * 2)/100) <= (hi_rate/100)) {
-								cvt->filters[cvt->filter_index++] = rate_cvt;
-								lo_rate        *= 2;
-								cvt->len_mult  *= len_mult;
-								cvt->len_ratio *= len_ratio;
-							}
+		if ( src_rate > dst_rate ) {
+			hi_rate   = src_rate;
+			lo_rate   = dst_rate;
+			rate_cvt  = acFreqDIV2;
+			len_mult  = 1;
+			len_ratio = 0.5;
+		} else {
+			hi_rate   = dst_rate;
+			lo_rate   = src_rate;
+			rate_cvt  = acFreqMUL2;
+			len_mult  = 2;
+			len_ratio = 2.0;
+		}
+		/* If hi_rate = lo_rate*2^x then conversion is easy */
+		while(((lo_rate * 2)/100) <= (hi_rate/100)) {
+			cvt->filters[cvt->filter_index++] = rate_cvt;
+			lo_rate        *= 2;
+			cvt->len_mult  *= len_mult;
+			cvt->len_ratio *= len_ratio;
+		}
 
-							/* We may need a slow conversion here to finish up */
-							if((lo_rate/100) != (hi_rate/100)) {
-								/* The problem with this is that if the input buffer is
-								say 1K, and the conversion rate is say 1.1, then the
-								output buffer is 1.1K, which may not be an acceptable
-								buffer size for the audio driver (not a power of 2)
-								*/
-								/* For now, punt and hope the rate distortion isn't great.
-								*/
-								if ( src_rate < dst_rate ) {
-									cvt->rate_incr = (double)lo_rate/hi_rate;
-									cvt->len_mult *= 2;
-									cvt->len_ratio /= cvt->rate_incr;
-								} else {
-									cvt->rate_incr = (double)hi_rate/lo_rate;
-									cvt->len_ratio *= cvt->rate_incr;
-								}
-								cvt->filters[cvt->filter_index++] = acFreqSLOW;
-							}
-						}
+		/* We may need a slow conversion here to finish up */
+		if((lo_rate/100) != (hi_rate/100)) {
+			/* The problem with this is that if the input buffer is
+			say 1K, and the conversion rate is say 1.1, then the
+			output buffer is 1.1K, which may not be an acceptable
+			buffer size for the audio driver (not a power of 2)
+			*/
+			/* For now, punt and hope the rate distortion isn't great.
+			*/
+			if ( src_rate < dst_rate ) {
+				cvt->rate_incr = (double)lo_rate/hi_rate;
+				cvt->len_mult *= 2;
+				cvt->len_ratio /= cvt->rate_incr;
+			} else {
+				cvt->rate_incr = (double)hi_rate/lo_rate;
+				cvt->len_ratio *= cvt->rate_incr;
+			}
+			cvt->filters[cvt->filter_index++] = acFreqSLOW;
+		}
+	}
 
-						/* Set up the filter information */
-						if(cvt->filter_index != 0) {
-							cvt->needed     = 1;
-							cvt->len        = 0;
-							cvt->buf        = NULL;
-							cvt->src_format = src_format;
-							cvt->dst_format = dst_format;
-							cvt->filters[cvt->filter_index] = NULL;
-						}
+	/* Set up the filter information */
+	if(cvt->filter_index != 0) {
+		cvt->needed     = 1;
+		cvt->len        = 0;
+		cvt->buf        = NULL;
+		cvt->src_format = src_format;
+		cvt->dst_format = dst_format;
+		cvt->filters[cvt->filter_index] = NULL;
+	}
 
-						return cvt->needed;
+	return cvt->needed;
 }
 
 /*
@@ -811,204 +813,209 @@ ALuint swap32(ALuint D) {
 }
 
 static ALint IMA_ADPCM_nibble(alIMAADPCM_decodestate_LOKI *state,
-							  ALubyte nybble) {
-								  const ALint max_audioval = ((1<<(16-1))-1);
-								  const ALint min_audioval = -(1<<(16-1));
-								  const int index_table[16] = {
-									  -1, -1, -1, -1,
-									  2,  4,  6,  8,
-									  -1, -1, -1, -1,
-									  2,  4,  6,  8
-								  };
-								  const ALint step_table[89] = {
-									  7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31,
-									  34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130,
-									  143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408,
-									  449, 494, 544, 598, 658, 724, 796, 876, 963, 1060, 1166, 1282,
-									  1411, 1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327,
-									  3660, 4026, 4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630,
-									  9493, 10442, 11487, 12635, 13899, 15289, 16818, 18500, 20350,
-									  22385, 24623, 27086, 29794, 32767
-								  };
-								  ALint delta, step;
+							  ALubyte nybble)
+{
+	const ALint max_audioval = ((1<<(16-1))-1);
+	const ALint min_audioval = -(1<<(16-1));
+	const int index_table[16] = {
+		-1, -1, -1, -1,
+		2,  4,  6,  8,
+		-1, -1, -1, -1,
+		2,  4,  6,  8
+	};
+	const ALint step_table[89] = {
+		7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31,
+		34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130,
+		143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408,
+		449, 494, 544, 598, 658, 724, 796, 876, 963, 1060, 1166, 1282,
+		1411, 1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327,
+		3660, 4026, 4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630,
+		9493, 10442, 11487, 12635, 13899, 15289, 16818, 18500, 20350,
+		22385, 24623, 27086, 29794, 32767
+	};
+	ALint delta, step;
 
-								  /* Compute difference and new sample value */
-								  step = step_table[(int) state->index];
-								  delta = step >> 3;
-								  if ( nybble & 0x04 ) delta += step;
-								  if ( nybble & 0x02 ) delta += (step >> 1);
-								  if ( nybble & 0x01 ) delta += (step >> 2);
-								  if ( nybble & 0x08 ) delta = -delta;
-								  state->valprev += delta;
+	/* Compute difference and new sample value */
+	step = step_table[(int) state->index];
+	delta = step >> 3;
+	if ( nybble & 0x04 ) delta += step;
+	if ( nybble & 0x02 ) delta += (step >> 1);
+	if ( nybble & 0x01 ) delta += (step >> 2);
+	if ( nybble & 0x08 ) delta = -delta;
+	state->valprev += delta;
 
-								  /* Update index value */
-								  state->index += index_table[nybble];
-								  if ( state->index > 88 ) {
-									  state->index = 88;
-								  } else
-									  if ( state->index < 0 ) {
-										  state->index = 0;
-									  }
+	/* Update index value */
+	state->index += index_table[nybble];
+	if ( state->index > 88 ) {
+		state->index = 88;
+	} else
+		if ( state->index < 0 ) {
+			state->index = 0;
+		}
 
-									  /* Clamp output sample */
-									  if ( state->valprev > max_audioval ) {
-										  state->valprev = max_audioval;
-									  } else
-										  if ( state->valprev < min_audioval ) {
-											  state->valprev = min_audioval;
-										  }
-										  return(state->valprev);
+		/* Clamp output sample */
+		if ( state->valprev > max_audioval ) {
+			state->valprev = max_audioval;
+		} else
+			if ( state->valprev < min_audioval ) {
+				state->valprev = min_audioval;
+			}
+			return(state->valprev);
 }
 
 /* Fill the decode buffer with a channel block of data (8 samples) */
 static void Fill_IMA_ADPCM_block(ALubyte *decoded, ALubyte *encoded,
 								 int channel, int numchannels,
-								 alIMAADPCM_decodestate_LOKI *state){
-									 int i;
-									 ALbyte  nybble;
-									 ALint new_sample;
+								 alIMAADPCM_decodestate_LOKI *state)
+{
+	int i;
+	ALbyte  nybble;
+	ALint new_sample;
 
-									 decoded += (channel * 2);
-									 for ( i=0; i<4; ++i ) {
-										 nybble = (*encoded)&0x0F;
-										 new_sample = IMA_ADPCM_nibble(state, nybble);
-										 decoded[0] = new_sample&0xFF;
-										 new_sample >>= 8;
-										 decoded[1] = new_sample&0xFF;
-										 decoded += 2 * numchannels;
+	decoded += (channel * 2);
+	for ( i=0; i<4; ++i ) {
+		nybble = (*encoded)&0x0F;
+		new_sample = IMA_ADPCM_nibble(state, nybble);
+		decoded[0] = new_sample&0xFF;
+		new_sample >>= 8;
+		decoded[1] = new_sample&0xFF;
+		decoded += 2 * numchannels;
 
-										 nybble = (*encoded)>>4;
-										 new_sample = IMA_ADPCM_nibble(state, nybble);
-										 decoded[0] = new_sample&0xFF;
-										 new_sample >>= 8;
-										 decoded[1] = new_sample&0xFF;
-										 decoded += 2 * numchannels;
+		nybble = (*encoded)>>4;
+		new_sample = IMA_ADPCM_nibble(state, nybble);
+		decoded[0] = new_sample&0xFF;
+		new_sample >>= 8;
+		decoded[1] = new_sample&0xFF;
+		decoded += 2 * numchannels;
 
-										 ++encoded;
-									 }
+		++encoded;
+	}
 }
 
 int IMA_ADPCM_decode(ALubyte *indata, ALubyte *outdata,
-					 ALuint len, alIMAADPCM_state_LOKI *istate, int offset) {
-						 alIMAADPCM_decodestate_LOKI *state;
-						 int indata_len;
-						 int c, channels = istate->wavefmt.channels;
-						 int samplesleft;
+					 ALuint len, alIMAADPCM_state_LOKI *istate, int offset)
+{
+	alIMAADPCM_decodestate_LOKI *state;
+	int indata_len;
+	int c, channels = istate->wavefmt.channels;
+	int samplesleft;
 
-						 indata += offset;
-						 state = istate->state;
+	indata += offset;
+	state = istate->state;
 
-						 if(len < istate->wavefmt.blockalign)
-							 return -1;
+	if(len < istate->wavefmt.blockalign)
+		return -1;
 
-						 indata_len = len;
-						 /* Get ready... Go! */
-						 while ( indata_len >= istate->wavefmt.blockalign ) {
-							 /* Grab the initial information for this block */
-							 for ( c=0; c<channels; ++c ) {
-								 /* Fill the state information for this block */
-								 state[c].valprev = ((indata[1]<<8)|indata[0]);
-								 indata += 2;
-								 if ( state[c].valprev & 0x8000 )
-									 state[c].valprev -= 0x10000;
-								 state[c].index = *indata++;
-								 /* Reserved byte in buffer header, should be 0 */
-								 if ( *indata++ != 0 ) {
-									 /* Uh oh, corrupt data?  Buggy code? */
-									 std::ostringstream str;
-									 str << __FILE__ << ": " << __LINE__ << ": " << "Reserved byte in buffer should be 0" << std::ends;
-									 throw FatalError(str.str().c_str());
-								 }
+	indata_len = len;
+	/* Get ready... Go! */
+	while ( indata_len >= istate->wavefmt.blockalign ) {
+		/* Grab the initial information for this block */
+		for ( c=0; c<channels; ++c ) {
+			/* Fill the state information for this block */
+			state[c].valprev = ((indata[1]<<8)|indata[0]);
+			indata += 2;
+			if ( state[c].valprev & 0x8000 )
+				state[c].valprev -= 0x10000;
+			state[c].index = *indata++;
+			/* Reserved byte in buffer header, should be 0 */
+			if ( *indata++ != 0 ) {
+				/* Uh oh, corrupt data?  Buggy code? */
+				std::ostringstream str;
+				str << __FILE__ << ": " << __LINE__ << ": " << "Reserved byte in buffer should be 0" << std::ends;
+				throw FatalError(str.str().c_str());
+			}
 
-								 /* Store the initial valprev we start with */
-								 outdata[0] = state[c].valprev&0xFF;
-								 outdata[1] = state[c].valprev>>8;
-								 outdata += 2;
-							 }
+			/* Store the initial valprev we start with */
+			outdata[0] = state[c].valprev&0xFF;
+			outdata[1] = state[c].valprev>>8;
+			outdata += 2;
+		}
 
-							 /* Decode and store the other samples in this block */
-							 samplesleft = (istate->wSamplesPerBlock-1)*channels;
-							 while ( samplesleft > 0 ) {
-								 for ( c=0; c<channels; ++c ) {
-									 Fill_IMA_ADPCM_block(outdata, indata,
-										 c, channels, &state[c]);
-									 indata += 4;
-									 samplesleft -= 8;
-								 }
-								 outdata += (channels * 8 * 2);
-							 }
-							 indata_len -= istate->wavefmt.blockalign;
-						 }
+		/* Decode and store the other samples in this block */
+		samplesleft = (istate->wSamplesPerBlock-1)*channels;
+		while ( samplesleft > 0 ) {
+			for ( c=0; c<channels; ++c ) {
+				Fill_IMA_ADPCM_block(outdata, indata,
+					c, channels, &state[c]);
+				indata += 4;
+				samplesleft -= 8;
+			}
+			outdata += (channels * 8 * 2);
+		}
+		indata_len -= istate->wavefmt.blockalign;
+	}
 
-						 return 0;
+	return 0;
 }
 
 
 int IMA_ADPCM_decode_FULL(alIMAADPCM_state_LOKI *istate,
-						  ALubyte **audio_buf, ALuint *audio_len) {
-							  std::cerr << "IMA_ADPCM_decode_FULL\n";
-							  ALubyte *freeable, *encoded;
-							  ALint encoded_len;
-							  unsigned int channels;
+						  ALubyte **audio_buf, ALuint *audio_len)
+{
+	std::cerr << "IMA_ADPCM_decode_FULL\n";
+	ALubyte *freeable, *encoded;
+	ALint encoded_len;
+	unsigned int channels;
 
 
 
-							  /* Check to make sure we have enough variables in the state array */
-							  channels = istate->wavefmt.channels;
-							  if ( channels > NELEMS(istate->state) )
-								  return(-1);
+	/* Check to make sure we have enough variables in the state array */
+	channels = istate->wavefmt.channels;
+	if ( channels > NELEMS(istate->state) )
+		return(-1);
 
-							  /* Allocate the proper sized output buffer */
-							  encoded_len = *audio_len;
-							  encoded = *audio_buf;
-							  freeable = *audio_buf;
-							  *audio_len = (encoded_len/istate->wavefmt.blockalign) * 
-								  istate->wSamplesPerBlock*
-								  istate->wavefmt.channels*sizeof(ALshort);
+	/* Allocate the proper sized output buffer */
+	encoded_len = *audio_len;
+	encoded = *audio_buf;
+	freeable = *audio_buf;
+	*audio_len = (encoded_len/istate->wavefmt.blockalign) * 
+		istate->wSamplesPerBlock*
+		istate->wavefmt.channels*sizeof(ALshort);
 
-							  *audio_buf = (ALubyte *)malloc(*audio_len);
-							  if ( *audio_buf == NULL )
-								  return(-1);
+	*audio_buf = (ALubyte *)malloc(*audio_len);
+	if ( *audio_buf == NULL )
+		return(-1);
 
-							  return IMA_ADPCM_decode(encoded, *audio_buf,
-								  encoded_len, istate, 0);
+	return IMA_ADPCM_decode(encoded, *audio_buf,
+		encoded_len, istate, 0);
 }
 
 static ALint MS_ADPCM_nibble_FULL(struct MS_ADPCM_decodestate_FULL *state,
-								  ALubyte nybble, ALshort *coeff) {
-									  const ALint adaptive[] = {
-										  230, 230, 230, 230, 307, 409, 512, 614,
-										  768, 614, 512, 409, 307, 230, 230, 230
-									  };
-									  ALint new_sample, delta;
+								  ALubyte nybble, ALshort *coeff)
+{
+	const ALint adaptive[] = {
+		230, 230, 230, 230, 307, 409, 512, 614,
+		768, 614, 512, 409, 307, 230, 230, 230
+	};
+	ALint new_sample, delta;
 
-									  new_sample = ((state->iSamp1 * coeff[0]) +
-										  (state->iSamp2 * coeff[1]))/256;
+	new_sample = ((state->iSamp1 * coeff[0]) +
+		(state->iSamp2 * coeff[1]))/256;
 
-									  if(nybble & 0x08) {
-										  new_sample += state->iDelta * (nybble-0x10);
-									  } else {
-										  new_sample += state->iDelta * nybble;
-									  }
+	if(nybble & 0x08) {
+		new_sample += state->iDelta * (nybble-0x10);
+	} else {
+		new_sample += state->iDelta * nybble;
+	}
 
-									  if(new_sample < MS_ADPCM_min) {
-										  new_sample = MS_ADPCM_min;
-									  } else if(new_sample > MS_ADPCM_max) {
-										  new_sample = MS_ADPCM_max;
-									  }
+	if(new_sample < MS_ADPCM_min) {
+		new_sample = MS_ADPCM_min;
+	} else if(new_sample > MS_ADPCM_max) {
+		new_sample = MS_ADPCM_max;
+	}
 
-									  delta = ((ALint) state->iDelta * adaptive[nybble]);
-									  if(delta < 4096) {
-										  delta = 16;
-									  } else {
-										  delta /= 256;
-									  }
+	delta = ((ALint) state->iDelta * adaptive[nybble]);
+	if(delta < 4096) {
+		delta = 16;
+	} else {
+		delta /= 256;
+	}
 
-									  state->iDelta = delta;
-									  state->iSamp2 = state->iSamp1;
-									  state->iSamp1 = new_sample;
+	state->iDelta = delta;
+	state->iSamp2 = state->iSamp1;
+	state->iSamp1 = new_sample;
 
-									  return new_sample;
+	return new_sample;
 }
 
 static int MS_ADPCM_decode_FULL(ALubyte **audio_buf, ALuint *audio_len) {
@@ -1194,31 +1201,32 @@ static int ReadChunk(void *srcp, int offset, Chunk *chunk) {
 * usually just a memcpy, but for MS_ADPCM does that too.
 */
 void *ac_wave_to_pcm(void *data, ALuint *size,
-					 ALushort *fmt, ALushort *chan, ALushort *freq) {
-						 void *retval;
-						 alWaveFMT_LOKI *format;
-						 Chunk riffchunk = { 0, 0, 0 };
-						 int offset = 12;
-						 long length;
-						 alIMAADPCM_state_LOKI ima_decoder;
+					 ALushort *fmt, ALubyte *chan, ALushort *freq)
+{
+	void *retval;
+	alWaveFMT_LOKI *format;
+	Chunk riffchunk = { 0, 0, 0 };
+	int offset = 12;
+	long length;
+	alIMAADPCM_state_LOKI ima_decoder;
 
-						 do {
-							 offset += (length=ReadChunk(data, offset, &riffchunk)) + 8;
-							 if(length < 0)
-								 return NULL;  
-						 } while ((riffchunk.magic == WAVE) ||
-							 (riffchunk.magic == RIFF));                   
-						 if(riffchunk.magic != FMT)
-							 return NULL;
+	do {
+		offset += (length=ReadChunk(data, offset, &riffchunk)) + 8;
+		if(length < 0)
+			return NULL;  
+	} while ((riffchunk.magic == WAVE) ||
+		(riffchunk.magic == RIFF));                   
+	if(riffchunk.magic != FMT)
+		return NULL;
 
-						 format = (alWaveFMT_LOKI *) riffchunk.data;
+	format = (alWaveFMT_LOKI *) riffchunk.data;
 
-						 /* channels */
-						 *chan = swap16le(format->channels);
+	/* channels */
+	*chan = swap16le(format->channels);
 
-						 /* freq */
-						 *freq = (ALushort) swap32le(format->frequency);
-						 switch(swap16le(format->encoding)) {
+	/* freq */
+	*freq = (ALushort) swap32le(format->frequency);
+	switch(swap16le(format->encoding)) {
 	case PCM_CODE:
 		switch(swap16le(format->bitspersample)) {
 	case 8:
@@ -1291,84 +1299,86 @@ void *ac_wave_to_pcm(void *data, ALuint *size,
 		break;
 	default:
 		break;
-						 }
+	}
 
-						 return NULL;
+	return NULL;
 }
 
 
 void *acLoadWAV(void *data, ALuint *size, void **udata, 
-				ALushort *fmt, ALushort *chan, ALushort *freq) {
-					acAudioCVT endianConverter;
+				ALushort *fmt, ALubyte *chan, ALushort *freq)
+{
+	acAudioCVT endianConverter;
 
-					if((data == NULL) || (udata == NULL) || (size == NULL) ||
-						(fmt  == NULL) || (chan  == NULL) || (freq == NULL))
-						return NULL;
+	if((data == NULL) || (udata == NULL) || (size == NULL) ||
+		(fmt  == NULL) || (chan  == NULL) || (freq == NULL))
+		return NULL;
 
-					*udata = ac_wave_to_pcm(data, size, fmt, chan, freq);
-					if(*udata == NULL)
-						return NULL;
+	*udata = ac_wave_to_pcm(data, size, fmt, chan, freq);
+	if(*udata == NULL)
+		return NULL;
 
 
-					if((*fmt == AUDIO_S8) || (*fmt == AUDIO_U8) || (*fmt == AUDIO_S16))
-						return *udata;
+	if((*fmt == AUDIO_S8) || (*fmt == AUDIO_U8) || (*fmt == AUDIO_S16))
+		return *udata;
 
-					if(acBuildAudioCVT(&endianConverter,
-						/* from */
-						*fmt,
-						*chan,
-						*freq,
+	if(acBuildAudioCVT(&endianConverter,
+		/* from */
+		*fmt,
+		*chan,
+		*freq,
 
-						/* to */
-						AUDIO_S16,
-						*chan,
-						*freq) < 0) {
-							free(udata);
-							throw FatalError("Couldn't build audio conversion data structure!");
-					}
+		/* to */
+		AUDIO_S16,
+		*chan,
+		*freq) < 0) {
+			free(udata);
+			throw FatalError("Couldn't build audio conversion data structure!");
+	}
 
-					endianConverter.buf = *udata;
-					endianConverter.len = *size;
+	endianConverter.buf = *udata;
+	endianConverter.len = *size;
 
-					acConvertAudio(&endianConverter);
+	acConvertAudio(&endianConverter);
 
-					return endianConverter.buf;
+	return endianConverter.buf;
 }
 
 void *AudioConvert(ALvoid *data,
 				   ALenum f_format, ALuint f_size, ALuint f_freq,
-				   ALenum t_format, ALuint t_freq, ALuint *retsize) {
-					   ALvoid *compressed = NULL;
-					   ALvoid *retval = NULL;
-					   acAudioCVT s16le;
+				   ALenum t_format, ALuint t_freq, ALuint *retsize)
+{
+	ALvoid *compressed = NULL;
+	ALvoid *retval = NULL;
+	acAudioCVT s16le;
 
-					   if((f_format == t_format) && (f_freq == t_freq)) {
-						   std::cerr << "No conversion needed.\n";
-						   /*
-						   * no conversion needed.
-						   */
-						   *retsize = f_size;
+	if((f_format == t_format) && (f_freq == t_freq)) {
+		std::cerr << "No conversion needed.\n";
+		/*
+		* no conversion needed.
+		*/
+		*retsize = f_size;
 
-						   retval = malloc( f_size );
-						   if( retval == NULL )
-							   throw MemoryError("Out of memory");
+		retval = malloc( f_size );
+		if( retval == NULL )
+			throw MemoryError("Out of memory");
 
-						   memcpy( retval, data, f_size );
+		memcpy( retval, data, f_size );
 
-						   return retval;
-					   }
+		return retval;
+	}
 
-					   /*
-					   * Compressed auto formats like IMA_ADPCM get converted in
-					   * full here.
-					   */
-					   if(_al_RAWFORMAT(f_format) == AL_FALSE) {
-						   std::cerr << "Audio compressed\n";
-						   ALushort acfmt;
-						   ALushort achan;
-						   ALushort acfreq;
+	/*
+	* Compressed auto formats like IMA_ADPCM get converted in
+	* full here.
+	*/
+	if(_al_RAWFORMAT(f_format) == AL_FALSE) {
+		std::cerr << "Audio compressed\n";
+		ALushort acfmt;
+		ALubyte achan;
+		ALushort acfreq;
 
-						   switch(f_format) {
+		switch(f_format) {
 	  case AL_FORMAT_IMA_ADPCM_MONO16_EXT:
 	  case AL_FORMAT_IMA_ADPCM_STEREO16_EXT:
 	  case AL_FORMAT_WAVE_EXT:
@@ -1379,44 +1389,44 @@ void *AudioConvert(ALvoid *data,
 		  break;
 	  default:
 		  break;
-						   }
+		}
 
-						   compressed = data = retval;
-					   }
+		compressed = data = retval;
+	}
 
-					   if(acBuildAudioCVT(&s16le,
-						   /* from */
-						   _al_AL2ACFMT(f_format),
-						   _al_ALCHANNELS(f_format),
-						   f_freq,
+	if(acBuildAudioCVT(&s16le,
+		/* from */
+		_al_AL2ACFMT(f_format),
+		_al_ALCHANNELS(f_format),
+		f_freq,
 
-						   /* to */
-						   _al_AL2ACFMT(t_format),
-						   _al_ALCHANNELS(t_format),
-						   t_freq) < 0) {
-							   free(compressed);
-							   throw FatalError("Couldn't build audio conversion data structure.");
-					   }
+		/* to */
+		_al_AL2ACFMT(t_format),
+		_al_ALCHANNELS(t_format),
+		t_freq) < 0) {
+			free(compressed);
+			throw FatalError("Couldn't build audio conversion data structure.");
+	}
 
-					   s16le.buf = retval = malloc(f_size * s16le.len_mult);
-					   if(retval == NULL) {
-						   free( compressed );
-						   throw MemoryError("Out of memory");
-					   }
-					   memcpy(retval, data, f_size);
+	s16le.buf = retval = malloc(f_size * s16le.len_mult);
+	if(retval == NULL) {
+		free( compressed );
+		throw MemoryError("Out of memory");
+	}
+	memcpy(retval, data, f_size);
 
-					   s16le.len = f_size;
+	s16le.len = f_size;
 
-					   if(acConvertAudio(&s16le) < 0) {
-						   free( compressed );
-						   return NULL;
-					   }
+	if(acConvertAudio(&s16le) < 0) {
+		free( compressed );
+		return NULL;
+	}
 
-					   *retsize = s16le.len_cvt;
+	*retsize = s16le.len_cvt;
 
-					   if( s16le.buf != compressed )
-						   free( compressed );
+	if( s16le.buf != compressed )
+		free( compressed );
 
-					   return s16le.buf;
+	return s16le.buf;
 }
 
