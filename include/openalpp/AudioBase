@@ -32,6 +32,7 @@
 
 #include "openalpp/windowsstuff"
 #include "openalpp/Error"
+#include "openalpp/windowsstuff"
 #include <osg/Referenced>
 #include <osg/ref_ptr>
 

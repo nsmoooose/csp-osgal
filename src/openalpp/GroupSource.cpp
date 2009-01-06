@@ -19,6 +19,7 @@
 */
 
 #include "openalpp/GroupSource"
+#include "openalpp/windowsstuff"
 #include <sstream>
 using namespace openalpp;
 

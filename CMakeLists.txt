@@ -2,8 +2,8 @@
 # by Sukender (Benoit Neil), from OSG CMake script
 
 # TODO:
-# Check on linux & Mac
-# Copy includes in out-of-the-source builds
+# Check on Mac OSX
+# Copy includes in out-of-the-source builds ?
 # Add documentation subproject ?
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.2 FATAL_ERROR)
