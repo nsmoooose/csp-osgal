@@ -64,19 +64,19 @@ SoundManager::SoundStateFlyWeight::~SoundStateFlyWeight()
 
 
 SoundManager::SoundManager() : Referenced(), 
-m_sound_state_FlyWeight(0L),
-m_listener(0), 
-m_sound_environment(0),  
-m_initialized(false), 
-m_max_velocity(2),
-m_last_tick(0),
-m_first_run(true),
+	m_sound_state_FlyWeight(0L),
+	m_listener(0), 
+	m_sound_environment(0),  
+	m_initialized(false), 
+	m_max_velocity(2),
+	m_last_tick(0),
+	m_first_run(true),
 #ifdef WIN32
-m_clamp_velocity(false),
+	m_clamp_velocity(false),
 #else
-m_clamp_velocity(true),
+	m_clamp_velocity(true),
 #endif				   
-m_update_frequency(1/100.0)
+	m_update_frequency(1/100.0)
 {
 	m_listener_direction = osg::Vec3(1,1,1);
 }
@@ -400,8 +400,9 @@ openalpp::Sample* SoundManager::getSample( const std::string& path, bool add_to_
 
 			sample = new openalpp::Sample(new_path.c_str());
 		}
-		catch(openalpp::FileError) {
+		catch(openalpp::FileError & e) {
 			// We cannot call delete sample directly
+			osg::notify(osg::NOTICE) << e.what() << std::endl;
 			osg::ref_ptr<openalpp::Sample> s = sample;
 			sample = 0;
 		}
