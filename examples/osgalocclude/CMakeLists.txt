@@ -16,5 +16,7 @@ TARGET_LINK_LIBRARIES( ${EXE_NAME} openalpp osgAL )
 
 # Add the postfix to the executable since it is not added automatically as for modules and shared libraries
 SET_TARGET_PROPERTIES(${EXE_NAME} PROPERTIES DEBUG_POSTFIX "${CMAKE_DEBUG_POSTFIX}")
-# Ugly workaround to remove the "/debug" or "/release" in each output
-SET_TARGET_PROPERTIES(${EXE_NAME} PROPERTIES PREFIX "../")
+IF(MSVC_IDE)
+	# Ugly workaround to remove the "/debug" or "/release" in each output
+	SET_TARGET_PROPERTIES(${EXE_NAME} PROPERTIES PREFIX "../")
+ENDIF()

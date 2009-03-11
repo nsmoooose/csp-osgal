@@ -60,8 +60,10 @@ add_definitions(
 LINK_WITH_VARIABLES( ${LIB_NAME} OPENAL ALUT OPENTHREADS OSG OSGDB OGG VORBIS VORBISFILE )
 #winmm
 
-# Ugly workaround to remove the "/debug" or "/release" in each output
-SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES PREFIX "../")
-SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES IMPORT_PREFIX "../")
-
+IF(MSVC_IDE)
+	# Ugly workaround to remove the "/debug" or "/release" in each output
+	SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES PREFIX "../")
+	SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES IMPORT_PREFIX "../")
+ENDIF()
+	
 INCLUDE(ModuleInstall OPTIONAL)
