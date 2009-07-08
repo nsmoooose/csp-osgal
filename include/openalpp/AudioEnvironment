@@ -55,7 +55,7 @@ namespace openalpp {
 #ifdef None
 #undef None // Defined in X-headers
 #endif
-	typedef enum DistanceModel {None,InverseDistance,InverseDistanceClamped};
+	enum DistanceModel {None,InverseDistance,InverseDistanceClamped};
 
 	/**
 	* Class for setting global parameters.

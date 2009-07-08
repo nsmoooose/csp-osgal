@@ -53,7 +53,7 @@ namespace openalpp {
 		*/
 		ALuint buffer_;
 
-		typedef enum Speaker {Left,Right};
+		enum Speaker {Left,Right};
 
 		/**
 		* Handles distance attenuation and directional sources.

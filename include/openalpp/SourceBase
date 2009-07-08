@@ -32,7 +32,7 @@ namespace openalpp {
 	* source to this state.
 	* The other states should be obvious.
 	*/
-	typedef enum SourceState {Initial,Playing,Paused,Stopped};
+	enum SourceState {Initial,Playing,Paused,Stopped};
 
 	/**
 	* Base class for sources.

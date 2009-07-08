@@ -27,7 +27,7 @@
 
 #define LEAVE_CRITICAL unlock(); 
 
-#ifdef _DEBUG
+#if 0		// #ifdef _DEBUG
 // for memory leak reporting
 #include <crtdbg.h>
 #define DEBUG_NEW new(_NORMAL_BLOCK ,__FILE__, __LINE__)

@@ -46,7 +46,7 @@ namespace openalpp {
 	/**
 	* Format for sound data. Mono/Stereo, 8 or 16 bits.
 	*/
-	typedef enum SampleFormat {Mono8,Stereo8,Mono16,Stereo16};
+	enum SampleFormat {Mono8,Stereo8,Mono16,Stereo16};
 
 	/** 
 	* Base class for enviroment, listener and source classes.

@@ -68,6 +68,9 @@ throw (InitError)
 #else // OPENAL_VERSION < 2005
 		device_=alcOpenDevice("'((direction \"write\")) '((devices '(alsa sdl native null)))");
 #endif // OPENAL_VERSION < 2005
+		// Second try if previous call failed
+		if(!device_)
+			device_=alcOpenDevice(NULL);
 #endif
 		if(!device_)
 			throw InitError("OpenAL++: Couldn't open sound device.");
