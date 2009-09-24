@@ -80,7 +80,8 @@ void SoundRoot::traverse(osg::NodeVisitor &nv)
 
 				osgUtil::CullVisitor *cv = dynamic_cast<osgUtil::CullVisitor *> (&nv);
 
-				osg::Matrix m = *cv->getModelViewMatrix();
+				//osg::Matrix m = *cv->getModelViewMatrix();		// Wrong when the main camera is using RELATIVE_RF
+				osg::Matrixd m = cv->getCurrentCamera()->getViewMatrix();
 
 				if(osgAL::SoundManager::instance()->initialized()) {
 
