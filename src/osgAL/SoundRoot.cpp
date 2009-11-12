@@ -77,8 +77,10 @@ void SoundRoot::traverse(osg::NodeVisitor &nv)
 
 			if (time_to_update && m_update_enabled) {
 				m_last_time = curr_time;
-
-				osgUtil::CullVisitor *cv = dynamic_cast<osgUtil::CullVisitor *> (&nv);
+#ifdef _DEBUG
+				if (dynamic_cast<osgUtil::CullVisitor *>(&nv) != &nv) throw std::exception("Implementation error: should have a osgUtil::CullVisitor");
+#endif
+				osgUtil::CullVisitor *cv = static_cast<osgUtil::CullVisitor *>(&nv);
 
 				//osg::Matrix m = *cv->getModelViewMatrix();		// Wrong when the main camera is using RELATIVE_RF
 				osg::Matrixd m = cv->getCurrentCamera()->getViewMatrix();

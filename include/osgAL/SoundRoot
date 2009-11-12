@@ -55,7 +55,7 @@ namespace osgAL
 		If the NodeVisitor is a CullVisitor the orientation/position and velocity of the
 		listener is updated.
 		*/
-		void traverse(osg::NodeVisitor &nv);
+		virtual void traverse(osg::NodeVisitor &nv);
 
 		void setUpdateEnable(bool flag) { m_update_enabled = flag; }
 		bool getUpdateEnable()  const { return m_update_enabled; }
