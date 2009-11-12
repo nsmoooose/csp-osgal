@@ -47,6 +47,7 @@ namespace openalpp {
 		* @param description is error message to use.
 		*/
 		Error(const char *description) : runtime_error(description)  {}
+		Error(const std::string & description) : runtime_error(description) {}
 
 		/**
 		* Copy constructor.
@@ -77,6 +78,7 @@ namespace openalpp {
 		* @param description is error message to use.
 		*/
 		FatalError(const char *description) : Error(description) {}
+		FatalError(const std::string & description) : Error(description) {}
 	};
 
 	/**
@@ -90,6 +92,7 @@ namespace openalpp {
 		* @param description is error message to use.
 		*/
 		FileError(const char *description) : Error(description) {}
+		FileError(const std::string & description) : Error(description) {}
 	};
 
 	/**
@@ -103,6 +106,7 @@ namespace openalpp {
 		* @param description is error message to use.
 		*/
 		MemoryError(const char *description) : Error(description) {}
+		MemoryError(const std::string & description) : Error(description) {}
 	};
 
 	/**
@@ -116,6 +120,7 @@ namespace openalpp {
 		* @param description is error message to use.
 		*/
 		NameError(const char *description) : Error(description) {}
+		NameError(const std::string & description) : Error(description) {}
 	};
 
 	/**
@@ -129,6 +134,7 @@ namespace openalpp {
 		* @param description is error message to use.
 		*/
 		ValueError(const char *description) : Error(description) {}
+		ValueError(const std::string & description) : Error(description) {}
 	};
 
 	/**
@@ -142,6 +148,7 @@ namespace openalpp {
 		* @param description is error message to use.
 		*/
 		InitError(const char *description) : Error(description) {}
+		InitError(const std::string & description) : Error(description) {}
 	};
 
 	/**

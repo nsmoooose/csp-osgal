@@ -105,7 +105,7 @@ throw (NameError,InitError,FileError) : Stream() , filename_(filename)
 {
 	FILE *filehandle=fopen(filename.c_str(),"rb");
 	if(!filehandle)
-		throw FileError("FileStream: Couldn't open file: ");
+		throw FileError("FileStream: Couldn't open file: " + filename);
 
 	unsigned long	ulFrequency = 0;
 	unsigned long	ulFormat = 0;

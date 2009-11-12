@@ -70,13 +70,13 @@ int main(int argc,char **argv) {
       else if (line == "2") 
         source->stop();
       else if (line == "+") {
-        pitch *= 1.1;
+        pitch *= 1.1f;
         std::cerr << "Setting pitch to: " << pitch << std::endl;
         source->setPitch(pitch);
 
       }
       else if (line=="-"){
-        pitch *= 0.9;
+        pitch *= 0.9f;
         std::cerr << "Setting pitch to: " << pitch << std::endl;
         source->setPitch(pitch);
 
