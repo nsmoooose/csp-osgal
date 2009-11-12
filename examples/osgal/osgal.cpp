@@ -239,7 +239,7 @@ osg::Node* createMovingModel(const osg::Vec3& center, float radius)
 	{
 		const osg::BoundingSphere& bs = glider->getBound();
 
-		float size = radius/bs.radius()*0.3f;
+		osg::BoundingSphere::value_type size = radius/bs.radius()*0.3f;
 		osg::MatrixTransform* positioned = new osg::MatrixTransform;
 		positioned->setDataVariance(osg::Object::STATIC);
 		positioned->setMatrix(osg::Matrix::translate(-bs.center())*
@@ -266,7 +266,7 @@ osg::Node* createMovingModel(const osg::Vec3& center, float radius)
 	{
 		const osg::BoundingSphere& bs = cessna->getBound();
 
-		float size = radius/bs.radius()*0.3f;
+		osg::BoundingSphere::value_type size = radius/bs.radius()*0.3f;
 		osg::MatrixTransform* positioned = new osg::MatrixTransform;
 		positioned->setDataVariance(osg::Object::STATIC);
 		positioned->setMatrix(osg::Matrix::translate(-bs.center())*
