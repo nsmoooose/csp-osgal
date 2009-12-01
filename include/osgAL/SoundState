@@ -82,11 +82,11 @@ namespace osgAL {
 		*/
 		SoundState( const std::string& name, SoundManager *sound_manager );
 
-
+protected:
 		/// Destructor, releases any allocated sound sources
-		~SoundState(); 
+		virtual ~SoundState(); 
 
-
+public:
 		/*!
 		Specify if the SoundState should be enabled or not.
 		If its disabled it will not play no matter what.
