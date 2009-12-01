@@ -249,22 +249,26 @@ SoundManager *SoundManager::instance()
 bool SoundManager::removeSoundState(osgAL::SoundState *state)
 {
 	bool found = false;
-	SoundStateSet::iterator it = m_sound_states.find(state);
-	if (it != m_sound_states.end()) {
-		m_sound_states.erase(it);
-		found = true;
+	{
+		SoundStateSet::iterator it = m_sound_states.find(state);
+		if (it != m_sound_states.end()) {
+			m_sound_states.erase(it);
+			found = true;
+		}
 	}
 	{
 		SoundStateVector::iterator it = m_active_sound_states.begin();
-		for(; it != m_active_sound_states.end(); it++) {
+		for(; it != m_active_sound_states.end();) {
 			if ((*it).get() == state) {
 				// Remove it from the map
-				m_active_sound_states.erase(it);
+				it = m_active_sound_states.erase(it);
 				found = true;
+			}
+			else {
+				++it;
 			}
 		}
 	}
-
 
 	return found;
 }
