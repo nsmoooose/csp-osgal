@@ -26,12 +26,36 @@ OpenThreads -  http://openthreads.sourceforge.net/
 OpenSceneGraph - http://www.openscenegraph.org
 
 
+Important note for Windows users
+--------------------------------
+DISCLAIMER!!
+
+Since November 2003 there is a wrapper system for OpenAL.
+It searches for .dll files called *openal*.dll and loads them, thinking it is an implementation
+of OpenAL32. This does not work with the previous library name of this project (openalpp.lib/.dll).
+So for now it is called oalpp.dll. Its not a nice name, but I cant find out any better solution to this
+problem.
+
+
 Download
----------
+--------
 To build osgAL you first need to download and install OggVorbis, OpenAL, OpenThreads and OpenSceneGraph.
 
-Building osgAL under Linux/Unix
------------------------------------
+
+Cross-platform build (using CMake)
+----------------------------------
+These instructions should work for a large range of platforms:
+- Download and unzip or install CMake (http://www.cmake.org).
+- Follow CMake guides to prepare project files (Such as makefiles, MS-VisualC++ project files...). Basically :
+	- Run the GUI or the command line to configure
+	- Change cache values (Using the GUI or in CMakeCache.txt) according to what is necessary
+	- Repeat until everything is okay
+	- Generate project files
+- Compile using your favorite compiler/IDE.
+
+
+Building osgAL under Linux/Unix (without CMake)
+-----------------------------------------------
 Start by running configure ($ is the prompt):
  $ ./autogen.sh
 This will create the Makefiles. Run configure --help to get information on the
@@ -50,18 +74,9 @@ On some systems we have experienced problems with locking files. ("waiting for a
 
 By default, all the files will be installed under /usr/local (e.g. the include-files under /usr/local/include). This can be changed by using the --prefix flag for autogen.sh (e.g. ./autogen.sh --prefix=/usr).
 
-Windows
--------
 
-
-DISCLAIMER!!
-
-Since November 2003 there is a wrapper system for OpenAL.
-It searches for .dll files called *openal*.dll and loads them, thinking it is an implementation
-of OpenAL32. This does not work with the previous library name of this project (openalpp.lib/.dll).
-So for now it is called oalpp.dll. Its not a nice name, but I cant find out any better solution to this
-problem.
-
+Building under Windows (without CMake)
+--------------------------------------
 
 osgAL has been successfully compiled in windows using Visual C++ 6.0/.NET2000/.NET2003. 
 It should work using other compilers too.
