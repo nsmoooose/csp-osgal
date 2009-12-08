@@ -203,7 +203,7 @@ bool StreamUpdater::update(void *buffer, unsigned int length)
 				break;
 		}
 
-		///Todo: Pause is really not something that is very well implemented right now.
+		///TODO: Pause is really not something that is very well implemented right now.
 		// It only uses state of first source to make out if we are in pause state or not.
 
 		/* a hack to get the paused mode to work, wait for non paused state,

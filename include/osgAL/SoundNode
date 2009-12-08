@@ -59,7 +59,7 @@ namespace osgAL
 
 		/*!
 		Constructor that also associates a sound state and sound manager to this node.
-		Useful on windows when working with multiple apps so that multiple instances are
+		Useful on Windows when working with multiple apps so that multiple instances are
 		not created with the singleton use of SoundManager.
 		*/
 		SoundNode(SoundState *sound_state, SoundManager *sound_manager);

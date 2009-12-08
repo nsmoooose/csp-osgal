@@ -45,19 +45,19 @@
 namespace osgAL {
 	class SoundManager;
 
-	/// Class that encapsulate the settings valid for a soundsource 
+	/// Class that encapsulates the settings valid for a soundsource 
 	/*!
 	This class stores the attributes for a sound source. It can exist with a sound source
 	allocated to it, (hasSource() == true) which makes it the same thing as a sound source.
 	Otherwise, it works as a placeholder (state) for a sound source. It can
-	be assigned a sound source at anytime. Then apply() is called and it has a sound source
+	be assigned a sound source at any time. Then apply() is called and if it has a sound source
 	the actual settings will be performed.
-	It a state has a sound source all the set*() method calls apply automatically.
+	If a state has a sound source all the set*() method calls apply automatically.
 	*/
 	class OSGAL_EXPORT SoundState : public osg::Object
 	{
 	private:
-		/// Specifies what field that has been set.
+		/// Specifies what field has been set.
 		enum SetField { Gain, Looping, Ambient, Relative, SoundCone, ReferenceDistance, RolloffFactor, 
 			Stream, Sample, Pitch, Position, Direction, Velocity, MaxDistance, Play, Occluded, Last };
 
@@ -91,10 +91,10 @@ public:
 		Specify if the SoundState should be enabled or not.
 		If its disabled it will not play no matter what.
 		It cannot be pushed as a soundEvent to the SoundMgr
-		If the soundstate has a soundsources allocated it will stop playing.
+		If the soundstate has a soundsource allocated it will stop playing.
 		It not, the setPlay(false) method will be called
-		All parameters can be changed, but it cant be played.
-		This will ensure that noone can make a SoundState wich is disabled play, unless they enable it.
+		All parameters can be changed, but it can't be played.
+		This will ensure that no-one can make a SoundState which is disabled play, unless they enable it.
 		*/
 		void setEnable(bool flag);
 
@@ -179,13 +179,13 @@ public:
 		/// Set the soundstate in ambient (no attenuation will be calculated)
 		void setAmbient(bool flag) {  m_ambient = flag; set(Ambient); if (m_source.valid()) apply(); }
 
-		/// Get the soundstate in ambient (no attenuation will be calculated)
+		/// Get if the soundstate in ambient (no attenuation will be calculated)
 		bool getAmbient() const {  return m_ambient; }
 
 		/// Set the soundstate so it will always be relative to the listener in position
 		void setRelative(bool flag) { m_relative = flag; set(Relative); if (m_source.valid()) apply(); }
 
-		/// Get the soundstate so it will always be relative to the listener in position
+		/// Get if the soundstate will always be relative to the listener in position
 		bool getRelative() const { return m_relative; }
 
 
@@ -216,22 +216,22 @@ public:
 		/// Get the reference distance for the SoundState
 		float getReferenceDistance() const { return m_referenceDistance; }
 
-		/*! Set the maximum distance for the SoundState, that is further away from the listener the source will be
-		turned of when in the InverseClamp sound mode 
+		/*! Set the maximum distance for the SoundState. Further away from the listener the source will be
+		turned off when in the InverseClamp sound mode 
 		1.0 is default
 		*/
 		void setMaxDistance(float max) { m_maxDistance = max; set(MaxDistance); if (m_source.valid()) apply(); }
 
-		/*! Get the maximum distance for the SoundState, that is further away from the listener the source will be
+		/*! Get the maximum distance for the SoundState. Further away from the listener the source will be
 		turned of when in the InverseClamp sound mode 
 		1.0 is default
 		*/
 		float getMaxDistance() const { return m_maxDistance; }
 
-		/// Specifies the roll of factor for the SoundState, 1.0 is default
+		/// Specifies the roll-off factor for the SoundState, 1.0 is default
 		void setRolloffFactor(float roll) {m_rolloffFactor = roll; set(RolloffFactor); if (m_source.valid()) apply(); }
 
-		/// Return the roll of factor for the SoundState, 1.0 is default
+		/// Return the roll-off factor for the SoundState, 1.0 is default
 		float getRolloffFactor() const {return m_rolloffFactor; }
 
 		/// Set the pitch (rate) for the SoundState (1.0 is default)
@@ -243,7 +243,7 @@ public:
 		/// Starts to play the SoundState
 		void setPlay(bool flag) { m_play = flag; set(Play); if (m_source.valid()) apply(); }
 
-		/// Return if the soundstate will play
+		/// Return if the soundstate is playing
 		bool getPlay() { return m_play; }
 
 		void setOccludeDampingFactor(float d) { m_occlude_damping_factor = d; }
@@ -255,7 +255,7 @@ public:
 		void setOccluded(bool f) { m_is_occluded = f; set(Occluded); if (m_source.valid()) apply(); }
 		bool getOccluded() const { return m_is_occluded; }
 
-		/// Set whether paus or stop should be used when calling setPlay(false) 
+		/// Set whether pause or stop should be used when calling setPlay(false) 
 		void setStopMethod(openalpp::SourceState s) 
 		{ 
 			if ( s == openalpp::Paused ) 
@@ -267,7 +267,7 @@ public:
 		/// Returns true if there is a source and it is playing
 		bool isPlaying() { return (m_source.valid() && m_source->getState() == openalpp::Playing); }
 
-		/// Returns with const true if there is a source and it is playing
+		/// const Returns true if there is a source and it is playing
 		bool isPlaying() const { return (m_source.valid() && m_source->getState() == openalpp::Playing); }
 
 		// Get stop method -  used by openalpp when calling setPlay(false)
@@ -281,15 +281,12 @@ public:
 
 		/*! Allocates a soundsource for this soundstate
 		\param priority - This priority is used when fighting with other active soundstates for the limited resource of SoundSources.
-		If a active (playing) SoundState has a lower priority than this, it will be discarded, and the sound source will be used for this
-		SoundState
-		\param priority - The priority of this state. The higher, the better chance of actually
-		get a Sound source allocated.
-		\param registrate_as_active - This specifies wether the Allocated SoundSource will be added to the list of active SoundSources,
-		in that case it can be 
+		If an active (playing) SoundState has a lower priority than this, it will be discarded, and the sound source will be used for this
+		SoundState. The higher, the better chance of actually get a Sound source allocated.
+		\param register_as_active - This specifies whether the Allocated SoundSource will be added to the list of active SoundSources
 		\return true if a source was successfully allocated.
 		*/
-		bool allocateSource(unsigned int priority=0, bool registrate_as_active=true); 
+		bool allocateSource(unsigned int priority=0, bool register_as_active=true); 
 
 		/// Return the priority set for this SoundState
 		unsigned int getPriority() const { return m_priority; }

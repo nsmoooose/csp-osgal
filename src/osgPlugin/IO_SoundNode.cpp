@@ -50,7 +50,7 @@ bool SoundNode_readLocalData(osg::Object &obj, osgDB::Input &fr)
 	SoundNode &sn = static_cast<SoundNode&>(obj);
 
 	/************************************************************************
-	* Using this code, apps like osgviewer could use this kind of nodes ans works,
+	* Using this code, apps like osgviewer could use this kind of nodes and work,
 	* but they will exit with crash !
 	************************************************************************/
 

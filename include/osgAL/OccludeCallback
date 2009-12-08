@@ -37,14 +37,14 @@ namespace osgAL {
 	/// Class to calculate occlusion between the listener and the soundsource
 	/*!
 	OccludeCallback is executed from a SoundNode during traversal of the scene containing the soundnode.
-	By analyzing if the sight is free by shooting a ray from the listener towards the soundnode, 
+	By analyzing if the line-of-sight is free by shooting a ray from the listener towards the soundnode, 
 	a damping factor is applied to the gain of the soundstate for the current sound node.
 
 	Currently only one ray is shot from the center of the listener to the center of the soundsource, instead
 	of one per ear.
 
 	The operator() method is executed both when the source is occluded as well as it is not.
-	operator() implements the actually occlusion functionality.
+	operator() implements the actual occlusion functionality.
 
 	The default one, interpolates the damping over a short timeperiod trying to avoid clicks...
 
@@ -54,7 +54,7 @@ namespace osgAL {
 
 		/*!
 		Constructor.
-		\param root - The intersection ray will be shot at root:s all childrens.
+		\param root - The intersection ray will be shot at all root's children.
 		*/
 		OccludeCallback(osg::Node *root);
 
@@ -74,23 +74,23 @@ namespace osgAL {
 		/// Returns the specified distance between the ears
 		float getEarDistance() const { return m_ear_distance; }
 
-		/// If the ray hit an object outstide this distance from the sound node, it is culled
+		/// If the ray hit an object outside this distance from the sound node, it is culled
 		void setNearThreshold(float t) { m_near_threshold = t; }
 
 		///
 		float getNearThreshold() const { return m_near_threshold; }
 
-		/// Set the node that will occlude the sound
+		/// Set the node tree that will tested to possibly occlude the sound
 		void setOccludingNode(osg::Node *root) {
 			m_root = root;
 		}
 
-		/// Get the node that will occlude the sound
+		/// Get the node tree that will tested to possibly occlude the sound
 		osg::Node * getOccludingNode() {
 			return m_root.get();
 		}
 
-		/// Get in const the node that will occlude the sound
+		/// Get the const node tree that will tested to possibly occlude the sound
 		const osg::Node * getOccludingNode() const {
 			return m_root.get();
 		}     
@@ -116,7 +116,7 @@ namespace osgAL {
 		float m_ear_distance;
 		float m_near_threshold;
 
-		//was the sound node occluded last frame?
+		// was the sound node occluded last frame?
 		bool m_was_occluded;
 		const double m_delay;	
 

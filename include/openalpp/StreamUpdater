@@ -102,8 +102,7 @@ namespace openalpp {
 		bool update(void *buffer,unsigned int length); 
 
 		/**
-		Tell the thread to stop executing, also release it if its waiting to play.
-		@return nothing
+		Tell the thread to stop executing, also release it if it is waiting to play.
 		*/
 		virtual void stop() { stoprunning_ = true; release(); }
 
@@ -166,7 +165,7 @@ namespace openalpp {
 
 		std::vector<ALuint> sources_,newsources_,removesources_;
 		/**
-		* Flag for when Run should stop running..
+		* Flag for when Run should stop running.
 		*/ 
 		bool stoprunning_;
 

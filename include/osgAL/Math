@@ -13,7 +13,7 @@
 
 namespace osgAL {
 
-/// Lineary interpolate from a to b using s = {0,..1}
+/// Linearly interpolate from a to b using s = {0,..1}
 template<typename T>
 inline T const mix(T const& a, T const& b, float s)
 {
@@ -40,7 +40,7 @@ inline T const& max(T const& a, T const& b)
   return (a > b ? a : b);
 }
 
-/// Return the greatest item of a and b
+/// Clamp x to fall between a and b
 template<typename T>
 inline T const& clamp(T const& x, T const& min, T const& max)
 {

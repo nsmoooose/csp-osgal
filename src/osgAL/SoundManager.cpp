@@ -156,13 +156,13 @@ void SoundManager::shutdown()
 SoundManager::~SoundManager()
 {
 
-	// If we are still initalized, then someone have forgotten to call
+	// If we are still initalized, then someone has forgotten to call
 	// shutdown() before we get here.
-	// This is because we cant shut down openal outside main() (it crashes in windows).
-	// This deconstructor is called outside main due to that it is a singleton.
+	// This is because we can't shut down openAL outside main() (it crashes in Windows).
+	// This destructor is called outside main because it is a singleton.
 	if (initialized()) {
 		std::string msg;
-		msg = "SoundManager::shutdown() should be called for the SoundManager before the deconstructor is called";
+		msg = "SoundManager::shutdown() should be called for the SoundManager before the destructor is called";
 		osg::notify(osg::WARN) << "SoundManager::~SoundManager(): " << msg << std::endl;
 		//throw std::runtime_error("SoundManager::~SoundManager(): " + msg);
 	}
@@ -173,7 +173,7 @@ openalpp::Source *SoundManager::getSource(unsigned int priority, bool registrate
 
 	// Check for eternal recursion
 	if (depth > 1)
-		throw std::runtime_error("SoundManager::getSource(): Internal error, I can´t seem to get a free SoundSource, no matter how I try");
+		throw std::runtime_error("SoundManager::getSource(): Internal error, I can't seem to get a free SoundSource, no matter how I try");
 
 	// Is there a soundsource available?
 	if (m_available_soundsources.size()) {
@@ -189,7 +189,7 @@ openalpp::Source *SoundManager::getSource(unsigned int priority, bool registrate
 
 		//warning("getSource") << "After get: Avail soundsources: " << m_available_soundsources.size() << std::endl;
 
-		// Should we registrate this as an active soundsource (which can be reallocated by someone requesting it with higher priority)
+		// Should we register this as an active soundsource (which can be reallocated by someone requesting it with higher priority)
 		if (registrate_as_active)
 			m_active_soundsources.push_back( std::make_pair(priority, source) );
 
@@ -198,7 +198,7 @@ openalpp::Source *SoundManager::getSource(unsigned int priority, bool registrate
 		return source;
 	}
 
-	// No soundsources available. Is there a non-looping soundsource with lower priority
+	// No soundsources available. Is there a non-looping soundsource with lower priority?
 	ActiveSourceVector::iterator smi;
 
 	for(smi=m_active_soundsources.begin(); smi != m_active_soundsources.end(); smi++) {
@@ -211,7 +211,7 @@ openalpp::Source *SoundManager::getSource(unsigned int priority, bool registrate
 			update();
 
 			//warning("getSource") << "No source avail got one, Active sound sources: " << m_active_soundsources.size() << std::endl;     
-			// Now as there shold be one source available, lets get that one by doing a recursive call to this method
+			// Now as there shold be one source available, let's get that one by doing a recursive call to this method
 			return getSource(priority, registrate_as_active, depth++);
 
 		}
@@ -295,7 +295,7 @@ void SoundManager::releaseSource(openalpp::Source *source)
 
 	assert(source && "Invalid null pointer for Source");
 
-	// Stop the source if its playing
+	// Stop the source if it is playing
 	source->stop();
 
 	// Check if this source is one of the active sources, then remove it from the list
@@ -311,17 +311,17 @@ void SoundManager::releaseSource(openalpp::Source *source)
 		}
 
 		// Return it back to the pool of available sources
-		// I should probably loop over to make sure were not adding it twice
+		// I should probably loop over to make sure we're not adding it twice
 		m_available_soundsources.push_back(source);
 		//warning("releaseSource") << "Avail sources:  " << m_available_soundsources.size() << std::endl;
 }
 
 
-// Move any non playing soundsources to the list of available soundsources
+// Move any non-playing soundsources to the list of available soundsources
 void SoundManager::update()
 {
 	// Loop over list of all active SoundStates, if the associated source for the SoundState is 
-	// finished playing, then move the SoundState back to theSoundStateFlyWeight.
+	// finished playing, then move the SoundState back to the SoundStateFlyWeight.
 	SoundStateVector::iterator ssv;
 
 	for(ssv = m_active_sound_states.begin(); ssv != m_active_sound_states.end(); ssv++) {
@@ -350,7 +350,7 @@ void SoundManager::stopAllSources()
 void SoundManager::processQueuedSoundStates()
 {
 	// Go through the queue until there are either no events left or no more soundsources.
-	// for each SoundEvent, allocate a source and call apply for it with its soundsource
+	// For each SoundEvent, allocate a source and call apply for it with its soundsource
 	// also, when getting it from the queue, add it to a list of active SoundStates.
 	SoundState *state=0L;
 
@@ -411,7 +411,7 @@ openalpp::Sample* SoundManager::getSample( const std::string& path, bool add_to_
 			sample = 0;
 		}
 		// if the loading of the model was successful, store the sample in the cache
-		// except if the shutdownuser have indicated that it shouldnt be added to the cache
+		// except if the user have indicated that it shouldn't be added to the cache
 		if (sample && add_to_cache) {
 			m_sample_cache.insert(SampleMapValType(path, sample));
 		}
@@ -489,7 +489,7 @@ void SoundManager::setListenerMatrix( const osg::Matrixd& matrix)
 
 	osg::Vec3 eye_pos, up_vector, look_vector, center;
 
-	osg::Matrixd m(matrix); // Just until the getLookAt is const declarated
+	osg::Matrixd m(matrix); // Just until getLookAt is const
 	m.getLookAt(eye_pos, center, up_vector);
 
 	look_vector = center - eye_pos;

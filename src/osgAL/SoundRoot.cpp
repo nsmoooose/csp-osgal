@@ -62,7 +62,7 @@ void SoundRoot::traverse(osg::NodeVisitor &nv)
 	if (nv.getVisitorType() == osg::NodeVisitor::CULL_VISITOR) {
 
 		// Make sure we only execute this once during this frame.
-		// could be two or more for stereo/multipipe...
+		// There could be two or more culls for stereo/multipipe...
 		if ( nv.getTraversalNumber() != m_last_traversal_number && nv.getFrameStamp())
 		{
 

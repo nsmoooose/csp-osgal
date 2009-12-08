@@ -80,7 +80,7 @@ void SoundNode::traverse(osg::NodeVisitor &nv)
 	if (nv.getVisitorType() == osg::NodeVisitor::CULL_VISITOR) {
 
 		// Make sure we only execute this once during this frame.
-		// could be two or more for stereo/multipipe...
+		// There could be two or more culls for stereo/multipipe...
 		if (!m_sound_state.valid()) {
 			// call the inherited method
 			osg::notify(osg::DEBUG_INFO) << "SoundNode::traverse() No soundstate attached to soundnode" << std::endl;
@@ -138,7 +138,7 @@ void SoundNode::traverse(osg::NodeVisitor &nv)
 				dir.normalize();
 				m_sound_state->setDirection(dir);      
 
-				//Only do occlusion calculations if the sound is playing
+				// Only do occlusion calculations if the sound is playing
 				if (m_sound_state->getPlay() && m_occlude_callback.valid())
 					m_occlude_callback->apply(m_sound_manager->getListenerMatrix(), pos, this);
 			} // if

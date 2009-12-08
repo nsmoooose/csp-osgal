@@ -38,7 +38,7 @@ namespace openalpp {
 		runmutex_.enterMutex();
 		while(!stoprunning_) {
 			runmutex_.leaveMutex();
-			// TODO: Make the timeout dependant on how long it would take to play
+			// TODO: Make the timeout dependent on how long it would take to play
 			// one buffer. If it takes too long, just fill up with zeros and Update.
 			if(socket_->isPending(ost::Socket::pendingInput,100)) {
 				len=socket_->receive(&(buffer[received]),buffersize_-received);

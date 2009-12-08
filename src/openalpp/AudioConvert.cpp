@@ -26,7 +26,7 @@
 
 /*
 * TODO: The code in this file is copied from AL source.. I did this 
-* so I wouldn't be depending on people having the linux source, but I didn't
+* so I wouldn't be depending on people having the Linux source, but I didn't
 * realise it would be so much... I'll fix it up a bit, i.e. make it C++ code.
 * I'll also try to figure out if I really need all of this, as it's pretty
 * general code.
@@ -734,7 +734,7 @@ int acBuildAudioCVT(acAudioCVT *cvt,
 /*
 * _al_AC2ALFMT( ALuint acformat, ALuint channels )
 *
-* Returns the openal format equivilant to the audioconvert format acformat,
+* Returns the OpenAL format equivalent to the audioconvert format acformat,
 * with the number of channels specified by channels.
 */
 ALenum _al_AC2ALFMT( ALuint acformat, ALuint channels ) {
@@ -761,7 +761,7 @@ ALenum _al_AC2ALFMT( ALuint acformat, ALuint channels ) {
 /*
 * _al_AL2ACFMT( ALenum alfmt )
 *
-* Returns the equivilant (sort of) audioconvert format specified by alfmt.
+* Returns the equivalent (sort of) audioconvert format specified by alfmt.
 * audioconvert formats do not have channel information, so this should be
 * combined with _al_ALCHANNELS.
 */

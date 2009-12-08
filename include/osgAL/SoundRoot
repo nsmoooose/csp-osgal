@@ -35,7 +35,7 @@
 namespace osgAL
 {
 
-	/// A node that updates the transformation of the listener. Should traversed before any SoundNode nodes
+	/// A node that updates the transformation of the listener. Should be traversed before any SoundNode nodes
 	/**
 	This class updates the internal state of the osgAL::SoundManager during cull traversal from the current 
 	modelView matrix.
@@ -65,7 +65,6 @@ namespace osgAL
 
 		/// Destructor
 		virtual ~SoundRoot() {}
-
 
 		/// Copy constructor
 		SoundRoot(const SoundRoot &copy, const osg::CopyOp &copyop = osg::CopyOp::SHALLOW_COPY);

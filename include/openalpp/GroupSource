@@ -67,7 +67,7 @@ namespace openalpp {
 		* @param source is (a pointer to) the source.
 		* @param buffer is (a pointer to) the buffer (=memory area).
 		* @param size is the size of the buffer.
-		* @param frequency is the freguency of the sound.
+		* @param frequency is the frequency of the sound.
 		* @return new pointer to buffer.
 		*/
 		ALshort *filterReverb(Source *source,ALshort *buffer,

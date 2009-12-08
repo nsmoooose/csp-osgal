@@ -31,8 +31,8 @@ m_was_occluded(false), m_delay(10)
 {
 }
 
-/// we set here a empty node. This constructor must be called by osg when reading a file,
-/// and later will be set the real node.
+/// Here we set an empty node. This constructor is called by osg when reading a file,
+/// and later will the real node will be set.
 OccludeCallback::OccludeCallback() : m_root(new osg::Node()), m_sound_node(0L), m_ear_distance(0.2), m_near_threshold(0.1f),
 m_was_occluded(false), m_delay(10)
 {
@@ -84,7 +84,7 @@ void OccludeCallback::apply(const osg::Matrix& listener_matrix, const osg::Vec3&
 
 	osg::Matrix m = listener_matrix.inverse(listener_matrix);
 
-	// Now shoot a ray from the ear to the source, see if it hits anything.
+	// Now shoot a ray from the ear to the source and see if it hits anything.
 	osgUtil::IntersectVisitor iv;
 	osg::ref_ptr<osg::LineSegment> left = new osg::LineSegment;
 
@@ -118,11 +118,11 @@ void OccludeCallback::apply(const osg::Matrix& listener_matrix, const osg::Vec3&
 		}
 	}
 
-	// If its not occluded this frame but it was the previous, restore the state
+	// If it is not occluded this frame but it was the previous, restore the state
 	if (!occluded)
 		this->operator ()(0, NULL, false, false);
 
-	// save the state of the occlusion to next frame
+	// save the state of the occlusion for next frame
 	m_was_occluded = occluded;    
 }
 

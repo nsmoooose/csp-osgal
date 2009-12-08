@@ -54,22 +54,22 @@ namespace osgAL
 	a schema has to be set up.
 
 	This class initially initializes sound sources and places them into a pool of available sources.
-	Whenever someone calls allocateSource() the sound manager tries to free a source
+	Whenever someone calls allocateSource() the SoundManager tries to free a source
 	and return a pointer to it. If there are no sources available it goes through the 
 	active sources and tries to find one with a lower priority. If it still fails, an exception is
 	thrown.
 	Otherwise the found source is returned.
 
-	The allocateSource() has an argument indicating that if the source should be placed in the
+	The allocateSource() has an argument indicating if the source should be placed in the
 	list of active sources. If this argument is false, the caller is responsible to
 	call releaseSource() when finished using the source.
 
 	SoundManager also handles SoundStates.
-	Whenever pushSoundEvent() is called, a FlyWeight set of SoundStates is inquired for a free SoundState.
+	Whenever pushSoundEvent() is called, a FlyWeight set of SoundStates is checked for a free SoundState.
 	The argument of pushSoundEvent() is copied to the free SoundState and that SoundState
 	is then pushed to the queue of waiting SoundStates.
 
-	When SoundManager::update() is called, the queue of waiting SoundStates is inquired and for each
+	When SoundManager::update() is called, the queue of waiting SoundStates is checked and for each
 	SoundState a Source is allocated.
 	When the SoundManager realizes that a SoundState is not playing anymore, it is removed from
 	the list of active SoundStates and put back in to the FlyWeight set of available SoundStates.
@@ -85,12 +85,12 @@ namespace osgAL
 		static SoundManager* instance( void );
 
 		/*! Deallocates any allocated memory, this method have to be called prior to the end of main()
-		OpenAL doesnt like destruction of sources outside the main() function.
+		OpenAL doesn't like destruction of sources outside the main() function.
 		*/
 		virtual void shutdown();
 
 
-		/// Returns true if the SoundManager is initalized
+		/// Returns true if the SoundManager is initialized
 		bool initialized() { return m_initialized; }
 
 
@@ -108,7 +108,7 @@ namespace osgAL
 		Return a pointer to a Sample.
 		Each Sample will be stored in a cache with its associated path (if add_to_cache is true)
 		Each call to getSample will first look in the cache and try to find the
-		path there. If it can be found, it will return to that Sample.
+		path there. If it can be found, it will return that Sample.
 		Otherwise it will be loaded from disk.
 		*/
 		openalpp::Sample* getSample( const std::string& path, bool add_to_cache=true );
@@ -123,7 +123,7 @@ namespace osgAL
 		Return a pointer to a Stream
 		Each Stream will be stored in a cache with its associated path.
 		Each call to getStream will first look in the cache and try to find the
-		path there. If it can be found, it will return to that Stream.
+		path there. If it can be found, it will return that Stream.
 		Otherwise it will be loaded from disk.
 		*/
 		openalpp::Stream* getStream( const std::string& path, bool add_to_cache=true );
@@ -135,7 +135,7 @@ namespace osgAL
 
 
 		/*!
-		Return a pointer to the SoundState with the name id.
+		Return a pointer to the SoundState with the name "id".
 		\return Null if no matching SoundState can be found.
 		*/
 		SoundState *findSoundState(const std::string& id);
@@ -166,7 +166,7 @@ namespace osgAL
 		*/
 		void addSoundState(osgAL::SoundState *state) { m_sound_states.insert(state); }
 
-		/// Removes the sound state from the list of existing soundstates
+		/// Removes the named sound state from the list of existing soundstates
 		bool removeSoundState(const std::string& id);
 
 		/*!
@@ -176,9 +176,9 @@ namespace osgAL
 
 
 		/*!
-		To make it possible to flip left and right ear for the listner this vector specified
-		will be multiplied with the up vector everytime the orientation of the listener is calculated
-		The default value is (1, 1, 1). Make sure not to set anyone to zero, this will be caught
+		To make it possible to flip left and right ear for the listener this vector specified
+		will be multiplied with the up vector every time the orientation of the listener is calculated
+		The default value is (1, 1, 1). Make sure not to set any component to zero, this will be caught
 		and an exception will be thrown.
 		*/
 		void setListenerDirection(const osg::Vec3& dir); 
@@ -193,7 +193,7 @@ namespace osgAL
 
 		/*!
 		Tries to find an available sound Source
-		\param if mutual_use then the source is registrated in the soundmanager as a source that can be
+		\param if mutual_use then the source is registered in the soundmanager as a source that can be
 		reused by a call to getSource with higher priority.
 		If on the other hand mutual_use is false, then it is allocated 
 		\return Pointer to an available sound Source
@@ -201,21 +201,21 @@ namespace osgAL
 		openalpp::Source *allocateSource(unsigned int priority, bool mutual_use=true) { return getSource(priority, mutual_use); }
 
 
-		/// Set the maximum velocity used in doppler calculation
+		/// Set the maximum velocity used in Doppler calculation
 		void setMaxVelocity(float vel) { m_max_velocity = (float)fabs(vel); }
 
-		/// Returns the maximum velocity used in doppler calculation
+		/// Returns the maximum velocity used in Doppler calculation
 		float getMaxVelocity() const { return m_max_velocity; }
 
 		/*!
-		Returns the number of free and available SoundSoures for allocation.
-		Should be between 0 .. getNumSources()
+		Returns the number of free and available SoundSources for allocation.
+		Should be between 0 ... getNumSources()
 		*/
 		unsigned int getNumAvailableSources() { return m_available_soundsources.size(); }
 
 		/*!
 		Returns the number of initialized SoundSources.
-		Should be between 0..
+		Should be between 0...?
 		*/
 		unsigned int getNumSources() { return m_soundsources.size(); }
 
@@ -226,7 +226,7 @@ namespace osgAL
 
 		/*!
 		Returns the number of SoundSources currently in use.
-		Should be between 0..getNumSources()
+		Should be between 0...getNumSources()
 		*/
 		unsigned int getNumActiveSources() { return m_active_soundsources.size(); }
 
@@ -239,7 +239,10 @@ namespace osgAL
 		/// Get const true if the velocity is clamped (using the MaxVelocity attribute)
 		const bool getClampVelocity() const { return m_clamp_velocity; }
 
-		/// Set the update frequency for both sources and listener, to update pos, dir and occlusions
+		/*!
+		Set the update frequency for both sources and listener, to update pos, dir and occlusions
+		\param frequency Not actually a frequency (in Hz) but rather an interval in floating-point seconds.
+		*/
 		void setUpdateFrequency( float frequency ) { 
 			if(frequency < 0) m_update_frequency = 1/100.0;
 			else m_update_frequency = frequency;
@@ -344,7 +347,7 @@ namespace osgAL
 	inline openalpp::Listener *SoundManager::getListener()
 	{ 
 		if (!m_initialized) {
-			throw std::runtime_error("SoundManager::getListener(): No sound system inialized");
+			throw std::runtime_error("SoundManager::getListener(): No sound system initialized");
 			return 0L;
 		}
 		return m_listener.get(); 
@@ -353,7 +356,7 @@ namespace osgAL
 	inline openalpp::AudioEnvironment *SoundManager::getEnvironment() 
 	{ 
 		if (!m_initialized) {
-			throw std::runtime_error("SoundManager::getEnvironment(): Soundsystem is not inialized");
+			throw std::runtime_error("SoundManager::getEnvironment(): Soundsystem is not initialized");
 			return 0L;
 		}
 		return m_sound_environment.get(); 

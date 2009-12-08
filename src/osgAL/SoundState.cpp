@@ -101,7 +101,7 @@ SoundState& SoundState::operator=(const SoundState& state)
 		if (!allocateSource(m_priority))
 			throw std::runtime_error("SoundState::operator=():  No soundsources available during Assignment");
 
-	// Indicate that all fields has been changed
+	// Indicate that all fields have been changed
 	setAll(true);
 
 	return *this;
@@ -109,9 +109,9 @@ SoundState& SoundState::operator=(const SoundState& state)
 
 
 
-bool SoundState::allocateSource(unsigned int priority, bool registrate_as_active) 
+bool SoundState::allocateSource(unsigned int priority, bool register_as_active) 
 { 
-	m_source= m_sound_manager->allocateSource(priority, registrate_as_active);
+	m_source= m_sound_manager->allocateSource(priority, register_as_active);
 
 	if (!m_source.valid()) 
 		return false;

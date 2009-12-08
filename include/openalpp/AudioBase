@@ -49,12 +49,12 @@ namespace openalpp {
 	enum SampleFormat {Mono8,Stereo8,Mono16,Stereo16};
 
 	/** 
-	* Base class for enviroment, listener and source classes.
+	* Base class for environment, listener and source classes.
 	* Takes care of initialisation/shutdown of anything necessary (e.g. ALut)
 	*/
 	class OPENALPP_API AudioBase : public osg::Referenced {
 		/**
-		* Counter for #instances for enviroment, listener and source classes.
+		* Counter for #instances for environment, listener and source classes.
 		* Used to determine when init and shutdown functions should be called
 		*/
 		static int instances_;
@@ -81,7 +81,7 @@ namespace openalpp {
 		* Constructor.
 		* @param frequency is the output frequency, in Hz.
 		* @param refresh is the refresh rate, in Hz.
-		* @param is a flag for syncronous context. Values <0 indicates that the
+		* @param is a flag for synchronous context. Values <0 indicates that the
 		* default should be used.
 		*/
 		AudioBase(int frequency=-1,int refresh=-1,int synchronous=-1)

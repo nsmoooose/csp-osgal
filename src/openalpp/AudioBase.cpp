@@ -154,9 +154,9 @@ const char *openalpp::alGetErrorString(ALenum error)
 	case (AL_INVALID_OPERATION):
 		return "Illegal call.";
 	case (AL_OUT_OF_MEMORY):
-		return "Óut of memory.";
+		return "Out of memory.";
 	default:
-		return "No message associated wíth error code.";
+		return "No message associated with error code.";
 
 	}
 	return "";

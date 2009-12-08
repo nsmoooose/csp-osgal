@@ -72,10 +72,10 @@ namespace openalpp {
 		/**
 		* Constructor.
 		* The parameters are ignored if this isn't the first object to be
-		* instatiated of the AudioBase descendants.
-		* @param frequency is the playing frequency of the enviroment (in Hz)
-		* @param refresh is the refresh rate of the enviroment (in Hz)
-		* @param synchronous is true if the enviroment is synchronous
+		* instantiated of the AudioBase descendants.
+		* @param frequency is the playing frequency of the environment (in Hz)
+		* @param refresh is the refresh rate of the environment (in Hz)
+		* @param synchronous is true if the environment is synchronous
 		*/
 		AudioEnvironment(int frequency,int refresh,bool synchronous)
 			throw (InitError);
@@ -84,37 +84,37 @@ namespace openalpp {
 		/**
 		* Constructor.
 		* The parameters are ignored if this isn't the first object to be
-		* instatiated of the AudioBase descendants.
-		* @param frequency is the playing frequency of the enviroment (in Hz)
-		* @param refresh is the refresh rate of the enviroment (in Hz)
+		* instantiated of the AudioBase descendants.
+		* @param frequency is the playing frequency of the environment (in Hz)
+		* @param refresh is the refresh rate of the environment (in Hz)
 		*/
 		AudioEnvironment(int frequency,int refresh=-1)
 			throw (InitError);
 
 		/**
-		* Sets the speed of sound in the enviroment.
-		* This is used in doppler calculations.
+		* Sets the speed of sound in the environment.
+		* This is used in Doppler calculations.
 		* @param speed is the speed of sound in length units per second.
 		*/
 		void setSoundVelocity(float speed) throw (ValueError,FatalError);
 
 		/**
-		* Get the speed of sound in the enviroment.
+		* Get the speed of sound in the environment.
 		* @return speed of sound in length units per second.
 		*/
 		float getSoundVelocity() throw (FatalError);
 
 		/**
-		* Sets the doppler factor.
+		* Sets the Doppler factor.
 		* This can be used to exaggerate, deemphasize or completely turn off the
-		* doppler effect.
+		* Doppler effect.
 		* @param factor has a default value of one.
 		*/
 		void setDopplerFactor(float factor) throw (ValueError,FatalError);
 
 		/**
-		* Gets the doppler factor.
-		* @return doppler factor.
+		* Gets the Doppler factor.
+		* @return Doppler factor.
 		*/
 		float getDopplerFactor() throw (FatalError);
 
@@ -122,7 +122,7 @@ namespace openalpp {
 		* Sets global gain (volume).
 		* The volume a source will be played at will be multiplied by this _after_
 		* the attenuation calculations.
-		* Note: In todays's implementation on Linux, gain is clamped to [0.0,1.0].
+		* Note: In today's implementation on Linux, gain is clamped to [0.0,1.0].
 		* This will be changed in future releases of OpenAL.
 		* @param gain is the gain [0.0,...
 		*/

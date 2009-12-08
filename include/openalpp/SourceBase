@@ -109,7 +109,7 @@ namespace openalpp {
 
 		/**
 		* Sets the sound cone parameters for a directional sound source.
-		* This function has no effect on omni-directional sources. Two cones,  with
+		* This function has no effect on omni-directional sources. Two cones, with
 		* the top at the source, and turned the same direction as the source,
 		* are defined by this. Inside the inner cone (specified by innerangle),
 		* sound will be played at full volume (attenuated by distance), and
@@ -135,7 +135,7 @@ namespace openalpp {
 		* Sets gain (volume).
 		* The volume a source will be played at will be multiplied by this _after_
 		* the attenuation calculations.
-		* Note: In todays's implementation on Linux, gain is clamped to [0.0,1.0].
+		* Note: In today's implementation on Linux, gain is clamped to [0.0,1.0].
 		* This will be changed in future releases of OpenAL.
 		* @param gain is the gain [0.0,...
 		*/
@@ -156,7 +156,7 @@ namespace openalpp {
 		void setMinMaxGain(float min = 0.0, float max = 1.0);
 
 		/**
-		* Gets maximum and minumum gain.
+		* Gets maximum and minimum gain.
 		* @param min is minimum gain.
 		* @param max is maximum gain.
 		*/
@@ -220,13 +220,13 @@ namespace openalpp {
 		/**
 		* Sets the roll-off factor.
 		* This is used in distance attenuation calculations.
-		* @param factor is the rolloff factor.
+		* @param factor is the roll-off factor.
 		*/
 		void setRolloffFactor(float factor = 1.0);
 
 		/**
 		* Gets the roll-off factor.
-		* @return rolloff factor.
+		* @return roll-off factor.
 		*/
 		float getRolloffFactor() const;
 

@@ -61,7 +61,7 @@ Source::~Source() {
 	sounddata_ = 0L;
 }
 
-// TODO: Add flag for wether the sound should be loaded. This is useful for
+// TODO: Add flag for whether the sound should be loaded. This is useful for
 // dummy sources that will be used only for groupsources.
 void Source::setSound(const std::string& filename) {
 	streaming_=false;

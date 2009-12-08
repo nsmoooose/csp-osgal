@@ -47,7 +47,7 @@ namespace openalpp {
 		/**
 		* Constructor.
 		* @param device is the number of the device (as PortAudio reports it).
-		* TODO: Change this to something non-portaudio dependant.
+		* TODO: Change this to something non-portaudio dependent.
 		* @param frequency is the desired recording frequency.
 		* @param buffersize is the desired buffersize.
 		* @param format is the format of the sound.
