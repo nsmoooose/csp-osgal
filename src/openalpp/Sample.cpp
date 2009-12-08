@@ -21,7 +21,7 @@
 #include "openalpp/Sample"
 #include "openalpp/windowsstuff"
 #include <sstream>
-#include <alut.h>
+#include <AL/alut.h>
 
 using namespace openalpp;
 

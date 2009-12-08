@@ -26,7 +26,7 @@
 
 //extern "C" {
 #include <al.h>
-#include <alut.h>
+#include <AL/alut.h>
 #include <alc.h>
 //}
 

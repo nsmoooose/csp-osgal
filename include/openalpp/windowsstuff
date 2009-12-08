@@ -49,7 +49,7 @@
 
 	inline void usleep( int x ) { Sleep( x /1000 ); };
 
-	#include <alut.h>
+	#include <AL/alut.h>
 
 	#define alGetSourceiv alGetSourcei
 
