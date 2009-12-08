@@ -59,8 +59,8 @@ IF(WIN32)
         endforeach(warning)
 
         # # More MSVC specific compilation flags
-        # ADD_DEFINITIONS(-D_SCL_SECURE_NO_WARNINGS)
-        # ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE)
+        ADD_DEFINITIONS(-D_SCL_SECURE_NO_WARNINGS)
+        ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE)
     ENDIF(MSVC)
 ENDIF(WIN32)
 
