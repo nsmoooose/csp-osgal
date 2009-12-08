@@ -1223,7 +1223,7 @@ void *ac_wave_to_pcm(void *data, ALuint *size,
 	format = (alWaveFMT_LOKI *) riffchunk.data;
 
 	/* channels */
-	if ( swap16le(format->channels) > UCHAR_MAX ) throw std::exception(std::string("ac_wave_to_pcm(): Bad number of channels"));
+	if ( swap16le(format->channels) > UCHAR_MAX ) throw FatalError("ac_wave_to_pcm(): Bad number of channels");
 	*chan = static_cast<ALubyte>( swap16le(format->channels) );
 
 	/* freq */
