@@ -42,14 +42,10 @@ and set in include/openalpp/windowsstuff
 
 Default is OPENAL_VERSION == 2007 (latest).
 
-To build: see howtobuild_vs2003.bat
+Windows builds are now done through CMake. Navigate to the osgAL folder within CMake and
+configure all necessary paths, then generate build files for your development tools.
 
-Currently there are project files for VC6 (.dsw/.dsp), Visual Studio .NET2003 (VC7) (*-vc7.vcproj/*-vc7.sln)
-and finally for VisualStudio 2005 (VC8).
-The latter is what is going to be supported in the future. We are dropping the older versions
-one by one. So some things might not go into the older project files.
-
-There are prebuild libraries for ogg-vorbis at http://www.vrlab.umu.se/research/osgAL
+There are prebuilt libraries for ogg-vorbis at http://www.vrlab.umu.se/research/osgAL
 
 Contact:
 Anders Backman, VRlab, andersb@cs.umu.se
