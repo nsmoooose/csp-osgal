@@ -65,7 +65,7 @@ namespace osgAL {
 
 		/*!
 		Constructor
-		\brief may be only used for clone methods of osg
+		\brief Should only be used by clone methods of osg
 		*/
 		SoundState();
 
@@ -89,7 +89,7 @@ protected:
 public:
 		/*!
 		Specify if the SoundState should be enabled or not.
-		If its disabled it will not play no matter what.
+		If it is disabled sound will not play no matter what.
 		It cannot be pushed as a soundEvent to the SoundMgr
 		If the soundstate has a soundsource allocated it will stop playing.
 		It not, the setPlay(false) method will be called
@@ -100,7 +100,7 @@ public:
 
 
 		/*!
-		Return if the soundstate is enabled or not	
+		Return if the soundstate is enabled or not.
 		*/
 		bool getEnable() const { return m_enabled; }
 
@@ -109,11 +109,15 @@ public:
 		SoundState(const SoundState& state, const osg::CopyOp& copyop=osg::CopyOp::SHALLOW_COPY);
 
 		// Implementation of virtual functions of osg::Object
+		// virtual function of osg::Object
 		virtual osg::Object* cloneType() const { return new SoundState(); }
+		// virtual function of osg::Object
 		virtual osg::Object* clone(const osg::CopyOp& copyop) const {
 			return new SoundState(*this, copyop); 
 		}
+		/// returns "osgAL"
 		virtual const char* libraryName() const { return "osgAL"; }
+		/// returns "SoundState"
 		virtual const char* className() const { return "SoundState"; }
 
 		/// Assignment operator
@@ -129,7 +133,7 @@ public:
 		/// Set the stream that this state will play
 		void setStream(openalpp::Stream *stream) { m_sample = 0; m_stream = stream; set(Stream); if (m_source.valid()) apply(); }
 
-		/// Returns the sample if used
+		/// Returns the sample, if used
 		const openalpp::Sample * getSample() const {
 			if(hasSource())
 				if(m_sample.valid() != 0)
@@ -137,7 +141,7 @@ public:
 			return NULL;
 		}
 
-		/// Returns the stream if used
+		/// Returns the stream, if used
 		const openalpp::Stream * getStream() const {
 			if(hasSource())
 				if(m_stream.valid() != 0)
@@ -176,16 +180,16 @@ public:
 		/// Set the SoundState in looping mode
 		void setLooping(bool flag) {  m_looping = flag; set(Looping); if (m_source.valid()) apply(); }
 
-		/// Set the soundstate in ambient (no attenuation will be calculated)
+		/// Set the soundstate to ambient (no attenuation will be calculated)
 		void setAmbient(bool flag) {  m_ambient = flag; set(Ambient); if (m_source.valid()) apply(); }
 
-		/// Get if the soundstate in ambient (no attenuation will be calculated)
+		/// Get if the soundstate is ambient (no attenuation will be calculated)
 		bool getAmbient() const {  return m_ambient; }
 
-		/// Set the soundstate so it will always be relative to the listener in position
+		/// Set the soundstate so its position will always be relative to the listener
 		void setRelative(bool flag) { m_relative = flag; set(Relative); if (m_source.valid()) apply(); }
 
-		/// Get if the soundstate will always be relative to the listener in position
+		/// Get if the soundstate's position will always be relative to the listener
 		bool getRelative() const { return m_relative; }
 
 
@@ -282,8 +286,8 @@ public:
 		/*! Allocates a soundsource for this soundstate
 		\param priority - This priority is used when fighting with other active soundstates for the limited resource of SoundSources.
 		If an active (playing) SoundState has a lower priority than this, it will be discarded, and the sound source will be used for this
-		SoundState. The higher, the better chance of actually get a Sound source allocated.
-		\param register_as_active - This specifies whether the Allocated SoundSource will be added to the list of active SoundSources
+		SoundState. The higher, the better chance of actually getting a Sound source allocated.
+		\param register_as_active - This specifies whether the Allocated SoundSource will be added to the list of active SoundSources.
 		\return true if a source was successfully allocated.
 		*/
 		bool allocateSource(unsigned int priority=0, bool register_as_active=true); 
@@ -302,7 +306,9 @@ public:
 		void releaseSource(); 
 
 
-		/// Performs the actual modification to the allocated Source.
+		/*! Performs the actual modification to the allocated Source.
+		Checks the bits in m_is_set to see what attributes have changed
+		since last apply and does a lazy update. */
 		void apply(); 
 
 	private:
@@ -337,7 +343,7 @@ public:
 		/// Set the given field to true
 		void set(SetField f) { m_is_set |=  (01 << f); } 
 
-		// Clear the given field to false
+		/// Clear the given field to false
 		void clear(SetField f)  { m_is_set &=  ~(01 << f); }
 
 		unsigned long m_is_set;
