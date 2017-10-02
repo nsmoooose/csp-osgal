@@ -27,7 +27,7 @@
 
 using namespace openalpp;
 
-void SourceBase::init() throw (MemoryError,NameError) {
+void SourceBase::init() {
 	alGenSources(1,&sourcename_);
 	if(alGetError()!=AL_FALSE)
 		throw NameError("Couldn't generate source name");
@@ -44,13 +44,11 @@ void SourceBase::init() throw (MemoryError,NameError) {
 	streaming_=false;
 }
 
-SourceBase::SourceBase() throw (MemoryError,NameError) : PositionedObject() {
+SourceBase::SourceBase() : PositionedObject() {
 	init();
 }
 
-SourceBase::SourceBase(float x,float y,float z)
-throw (MemoryError,NameError) : PositionedObject() {
-
+SourceBase::SourceBase(float x,float y,float z) : PositionedObject() {
 	init();
 	setPosition(x,y,z);
 }
@@ -71,7 +69,7 @@ SourceBase::~SourceBase() {
 }
 
 SourceBase::SourceBase(const SourceBase &sourcebase)
-: PositionedObject(sourcebase) {
+	: PositionedObject(sourcebase) {
 
 	if(this==&sourcebase)
 		return;
@@ -387,7 +385,7 @@ float SourceBase::getPitch() const {
 	return pitch;
 }
 
-void SourceBase::setReverbScale(float scale) throw (InitError,ValueError) {
+void SourceBase::setReverbScale(float scale) {
 	if(reverbinitiated_) {
 		alReverbScale(sourcename_,scale);
 		int error = alGetError();
@@ -402,7 +400,7 @@ void SourceBase::setReverbScale(float scale) throw (InitError,ValueError) {
 		throw InitError("Reverb not initialized");
 }
 
-void SourceBase::setReverbDelay(float delay) throw (InitError,ValueError) {
+void SourceBase::setReverbDelay(float delay) {
 	if(reverbinitiated_) {
 		alReverbDelay(sourcename_,delay);
 		int error = alGetError();  
@@ -417,19 +415,19 @@ void SourceBase::setReverbDelay(float delay) throw (InitError,ValueError) {
 		throw InitError("Reverb not initialized");
 }
 
-float SourceBase::getReverbScale() throw (InitError) {
+float SourceBase::getReverbScale() {
 	if(!reverbinitiated_)
 		throw InitError("Reverb not initialized");
 	return reverbscale_;
 }
 
-float SourceBase::getReverbDelay() throw (InitError) {
+float SourceBase::getReverbDelay() {
 	if(!reverbinitiated_)
 		throw InitError("Reverb not initialized");
 	return reverbdelay_;
 }
 
-ALuint SourceBase::link(const SourceBase *source) throw (MemoryError) {
+ALuint SourceBase::link(const SourceBase *source) {
 	if(nlinkedsources_>=alloclinkedsources_) {
 		alloclinkedsources_+=5;
 		linkedsources_=(ALuint *)realloc(linkedsources_,
@@ -441,7 +439,7 @@ ALuint SourceBase::link(const SourceBase *source) throw (MemoryError) {
 	return source->getAlSource();
 }
 
-void SourceBase::unlink(const SourceBase *source) throw (NameError) {
+void SourceBase::unlink(const SourceBase *source) {
 	if(source->sourcename_==sourcename_)
 		throw(NameError("Can't unlink a source from itself!"));
 	for(unsigned int i=0;i<nlinkedsources_;i++)
@@ -452,7 +450,7 @@ void SourceBase::unlink(const SourceBase *source) throw (NameError) {
 		throw NameError("Source not linked");
 }
 
-void SourceBase::unlink(const ALuint name) throw (NameError) {
+void SourceBase::unlink(const ALuint name) {
 	if(name==sourcename_)
 		throw(NameError("Can't unlink a source from itself!"));
 	for(unsigned int i=0;i<nlinkedsources_;i++)

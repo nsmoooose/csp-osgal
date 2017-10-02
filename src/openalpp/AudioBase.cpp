@@ -24,8 +24,7 @@
 #include <sstream>
 using namespace openalpp;
 
-AudioBase::AudioBase(int frequency,int refresh,int synchronous) 
-throw (InitError)
+AudioBase::AudioBase(int frequency,int refresh,int synchronous)
 {
 	if(!instances_) {
 #if OPENAL_VERSION >= 2007

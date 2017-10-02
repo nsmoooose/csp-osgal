@@ -22,19 +22,18 @@
 
 using namespace openalpp;
 
-AudioEnvironment::AudioEnvironment() throw (InitError): AudioBase() {
+AudioEnvironment::AudioEnvironment() : AudioBase() {
 }
 
 AudioEnvironment::AudioEnvironment(int frequency,int refresh,bool synchronous)
-throw (InitError)
-: AudioBase(frequency,refresh,synchronous) {
+	: AudioBase(frequency,refresh,synchronous) {
 }
 
-AudioEnvironment::AudioEnvironment(int frequency,int refresh) throw (InitError)
-: AudioBase(frequency,refresh) {
+AudioEnvironment::AudioEnvironment(int frequency,int refresh)
+	: AudioBase(frequency,refresh) {
 }
 
-void AudioEnvironment::setSoundVelocity(float speed) throw(ValueError,FatalError){
+void AudioEnvironment::setSoundVelocity(float speed) {
 	alDopplerVelocity(speed);
 	ALenum error;
 	if((error=alGetError())!=AL_FALSE)
@@ -48,7 +47,7 @@ void AudioEnvironment::setSoundVelocity(float speed) throw(ValueError,FatalError
 	}
 }
 
-float AudioEnvironment::getSoundVelocity() throw (FatalError) {
+float AudioEnvironment::getSoundVelocity() {
 	ALfloat speed;
 	alGetFloatv(AL_DOPPLER_VELOCITY,&speed);
 	if(alGetError()!=AL_FALSE)  // This isn't strictly necessary...
@@ -56,8 +55,7 @@ float AudioEnvironment::getSoundVelocity() throw (FatalError) {
 	return speed;
 }
 
-void AudioEnvironment::setDopplerFactor(float factor) 
-throw (ValueError,FatalError) {
+void AudioEnvironment::setDopplerFactor(float factor) {
 	alDopplerFactor(factor);
 	ALenum error;
 	if((error=alGetError())!=AL_FALSE)
@@ -71,7 +69,7 @@ throw (ValueError,FatalError) {
 	}
 }
 
-float AudioEnvironment::getDopplerFactor() throw (FatalError) {
+float AudioEnvironment::getDopplerFactor() {
 	ALfloat(factor);
 	alGetFloatv(AL_DOPPLER_FACTOR,&factor);
 	if(alGetError()!=AL_FALSE)  // This isn't strictly necessary...
@@ -92,7 +90,7 @@ void AudioEnvironment::setGain(float gain) {
 	}
 }
 
-float AudioEnvironment::getGain() throw (FatalError) {  
+float AudioEnvironment::getGain() {
 	ALfloat gain;
 	alGetListenerf(AL_GAIN,&gain);
 	if(alGetError()!=AL_FALSE)          // This isn't strictly necessary...
@@ -100,8 +98,7 @@ float AudioEnvironment::getGain() throw (FatalError) {
 	return gain;
 }
 
-void AudioEnvironment::setDistanceModel(DistanceModel model)
-throw (FatalError){
+void AudioEnvironment::setDistanceModel(DistanceModel model) {
 	switch(model) {
 	case(None):
 		alDistanceModel(AL_NONE);
@@ -119,7 +116,7 @@ throw (FatalError){
 		throw FatalError("alDistanceModel failed in AudioEnvironment::SetDistanceModel()");
 }
 
-DistanceModel AudioEnvironment::getDistanceModel() throw (FatalError) {
+DistanceModel AudioEnvironment::getDistanceModel() {
 	int almodel;
 	alGetIntegerv(AL_DISTANCE_MODEL,&almodel);
 	switch(almodel) {
@@ -139,7 +136,7 @@ bool AudioBase::reverbinitiated_;
 void (*AudioBase::alReverbScale)(ALuint sid, ALfloat param);
 void (*AudioBase::alReverbDelay)(ALuint sid, ALfloat param);
 
-void AudioEnvironment::initiateReverb() throw (InitError) {
+void AudioEnvironment::initiateReverb() {
 	if (reverbinitiated_)
 		return;
 
