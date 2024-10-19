@@ -6,7 +6,7 @@
 # Copy includes in out-of-the-source builds ?
 # Add documentation subproject ?
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.2 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0...3.27.7 FATAL_ERROR)
 
 project( osgAL )
 SET(OSGAL_MAJOR_VERSION 0)
