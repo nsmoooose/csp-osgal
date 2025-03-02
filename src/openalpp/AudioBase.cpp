@@ -1,7 +1,7 @@
 /* -*-c++-*- */
 /**
 * OsgAL - OpenSceneGraph Audio Library
-* Copyright (C) 2004 VRlab, Umeå University
+* Copyright (C) 2004 VRlab, UmeÃ¥ University
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -165,13 +165,5 @@ const char *openalpp::alGetErrorString(ALenum error)
 // Static members
 int AudioBase::instances_=0;
 ALCdevice *AudioBase::device_=NULL;
-#ifndef WIN32
-#if OPENAL_VERSION < 2007
-void *AudioBase::context_=NULL;
-#else // OPENAL_VERSION < 2007
 ALCcontext *AudioBase::context_=NULL;
-#endif // OPENAL_VERSION < 2007
-#else
-struct ALCcontext_struct *AudioBase::context_=NULL;
-#endif
 
