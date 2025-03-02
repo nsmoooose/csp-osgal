@@ -1,7 +1,7 @@
 /* -*-c++-*- */
 /**
  * OsgAL - OpenSceneGraph Audio Library
- * Copyright (C) 2004 VRlab, Umeå University
+ * Copyright (C) 2004 VRlab, Umeï¿½ University
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -67,15 +67,7 @@ namespace openalpp {
 		/**
 		* Pointer to context.
 		*/
-#ifndef WIN32
-#if OPENAL_VERSION < 2007
-		static void *context_;
-#else // OPENAL_VERSION < 2007
 		static ALCcontext *context_;
-#endif // OPENAL_VERSION < 2007
-#else
-		static struct ALCcontext_struct *context_;
-#endif
 	protected:
 		/**
 		* Constructor.
